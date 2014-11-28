@@ -3,7 +3,9 @@
 
   document.addEventListener('polymer-ready', function() {
     // Perform some behaviour
-    console.log('Polymer is ready to rock!');
+    document.querySelector('ivx-context-menu').addEventListener('item-selected', function(e) {
+      console.log(e.type + ': ' + e.detail.item);
+    });
   });
 
 // wrap document so it plays nice with other libraries

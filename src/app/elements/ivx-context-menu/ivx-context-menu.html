@@ -1,0 +1,41 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-context-menu" attributes="items">
+  <template>
+    <link rel="stylesheet" href="ivx-context-menu.scss">
+
+    <paper-menu-button>
+      <paper-icon-button icon="more-vert" noink></paper-icon-button>
+      <paper-dropdown class="dropdown" halign="right" valign="top">
+        <core-menu class="menu">
+          <template repeat="{{contextItems as item}}">
+            <paper-item on-tap="{{fireTap}}">{{item}}</paper-item>
+          </template>
+        </core-menu>
+      </paper-dropdown>
+    </paper-menu-button>
+
+  </template>
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        ready: function() {
+          this.contextItems = [];
+        },
+
+        fireTap: function(e) {
+          this.fire('item-selected' /* type */, {item: e.target.innerHTML} /* detail */ /*, targetNode, bubbles?, cancelable? */);
+        },
+
+        itemsChanged: function() {
+          this.items.split(',').forEach(function(t) {
+            this.contextItems.push(t);
+          }, this);
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

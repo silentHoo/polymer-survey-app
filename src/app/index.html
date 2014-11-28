@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>src</title>
+  <title>UmfrageApp</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -16,16 +16,38 @@
   <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
   <!-- build:vulcanized elements/elements.vulcanized.html -->
   <link rel="import" href="elements/elements.html">
+  <link rel="import" href="bower_components/core-elements/core-elements.html">
+  <link rel="import" href="bower_components/paper-elements/paper-elements.html">
   <!-- endbuild-->
 </head>
 
 <body unresolved>
 
-  <div class="hero-unit">
-    <yo-greeting></yo-greeting>
-    <p>You now have</p>
-    <yo-list></yo-list>
-  </div>
+<core-drawer-panel>
+  <core-header-panel drawer>
+    <ivx-drawer-content></ivx-drawer-content>
+  </core-header-panel>
+
+  <core-header-panel main>
+    <core-toolbar>
+      <paper-icon-button icon="menu" core-drawer-toggle></paper-icon-button>
+      <span flex>UmfrageApp</span>
+
+      <div relative>
+        <ivx-context-menu items="Einstellungen,Über"></ivx-context-menu>
+      </div>
+
+    </core-toolbar>
+
+    <ivx-main-content></ivx-main-content>
+
+    <!--<template if="">
+      <paper-dialog transition="core-transition-center">
+        <p>Some content</p>
+      </paper-dialog>
+    </template>-->
+  </core-header-panel>
+</core-drawer-panel>
 
   <!-- build:js scripts/app.js -->
   <script src="scripts/app.js"></script>
