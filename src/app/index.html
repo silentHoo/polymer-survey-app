@@ -23,28 +23,7 @@
 
 <body fullbleed layout vertical unresolved>
 
-<core-drawer-panel>
-  <core-header-panel drawer>
-    <ivx-drawer-content></ivx-drawer-content>
-  </core-header-panel>
-
-  <core-header-panel main id="hPanel">
-    <core-toolbar id="toolbar">
-      <paper-menu-button icon="menu" core-drawer-toggle></paper-menu-button>
-      <span flex>UmfrageApp</span>
-
-      <div relative>
-        <ivx-context-menu items="Einstellungen,Über"></ivx-context-menu>
-      </div>
-
-    </core-toolbar>
-
-    <div class="content">
-      <ivx-main-content id="mainContent"></ivx-main-content>
-    </div>
-
-  </core-header-panel>
-</core-drawer-panel>
+  <ivx-app></ivx-app>
 
   <!-- build:js scripts/app.js -->
   <script src="scripts/app.js"></script>

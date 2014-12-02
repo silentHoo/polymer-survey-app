@@ -1,0 +1,53 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-app" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-app.css">
+
+    <core-drawer-panel>
+      <core-header-panel drawer>
+        <ivx-drawer-content on-switch-to-page="{{ switchToPage }}"></ivx-drawer-content>
+      </core-header-panel>
+
+      <core-header-panel main id="hPanel">
+        <core-toolbar id="toolbar">
+          <paper-menu-button icon="menu" core-drawer-toggle></paper-menu-button>
+          <span flex>UmfrageApp</span>
+
+          <div relative>
+            <ivx-context-menu items="Einstellungen,Über"></ivx-context-menu>
+          </div>
+
+        </core-toolbar>
+
+        <div class="content">
+          <ivx-main-content id="mainContent" showPageKey="{{ showPageKey }}"></ivx-main-content>
+        </div>
+
+      </core-header-panel>
+    </core-drawer-panel>
+
+  </template>
+  <script>
+    (function () {
+
+      Polymer({
+        ready: function() {
+          // context menu
+          this.shadowRoot.querySelector('ivx-context-menu').addEventListener('item-selected', function(e) {
+            console.log(e.type + ': ' + e.detail.item);
+          });
+
+          // workaround to fix the height of the inner <ivx-main-content> area. There seems to be a bug.
+          var contentHeight = this.$.hPanel.clientHeight - this.$.toolbar.clientHeight;
+          this.$.mainContent.contentHeight = contentHeight + 'px';
+        },
+
+        switchToPage: function(event) {
+          this.showPageKey = event.detail.newPage;
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

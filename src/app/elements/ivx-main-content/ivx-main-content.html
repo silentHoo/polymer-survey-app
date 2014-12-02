@@ -2,57 +2,51 @@
 <link rel="import" href="../../bower_components/paper-elements/paper-elements.html">
 <link rel="import" href="../../bower_components/core-elements/core-elements.html">
 
-<polymer-element name="ivx-main-content" attributes="contentHeight pageToShow">
+<polymer-element name="ivx-main-content" attributes="contentHeight showPageKey">
   <template>
     <link rel="stylesheet" href="ivx-main-content.css">
-<!--
-    <core-animated-pages selected="0" transitions="cross-fade" flex>
-      <section>
-        <div cross-fade>
--->
-          <!-- Content for main area -->
-          <core-list id="list" data="{{data}}" height="120">
-            <template>
-              <div class="row {{ { selected: selected } | tokenList }}">
-                <div class="message">
-                  <core-image style="width:40px; height:40px; background-color: lightgray;" src="{{model.image_src}}" sizing="cover" preload></core-image>
-                  <div flex>{{model.title}}<br>
-                    Anzahl der Fragen: {{model.questionCount}}
-                  </div>
-                </div>
-              </div>
-            </template>
-          </core-list>
-          <paper-fab class="fab" icon="add"></paper-fab>
-<!--
-        </div>
 
+    <!--<core-animated-pages on-tap="{{changeSite}}" selected="{{selectedSection}}" transitions="cross-fade-all">-->
+    <core-pages selected="{{ selectedPage }}">
+      <section>
+        <ivx-page-surveylist contentHeight="{{contentHeight}}"></ivx-page-surveylist>
       </section>
-    </core-animated-pages>
--->
+
+      <section>
+        <div layout vertical center center-justified style="background:red;">
+          <div>Please authorize yourself!</div>
+        </div>
+      </section>
+
+      <section>
+        <div layout vertical center center-justified style="background:yellow;">
+          <div>2</div>
+        </div>
+      </section>
+    </core-pages>
+    <!--</core-animated-pages>-->
+
   </template>
 
   <script>
-
     (function () {
+
       Polymer({
 
-        data: [],
-
-        contentHeightChanged: function() {
-          this.$.list.style.height = this.contentHeight;
+        pageMapping: {
+          'surveylist': 0,
+          'authorize': 1
         },
 
         ready: function() {
-
           // init goes here
-          for (var i = 0; i < 10000; ++i) {
-            this.data.push({
-              title: 'Lorem Ipsum',
-              questionCount: Math.random() * 100,
-              image_src: 'http://lorempixel.com/40/40/business/?' + Math.random()
-            });
-          }
+          this.pageCount = this.shadowRoot.querySelector('core-pages').children.length;
+          this.selectedPage = 0;
+        },
+
+        /* Callbacks */
+        showPageKeyChanged: function() {
+          this.selectedPage = this.pageMapping[this.showPageKey];
         }
       });
 

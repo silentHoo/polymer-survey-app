@@ -14,11 +14,11 @@
                 sizing="cover" preload fade src="http://lorempixel.com/256/170/abstract/"></core-image>
 
     <core-menu selectedAttribute="">
-      <paper-item>
+      <paper-item on-tap="{{ switchPage }}" page-key="surveylist">
         <core-icon icon="assignment"></core-icon>
         <div>Umfragen</div>
       </paper-item>
-      <paper-item>
+      <paper-item on-tap="{{ switchPage }}" page-key="authorize">
         <core-icon icon="account-circle"></core-icon>
         <div>Anmelden</div>
       </paper-item>
@@ -29,7 +29,11 @@
     (function () {
 
       Polymer({
-        // define element prototype here
+        switchPage: function(event) {
+          this.fire('switch-to-page', {
+            newPage: event.currentTarget.getAttribute('page-key')
+          });
+        }
       });
 
     })();
