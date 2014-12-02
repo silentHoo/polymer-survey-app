@@ -2,7 +2,7 @@
 
 <polymer-element name="ivx-context-menu" attributes="items">
   <template>
-    <link rel="stylesheet" href="ivx-context-menu.scss">
+    <link rel="stylesheet" href="ivx-context-menu.css">
 
     <paper-menu-button>
       <paper-icon-button icon="more-vert" noink></paper-icon-button>
@@ -26,7 +26,7 @@
         },
 
         fireTap: function(e) {
-          this.fire('item-selected' /* type */, {item: e.target.innerHTML} /* detail */ /*, targetNode, bubbles?, cancelable? */);
+          this.fire('itemSelected' /* type */, {item: e.target.innerHTML} /* detail */ /*, targetNode, bubbles?, cancelable? */);
         },
 
         itemsChanged: function() {

@@ -21,16 +21,16 @@
   <!-- endbuild-->
 </head>
 
-<body unresolved>
+<body fullbleed layout vertical unresolved>
 
 <core-drawer-panel>
   <core-header-panel drawer>
     <ivx-drawer-content></ivx-drawer-content>
   </core-header-panel>
 
-  <core-header-panel main>
-    <core-toolbar>
-      <paper-icon-button icon="menu" core-drawer-toggle></paper-icon-button>
+  <core-header-panel main id="hPanel">
+    <core-toolbar id="toolbar">
+      <paper-menu-button icon="menu" core-drawer-toggle></paper-menu-button>
       <span flex>UmfrageApp</span>
 
       <div relative>
@@ -39,13 +39,10 @@
 
     </core-toolbar>
 
-    <ivx-main-content></ivx-main-content>
+    <div class="content">
+      <ivx-main-content id="mainContent"></ivx-main-content>
+    </div>
 
-    <!--<template if="">
-      <paper-dialog transition="core-transition-center">
-        <p>Some content</p>
-      </paper-dialog>
-    </template>-->
   </core-header-panel>
 </core-drawer-panel>
 

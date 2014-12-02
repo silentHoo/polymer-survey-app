@@ -1,3 +1,29 @@
 :host {
   display: block;
 }
+
+core-list {
+  overflow: hidden;
+  display: block;
+  height: 200px; /* this is just a bad workaround to display the ivx-main-content area instead of a blank page
+                    the real height value will be set through JavaScript by passing the `contentHeight` attribute
+                    of <ivx-main-content> in and set them. */
+  margin: 0 auto;
+}
+
+.row {
+  background: lightblue;
+  height: 120px;
+  overflow: hidden;
+  border-bottom: 1px #dedede solid;
+}
+
+.selected {
+  background: orange;
+}
+
+.fab {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+}

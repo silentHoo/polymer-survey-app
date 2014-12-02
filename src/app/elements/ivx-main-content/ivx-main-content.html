@@ -2,18 +2,58 @@
 <link rel="import" href="../../bower_components/paper-elements/paper-elements.html">
 <link rel="import" href="../../bower_components/core-elements/core-elements.html">
 
-<polymer-element name="ivx-main-content" attributes="">
+<polymer-element name="ivx-main-content" attributes="contentHeight pageToShow">
   <template>
-    <link rel="stylesheet" href="ivx-main-content.scss">
+    <link rel="stylesheet" href="ivx-main-content.css">
+<!--
+    <core-animated-pages selected="0" transitions="cross-fade" flex>
+      <section>
+        <div cross-fade>
+-->
+          <!-- Content for main area -->
+          <core-list id="list" data="{{data}}" height="120">
+            <template>
+              <div class="row {{ { selected: selected } | tokenList }}">
+                <div class="message">
+                  <core-image style="width:40px; height:40px; background-color: lightgray;" src="{{model.image_src}}" sizing="cover" preload></core-image>
+                  <div flex>{{model.title}}<br>
+                    Anzahl der Fragen: {{model.questionCount}}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </core-list>
+          <paper-fab class="fab" icon="add"></paper-fab>
+<!--
+        </div>
 
-    Inhalt!
-
+      </section>
+    </core-animated-pages>
+-->
   </template>
-  <script>
-    (function () {
 
+  <script>
+
+    (function () {
       Polymer({
-        // define element prototype here
+
+        data: [],
+
+        contentHeightChanged: function() {
+          this.$.list.style.height = this.contentHeight;
+        },
+
+        ready: function() {
+
+          // init goes here
+          for (var i = 0; i < 10000; ++i) {
+            this.data.push({
+              title: 'Lorem Ipsum',
+              questionCount: Math.random() * 100,
+              image_src: 'http://lorempixel.com/40/40/business/?' + Math.random()
+            });
+          }
+        }
       });
 
     })();

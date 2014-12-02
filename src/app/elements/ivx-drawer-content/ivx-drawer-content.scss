@@ -19,7 +19,7 @@ core-menu {
     border-bottom: 1px grey solid;
 
     & > div {
-      margin-left: 10px;
+      padding-left: 10px !important;
     }
   }
 }
