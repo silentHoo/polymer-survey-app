@@ -2,25 +2,31 @@
 <link rel="import" href="../../bower_components/paper-elements/paper-elements.html">
 <link rel="import" href="../../bower_components/core-elements/core-elements.html">
 
-<polymer-element name="ivx-main-content" attributes="contentHeight showPageKey">
+<polymer-element name="ivx-main-content" attributes="showPageKey">
   <template>
     <link rel="stylesheet" href="ivx-main-content.css">
 
     <!--<core-animated-pages on-tap="{{changeSite}}" selected="{{selectedSection}}" transitions="cross-fade-all">-->
-    <core-pages selected="{{ selectedPage }}">
+    <core-pages selected="{{ selectedPage }}" fit>
       <section>
-        <ivx-page-surveylist contentHeight="{{contentHeight}}"></ivx-page-surveylist>
+        <ivx-page-surveylist fit></ivx-page-surveylist>
       </section>
 
       <section>
-        <div layout vertical center center-justified style="background:red;">
+        <div layout vertical center center-justified style="background:red;" fit>
           <div>Please authorize yourself!</div>
         </div>
       </section>
 
       <section>
-        <div layout vertical center center-justified style="background:yellow;">
-          <div>2</div>
+        <div layout vertical center center-justified style="background:yellow;" fit>
+          <div>Info</div>
+        </div>
+      </section>
+
+      <section>
+        <div layout vertical center center-justified style="background:blue;" fit>
+          <div>Einstellungen</div>
         </div>
       </section>
     </core-pages>

@@ -20,8 +20,8 @@
 
         </core-toolbar>
 
-        <div class="content">
-          <ivx-main-content id="mainContent" showPageKey="{{ showPageKey }}"></ivx-main-content>
+        <div class="content" fit>
+          <ivx-main-content id="mainContent" showPageKey="{{ showPageKey }}" fit></ivx-main-content>
         </div>
 
       </core-header-panel>
@@ -37,10 +37,6 @@
           this.shadowRoot.querySelector('ivx-context-menu').addEventListener('item-selected', function(e) {
             console.log(e.type + ': ' + e.detail.item);
           });
-
-          // workaround to fix the height of the inner <ivx-main-content> area. There seems to be a bug.
-          var contentHeight = this.$.hPanel.clientHeight - this.$.toolbar.clientHeight;
-          this.$.mainContent.contentHeight = contentHeight + 'px';
         },
 
         switchToPage: function(event) {

@@ -1,18 +1,14 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="ivx-page-surveylist" attributes="contentHeight">
+<polymer-element name="ivx-page-surveylist" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-page-surveylist.css">
 
-    <core-list id="list" data="{{data}}" height="120">
+    <core-list id="list" data="{{data}}" height="120" style="height: 100%">
       <template>
         <div class="row {{ { selected: selected } | tokenList }}">
-          <div class="message">
-            <core-image style="width:40px; height:40px; background-color: lightgray;" src="{{model.image_src}}" sizing="cover" preload></core-image>
-            <div flex>{{model.title}}<br>
-              Anzahl der Fragen: {{model.questionCount}}
-            </div>
-          </div>
+          <div class="title">{{model.title}}</div>
+          <div class="questionCount">Anzahl der Fragen: {{model.questionCount}}</div>
         </div>
       </template>
     </core-list>
@@ -21,22 +17,18 @@
   </template>
   <script>
     (function () {
+      // private static
+      var surveys = [
+        'Marktanalyse zum Thema Schokolade',
+        'Kundenzufriedenheit Q4 2014',
+        'Einkaufverhalten 18-25 jähriger 12/2014',
+        'Mitarbeiterzufriedenheit 2014',
+        'Designumfrage zum Thema IX-234',
+        'Fussballkonsum während der WM, Marktanalyse',
+        'Monatliche Ausgaben 30-50 jähriger Q4/2014'
+      ];
 
       Polymer({
-
-        /**
-         * A workaround to set manually the height for the core-list to fit them into the content area. This workaround
-         * is related to https://github.com/Polymer/core-list/issues/47
-         *
-         * @attribute contentHeight
-         * @type string
-         * @default '250px'
-         */
-        contentHeight: '250px',
-
-        contentHeightChanged: function() {
-          this.$.list.style.height = this.contentHeight;
-        },
 
         ready: function() {
           // init goes here
@@ -45,9 +37,9 @@
 
           for (var i = 0; i < 10000; ++i) {
             this.data.push({
-              title: 'Lorem Ipsum',
-              questionCount: Math.random() * 100,
-              image_src: 'http://lorempixel.com/40/40/business/?' + Math.random()
+              title: surveys[Math.floor(Math.random()*surveys.length)],
+              questionCount: Math.ceil(Math.random() * 100),
+              image_src: 'http://lorempixel.com/80/80/business/?' + Math.random()
             });
           }
         }
