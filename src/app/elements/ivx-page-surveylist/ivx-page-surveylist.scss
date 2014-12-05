@@ -1,3 +1,5 @@
+$rowHeight: 120px;
+
 :host {
   display: block;
 }
@@ -6,13 +8,16 @@ core-list {
   overflow: hidden;
   display: block;
   margin: 0 auto;
+
+  & > div {
+    border-bottom: 1px #dedede solid;
+  }
 }
 
 .row {
   padding: 20px;
-  height: 120px;
+  height: $rowHeight;
   overflow: hidden;
-  border-bottom: 1px #dedede solid;
 
   .title {
     font-size: 1.6rem;
@@ -28,6 +33,12 @@ core-list {
 
   .questionCount {
     font-size: 1.3rem;
+  }
+
+  paper-icon-button {
+    position: absolute;
+    right: 0rem;
+    top: ($rowHeight / 2) - 20px;
   }
 }
 
@@ -46,4 +57,13 @@ core-list {
   position: absolute;
   bottom: 16px;
   right: 16px;
+}
+
+/* contains the action button*/
+.actionArea {
+  /*top: ($rowHeight / 2) + 12px;*/
+  background-color: #006666;
+  width: 40px !important;
+  /*float: right !important;
+  position: relative !important;*/
 }

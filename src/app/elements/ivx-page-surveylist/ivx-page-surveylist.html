@@ -6,17 +6,28 @@
 
     <core-list id="list" data="{{data}}" height="120" style="height: 100%">
       <template>
-        <div class="row {{ { selected: selected } | tokenList }}">
+
+        <div surveyId="{{model.id}}" class="row {{ { selected: selected } | tokenList }}" flex>
           <div class="title">{{model.title}}</div>
           <div class="questionCount">Anzahl der Fragen: {{model.questionCount}}</div>
+          <paper-icon-button icon="more-vert" on-tap="{{openContextDialog}}"></paper-icon-button>
         </div>
+
       </template>
     </core-list>
+
+    <!-- context dialog -->
+    <paper-dialog id="dialog" transition="core-transition-center" heading="{{viewModel.dialog.title}}" layered="true">
+
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+        dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
+        ex ea commodo consequat.</p>
+    </paper-dialog>
     <paper-fab class="fab" icon="add"></paper-fab>
 
   </template>
 
-  <script src="../../bower_components/js-model/dist/js-model-0.11.0.js"></script>
+  <script src="../../bower_components/js-model/dist/js-model-0.11.0.min.js"></script>
   <script>
     (function () {
       // private static
@@ -76,6 +87,17 @@
           this.Survey.all().forEach(function(model, index) {
             this.data.push(model.attributes);
           }, this);
+        },
+
+        viewModel: {
+          dialog: {
+            title: 'No title'
+          }
+        },
+
+        openContextDialog: function(event, detail, sender) {
+          this.viewModel.dialog.title = this.Survey.find(sender.parentNode.getAttribute('surveyId')).attr('title');
+          this.$.dialog.toggle();
         }
 
       });
