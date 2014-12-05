@@ -1,0 +1,25 @@
+/**
+ * Appwide Shadow DOM styling
+ *
+ * Shadow DOM support is not integrated into libsass -> https://github.com/sass/libsass/issues/452
+ */
+html /deep/ paper-dialog {
+  width: auto !important;
+  max-width: 40rem;
+}
+
+html /deep/ paper-dialog::shadow h1 {
+  font-size: 1.5rem;
+}
+
+html /deep/ .float-left {
+  float: left;
+}
+
+html /deep/ .float-right {
+  float: right;
+}
+
+html /deep/ .clear {
+  clear: both;
+}

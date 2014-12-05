@@ -6,12 +6,14 @@
 
     <core-drawer-panel>
       <core-header-panel drawer>
+
         <ivx-drawer-content on-switch-to-page="{{ switchToPage }}"></ivx-drawer-content>
       </core-header-panel>
 
       <core-header-panel main id="hPanel">
         <core-toolbar id="toolbar">
-          <paper-menu-button icon="menu" core-drawer-toggle></paper-menu-button>
+          <!--<paper-menu-button icon="menu" core-drawer-toggle></paper-menu-button>-->
+          <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
           <span flex>UmfrageApp</span>
 
           <div relative>
