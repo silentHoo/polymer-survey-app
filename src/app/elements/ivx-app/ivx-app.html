@@ -4,22 +4,20 @@
   <template>
     <link rel="stylesheet" href="ivx-app.css">
 
-    <core-drawer-panel>
+    <core-drawer-panel id="drawerPanel">
       <core-header-panel drawer>
-
-        <ivx-drawer-content on-switch-to-page="{{ switchToPage }}"></ivx-drawer-content>
+        <ivx-drawer-content items="{{ pageItems }}" on-item-selected="{{ drawerItemSelected }}"></ivx-drawer-content>
       </core-header-panel>
 
       <core-header-panel main id="hPanel">
+
         <core-toolbar id="toolbar">
-          <!--<paper-menu-button icon="menu" core-drawer-toggle></paper-menu-button>-->
-          <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
+          <core-icon-button id="toggleButton" icon="menu" core-drawer-toggle></core-icon-button>
           <span flex>UmfrageApp</span>
 
           <div relative>
-            <ivx-context-menu items="Einstellungen,Über"></ivx-context-menu>
+            <ivx-context-menu id="contextMenu" items="{{ contextItems }}" on-item-selected="{{ contextItemSelected }}"></ivx-context-menu>
           </div>
-
         </core-toolbar>
 
         <div class="content" fit>
@@ -29,20 +27,60 @@
       </core-header-panel>
     </core-drawer-panel>
 
+    <!-- dialog -->
+    <ivx-dialog-base id="dialog" heading="{{ dialog.title }}">
+      {{ dialog.content }}
+    </ivx-dialog-base>
+    <!-- /dialog -->
   </template>
+
   <script>
     (function () {
+      'use strict';
 
       Polymer({
-        ready: function() {
-          // context menu
-          this.shadowRoot.querySelector('ivx-context-menu').addEventListener('item-selected', function(e) {
-            console.log(e.type + ': ' + e.detail.item);
-          });
+        pageItems: [{
+          pageKey: 'surveylist',
+          name: 'Umfragen',
+          closeDrawer: false,
+          coreIconName: 'assignment'
+        }, {
+          pageKey: 'authorize',
+          name: 'Anmelden',
+          closeDrawer: true,
+          coreIconName: 'account-circle'
+        }],
+
+        contextItems: [{
+          pageKey: 'config',
+          name: 'Einstellungen'
+        }, {
+          pageKey: 'about',
+          name: 'Über'
+        }],
+
+        dialog: {
+          title: '',
+          content: ''
         },
 
-        switchToPage: function(event) {
-          this.showPageKey = event.detail.newPage;
+        contextItemSelected: function(event) {
+          this.dialog.title = event.detail.item.name;
+          this.dialog.content = 'Inhalt von ' + event.detail.item.name + ' ... hier rein!';
+          this.$.dialog.toggle();
+        },
+
+        drawerItemSelected: function(event) {
+          var item = event.detail.item;
+          this.showPageKey = item.pageKey;
+
+          // switch to narrow mode if forced
+          if (item.closeDrawer) {
+            this.$.drawerPanel.narrow = true;
+            this.$.drawerPanel.togglePanel();
+          } else {
+            this.$.drawerPanel.narrow = false;
+          }
         }
       });
 

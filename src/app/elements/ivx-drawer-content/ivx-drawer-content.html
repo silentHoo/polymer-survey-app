@@ -1,37 +1,123 @@
+<!--
+`ivx-drawer-content` represents the content of the `core-header-panel`s drawer.
+
+It composes a `core-image` at the top of the drawer together with a `core-menu` which
+contains the given menu entries, called `items`. It will fire an event if any of
+the menu item is clicked and return the whole item object to let the parent element
+react with anything it want.
+
+Use the attribute `items` to configure the menu items.
+
+You can use the `ivx-drawer-content` element like the following.
+
+Example:
+
+    <core-drawer-panel>
+      <core-header-panel drawer>
+        <ivx-drawer-content
+          items="{{ pageItems }}"
+          on-item-selected="{{ drawerItemSelected }}">
+        </ivx-drawer-content>
+      </core-header-panel>
+
+      <core-header-panel main>
+        ...
+      </core-header-panel>
+    <core-drawer-panel>
+
+@group Inovex Survey Elements
+@element ivx-drawer-content
+@homepage inovex.de
+-->
+
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-elements/paper-elements.html">
 <link rel="import" href="../../bower_components/core-elements/core-elements.html">
 
-<polymer-element name="ivx-drawer-content" attributes="">
+<polymer-element name="ivx-drawer-content" attributes="items">
   <template>
     <link rel="stylesheet" href="ivx-drawer-content.css">
-
-    <!--<core-toolbar>
-      <div>UmfrageApp</div>
-    </core-toolbar>-->
 
     <core-image style="width:256px; height:170px; background-color: lightgray;"
                 sizing="cover" preload fade src="http://lorempixel.com/256/170/abstract/"></core-image>
 
     <core-menu selectedAttribute="">
-      <paper-item on-tap="{{ switchPage }}" page-key="surveylist">
-        <core-icon icon="assignment"></core-icon>
-        <div>Umfragen</div>
-      </paper-item>
-      <paper-item on-tap="{{ switchPage }}" page-key="authorize">
-        <core-icon icon="account-circle"></core-icon>
-        <div>Anmelden</div>
-      </paper-item>
+
+      <template repeat="{{ item, index in items }}">
+        <paper-item on-tap="{{ onItemSelected }}" index="{{ index }}">
+          <core-icon icon="{{ item.coreIconName }}"></core-icon>
+          <div>{{ item.name }}</div>
+        </paper-item>
+      </template>
+
     </core-menu>
   </template>
 
   <script>
     (function () {
+      'use strict';
 
       Polymer({
-        switchPage: function(event) {
-          this.fire('switch-to-page', {
-            newPage: event.currentTarget.getAttribute('page-key')
+        /**
+         * Fired when an `item` in the drawer is tapped.
+         *
+         * @event item-selected
+         * @param {Object} detail
+         * @param {Array} detail.item This object is the same as the configured item object and contains the same properties.
+         */
+
+        publish: {
+          /**
+           * The items for the `core-menu`.
+           *
+           * The items are stored in an array that contains an object which can be configured
+           * in the following way:
+           *
+           *     [{
+           *         pageKey: 'home',
+           *         name: 'Home',
+           *         closeDrawer: false,
+           *         coreIconName: 'assignment'
+           *      }, {
+           *         pageKey: 'about',
+           *         name: 'About',
+           *         closeDrawer: true,
+           *         coreIconName: 'help'
+           *     }]
+           *
+           * **Please note**: You can only use icons which are available in the `core-icons`
+           * set, because internally the `core-icon` element is used.
+           *
+           * The **pageKey** describes a unique key (or ID if you want) which can be used to react on a user tap. The
+           * **name** is the human readable name for the entry in the context menu. The **closeDrawer** flag indicates
+           * if you want to close your drawer and is only to give you a way to pin the flag on the corresponding item.
+           * With the **coreIconName** you can choose a `core-icon` which will be shown left of the text with the name
+           * `name`.
+           *
+           * @attribute items
+           * @type Array
+           * @default 'see below'
+           */
+          items: [{
+            pageKey: 'home',
+            name: 'Home',
+            closeDrawer: false,
+            coreIconName: 'assignment'
+          }, {
+            pageKey: 'about',
+            name: 'About',
+            closeDrawer: true,
+            coreIconName: 'help'
+          }]
+        },
+
+        // will be invoked, when an item in the core-menu is tapped and will
+        // fire an item-selected event with the item object.
+        onItemSelected: function (event) {
+          var paperItem = event.currentTarget;
+
+          this.fire('item-selected', {
+            item: this.items[+paperItem.getAttribute('index')]
           });
         }
       });

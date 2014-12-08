@@ -1,0 +1,56 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-dialog-context" extends="ivx-dialog-base" attributes="">
+  <template>
+    <style>
+      :host::shadow {
+        display: block;
+      }
+
+      :host::shadow #scroller {
+        padding: 0 !important;
+      }
+
+      :host::shadow h1 {
+        padding-top: 3rem;
+        padding-right: 4rem;
+        padding-left: 0.6rem;
+        padding-bottom: 0;
+
+        color: #fff;
+        font-size: 1.5rem;
+        text-overflow: clip;
+        text-overflow: ellipsis;
+        text-overflow: " ...";
+        white-space: nowrap;
+        overflow: hidden;
+
+        background: #258dc8; /* Old browsers */
+        background: -moz-linear-gradient(top,  #258dc8 0%, #258dc8 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#258dc8), color-stop(100%,#258dc8)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  #258dc8 0%,#258dc8 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  #258dc8 0%,#258dc8 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  #258dc8 0%,#258dc8 100%); /* IE10+ */
+        background: linear-gradient(to bottom,  #258dc8 0%,#258dc8 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#258dc8', endColorstr='#258dc8',GradientType=0 ); /* IE6-9 */
+      }
+
+      :host::shadow::content .entry {
+        padding: 1.2rem 0 1.2rem 3rem;
+        background-color: #FFF;
+        color: #258dc8;
+      }
+    </style>
+
+    <shadow></shadow>
+  </template>
+  <script>
+    (function () {
+
+      Polymer({
+        // define element prototype here
+      });
+
+    })();
+  </script>
+</polymer-element>
