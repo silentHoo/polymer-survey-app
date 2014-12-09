@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>ivx-context-menu</title>
+
+  <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../elements/ivx-context-menu/ivx-context-menu.html">
+
+</head>
+<body>
+
+  <ivx-context-menu></ivx-context-menu>
+
+  <script>
+    // helper to only define the name of the element once
+    function myEl() {
+      return document.querySelector('ivx-context-menu');
+    }
+
+    // Mocha + Chai testsuite
+    suite('ivx-context-menu', function () {
+
+      // configuration for the elements attributes
+      var configItems = [{
+        pageKey: 'about',
+        name: 'About'
+      }, {
+        pageKey: 'home',
+        name: 'Home'
+      }, {
+        pageKey: 'settings',
+        name: 'Settings'
+      }];
+
+      // before run any test, setup first
+      setup(function () {
+        var myElement = myEl();
+        myElement.items = configItems;
+        myElement.deliverChanges();
+      });
+
+      // This test compares the configured item count with the item count
+      // the element stores.
+      test('configured item count must match result item count', function () {
+        var allItems = myEl().items;
+        var expected = configItems.length;
+
+        var matchCount = 0;
+        allItems.forEach(function (el, index) {
+          if (el.name == configItems[index].name) {
+            ++matchCount;
+          }
+        }, this);
+
+        assert.equal(matchCount, expected);
+      });
+
+      // This test simulates an `tap` event to check if the `item-selected` event works properly.
+      test('event should fire when tapping an item', function(done) {
+        // Data bindings will stamp out new DOM asynchronously
+        // so wait to check for updates
+        setTimeout(function() {
+
+          for (var i = 0; i < myEl().items.length; i++) {
+            var fn = (function (event) {
+              assert.strictEqual(event.detail.item, configItems[i]);
+            }).bind(this);
+
+            Polymer.addEventListener(myEl(), 'item-selected', fn);
+            var currentItem = myEl().shadowRoot.querySelectorAll('paper-item').array()[i];
+
+            currentItem.dispatchEvent(new CustomEvent('tap'));
+
+            Polymer.removeEventListener(myEl(), 'item-selected', fn);
+          }
+
+          done();
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
