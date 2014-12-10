@@ -4,6 +4,7 @@
   <template>
     <link rel="stylesheet" href="ivx-app.css">
 
+    <app-globals id="globals"></app-globals>
     <core-drawer-panel id="drawerPanel">
       <core-header-panel drawer>
         <ivx-drawer-content items="{{ pageItems }}" on-item-selected="{{ drawerItemSelected }}"></ivx-drawer-content>
@@ -13,7 +14,7 @@
 
         <core-toolbar id="toolbar">
           <core-icon-button id="toggleButton" icon="menu" core-drawer-toggle></core-icon-button>
-          <span flex>UmfrageApp</span>
+          <span flex>{{ $.globals.toolbarTitle }}</span>
 
           <div relative>
             <ivx-context-menu id="contextMenu" items="{{ contextItems }}" on-item-selected="{{ contextItemSelected }}"></ivx-context-menu>
@@ -64,6 +65,10 @@
           content: ''
         },
 
+        ready: function() {
+          this.$.globals.toolbarTitle = 'UmfrageApp';
+        },
+
         contextItemSelected: function(event) {
           this.dialog.title = event.detail.item.name;
           this.dialog.content = 'Inhalt von ' + event.detail.item.name + ' ... hier rein!';
@@ -81,6 +86,9 @@
           } else {
             this.$.drawerPanel.narrow = false;
           }
+
+          // change title to current page title
+          this.$.globals.toolbarTitle = item.name;
         }
       });
 

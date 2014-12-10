@@ -6,28 +6,14 @@
   <template>
     <link rel="stylesheet" href="ivx-main-content.css">
 
-    <!--<core-animated-pages on-tap="{{changeSite}}" selected="{{selectedSection}}" transitions="cross-fade-all">-->
-    <core-pages selected="{{ selectedPage }}" fit>
+    <!--<core-animated-pages selected="{{ selectedPage }}" transitions="cross-fade-all" fit>-->
+    <core-pages id="pages" selected="{{ selectedPage }}" fit>
       <section>
         <ivx-page-surveylist fit></ivx-page-surveylist>
       </section>
 
       <section>
-        <div layout vertical center center-justified style="background:red;" fit>
-          <div>Please authorize yourself!</div>
-        </div>
-      </section>
-
-      <section>
-        <div layout vertical center center-justified style="background:yellow;" fit>
-          <div>Info</div>
-        </div>
-      </section>
-
-      <section>
-        <div layout vertical center center-justified style="background:blue;" fit>
-          <div>Einstellungen</div>
-        </div>
+        <ivx-page-authorize fit></ivx-page-authorize>
       </section>
     </core-pages>
     <!--</core-animated-pages>-->
@@ -39,21 +25,32 @@
       'use strict';
 
       Polymer({
+        pagePrefix: 'ivx-page-',
+        pageMapping: {},
+        selectedPage: 0,
 
-        pageMapping: {
-          'surveylist': 0,
-          'authorize': 1
+        /* Init */
+        ready: function() {
+          //this.pageCount = this.shadowRoot.querySelector('core-pages').children.length;
+          this.initPageMapping();
         },
 
-        ready: function() {
-          // init goes here
-          this.pageCount = this.shadowRoot.querySelector('core-pages').children.length;
+        initPageMapping: function() {
           this.selectedPage = 0;
+          var pageCount = 0;
+          [].slice.call(this.$.pages.children).forEach(function(el, index) {
+            var pageTagname = el.children[0].nodeName.toLowerCase();
+
+            // only ivx-page-* tags are valid
+            if (new RegExp(this.pagePrefix + '*').test(pageTagname)) {
+              this.pageMapping[pageTagname] = pageCount++;
+            }
+          }, this);
         },
 
         /* Callbacks */
         showPageKeyChanged: function() {
-          this.selectedPage = this.pageMapping[this.showPageKey];
+          this.selectedPage = this.pageMapping[this.pagePrefix + this.showPageKey];
         }
       });
 
