@@ -4,6 +4,31 @@
  * Shadow DOM support is not integrated into libsass -> https://github.com/sass/libsass/issues/452
  */
 
+/* Drawer area (left) */
+ivx-app::shadow core-header-panel[drawer] {
+  background-color: #fefefe;
+}
+
+/* Toolbar (top) */
+ivx-app::shadow core-toolbar {
+  background-color: rgba(40, 180, 255, 0.05);
+}
+
+/* Drawer items (not selected) */
+ivx-app::shadow ivx-drawer-content::shadow paper-item {
+  background-color: #fff;
+}
+
+/* (selected) */
+ivx-app::shadow ivx-drawer-content::shadow paper-item.core-selected {
+  background-color: rgba(40, 180, 255, 0.05);
+}
+
+/* Drawer paper-ripple color */
+ivx-app::shadow ivx-drawer-content::shadow paper-item::shadow paper-ripple {
+  color: #258dc8;
+}
+
 html /deep/ .float-left {
   float: left;
 }
