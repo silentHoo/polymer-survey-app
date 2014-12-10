@@ -74,13 +74,13 @@ Example:
            * in the following way:
            *
            *     [{
-           *         pageKey: 'home',
            *         name: 'Home',
+           *         href: '/home',
            *         closeDrawer: false,
            *         coreIconName: 'assignment'
            *      }, {
-           *         pageKey: 'about',
            *         name: 'About',
+           *         href: '/about',
            *         closeDrawer: true,
            *         coreIconName: 'help'
            *     }]
@@ -88,8 +88,7 @@ Example:
            * **Please note**: You can only use icons which are available in the `core-icons`
            * set, because internally the `core-icon` element is used.
            *
-           * The **pageKey** describes a unique key (or ID if you want) which can be used to react on a user tap. The
-           * **name** is the human readable name for the entry in the context menu. The **closeDrawer** flag indicates
+           * The **name** is the human readable name for the entry in the context menu. The **closeDrawer** flag indicates
            * if you want to close your drawer and is only to give you a way to pin the flag on the corresponding item.
            * With the **coreIconName** you can choose a `core-icon` which will be shown left of the text with the name
            * `name`.
@@ -99,13 +98,13 @@ Example:
            * @default 'see below'
            */
           items: [{
-            pageKey: 'home',
             name: 'Home',
+            href: '/home',
             closeDrawer: false,
             coreIconName: 'assignment'
           }, {
-            pageKey: 'about',
             name: 'About',
+            href: '/about',
             closeDrawer: true,
             coreIconName: 'help'
           }]

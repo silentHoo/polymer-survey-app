@@ -7,7 +7,7 @@
     <core-list id="list" data="{{ data }}" height="120" style="height: 100%">
       <template>
 
-        <div surveyId="{{ model.id }}" class="row {{ { selected: selected } | tokenList }}" flex>
+        <div surveyId="{{ model.id }}" on-tap="{{ onSurveySelected }}" class="row {{ { selected: selected } | tokenList }}" flex>
           <div class="title">{{ model.title }}</div>
           <div class="questionCount">Anzahl der Fragen: {{ model.questionCount }}</div>
           <paper-icon-button icon="more-vert" on-tap="{{ openContextDialog }}"></paper-icon-button>
@@ -107,8 +107,13 @@
         openContextDialog: function(event, detail, sender) {
           this.viewModel.dialog.title = this.Survey.find(sender.parentNode.getAttribute('surveyId')).attr('title');
           this.$.dialog.toggle();
-        }
+        },
 
+        onSurveySelected: function(event, detail, sender) {
+          this.fire('survey-selected', {
+            survey: this.Survey.find(+sender.getAttribute('surveyId')).attributes
+          });
+        }
       });
 
     })();

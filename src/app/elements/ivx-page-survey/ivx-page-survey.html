@@ -1,0 +1,33 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-page-survey" attributes="surveyId">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    Hey, here comes the survey content for survey {{ surveyId }}
+  </template>
+
+  <script>
+    (function () {
+
+      Polymer({
+        ready: function() {
+          this.Survey = Model('survey', function() {
+            this.persistence(Model.localStorage);
+          });
+
+          this.Survey.load();
+        },
+
+        surveyIdChanged: function() {
+          console.log(this.Survey.find(this.surveyId));
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

@@ -1,22 +1,31 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-elements/paper-elements.html">
 <link rel="import" href="../../bower_components/core-elements/core-elements.html">
+<link rel="import" href="../../bower_components/app-router/app-router.html">
 
-<polymer-element name="ivx-main-content" attributes="showPageKey">
+<polymer-element name="ivx-main-content" attributes="uriToShow">
   <template>
     <link rel="stylesheet" href="ivx-main-content.css">
 
-    <!--<core-animated-pages selected="{{ selectedPage }}" transitions="cross-fade-all" fit>-->
-    <core-pages id="pages" selected="{{ selectedPage }}" fit>
-      <section>
-        <ivx-page-surveylist fit></ivx-page-surveylist>
-      </section>
+    <app-router id="router" mode="hash">
+      <app-route path="/">
+        <template>
+          <ivx-page-surveylist on-survey-selected="{{ onSurveySelected }}" fit></ivx-page-surveylist>
+        </template>
+      </app-route>
 
-      <section>
-        <ivx-page-authorize fit></ivx-page-authorize>
-      </section>
-    </core-pages>
-    <!--</core-animated-pages>-->
+      <app-route path="/authorize">
+        <template>
+          <ivx-page-authorize fit></ivx-page-authorize>
+        </template>
+      </app-route>
+
+      <app-route path="/survey/:id">
+        <template>
+          <ivx-page-survey surveyId="{{ id }}" fit></ivx-page-survey>
+        </template>
+      </app-route>
+    </app-router>
 
   </template>
 
@@ -25,32 +34,20 @@
       'use strict';
 
       Polymer({
-        pagePrefix: 'ivx-page-',
-        pageMapping: {},
-        selectedPage: 0,
 
         /* Init */
         ready: function() {
-          //this.pageCount = this.shadowRoot.querySelector('core-pages').children.length;
-          this.initPageMapping();
-        },
-
-        initPageMapping: function() {
-          this.selectedPage = 0;
-          var pageCount = 0;
-          [].slice.call(this.$.pages.children).forEach(function(el, index) {
-            var pageTagname = el.children[0].nodeName.toLowerCase();
-
-            // only ivx-page-* tags are valid
-            if (new RegExp(this.pagePrefix + '*').test(pageTagname)) {
-              this.pageMapping[pageTagname] = pageCount++;
-            }
-          }, this);
         },
 
         /* Callbacks */
-        showPageKeyChanged: function() {
-          this.selectedPage = this.pageMapping[this.pagePrefix + this.showPageKey];
+        onSurveySelected: function(event, detail, sender) {
+          var surveyId = detail.survey.id;
+          this.$.router.go('/survey/' + surveyId);
+        },
+
+        uriToShowChanged: function(oldVal, newVal) {
+          console.log(newVal);
+          this.$.router.go(newVal);
         }
       });
 

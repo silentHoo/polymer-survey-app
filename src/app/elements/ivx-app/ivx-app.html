@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="ivx-app.css">
 
     <app-globals id="globals"></app-globals>
+
     <core-drawer-panel id="drawerPanel">
       <core-header-panel drawer>
         <ivx-drawer-content items="{{ pageItems }}" on-item-selected="{{ drawerItemSelected }}"></ivx-drawer-content>
@@ -22,7 +23,7 @@
         </core-toolbar>
 
         <div class="content" fit>
-          <ivx-main-content id="mainContent" showPageKey="{{ showPageKey }}" fit></ivx-main-content>
+          <ivx-main-content uriToShow="{{ uriToShow }}" id="mainContent" fit></ivx-main-content>
         </div>
 
       </core-header-panel>
@@ -41,13 +42,13 @@
 
       Polymer({
         pageItems: [{
-          pageKey: 'surveylist',
           name: 'Umfragen',
+          href: '/',
           closeDrawer: false,
           coreIconName: 'assignment'
         }, {
-          pageKey: 'authorize',
           name: 'Anmelden',
+          href: '/authorize',
           closeDrawer: true,
           coreIconName: 'account-circle'
         }],
@@ -65,6 +66,8 @@
           content: ''
         },
 
+        uriToShow: '',
+
         ready: function() {
           this.$.globals.toolbarTitle = 'UmfrageApp';
         },
@@ -77,7 +80,6 @@
 
         drawerItemSelected: function(event) {
           var item = event.detail.item;
-          this.showPageKey = item.pageKey;
 
           // switch to narrow mode if forced
           if (item.closeDrawer) {
@@ -89,6 +91,9 @@
 
           // change title to current page title
           this.$.globals.toolbarTitle = item.name;
+
+          // route to current page
+          this.uriToShow = item.href;
         }
       });
 
