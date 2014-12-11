@@ -1,0 +1,86 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-model" attributes="name storageType">
+  <script>
+    (function () {
+      // private and static shared across all instances
+      var models = [];
+      var config = {};
+
+      var dummys = [{
+        title: 'Marktanalyse zum Thema Schokolade',
+        questionCount: 20
+      }, {
+        title: 'Kundenzufriedenheit Q4 2014',
+        questionCount: 11
+      }, {
+        title: 'Einkaufverhalten 18-25 jähriger 12/2014',
+        questionCount: 42
+      }, {
+        title: 'Mitarbeiterzufriedenheit 2014',
+        questionCount: 8
+      }, {
+        title: 'Designumfrage zum Thema IX-234',
+        questionCount: 65
+      }, {
+        title: 'Fussballkonsum während der WM, Marktanalyse',
+        questionCount: 23
+      }, {
+        title: 'Monatliche Ausgaben 30-50 jähriger Q4/2014',
+        questionCount: 11
+      }];
+
+      Polymer({
+        /* Init */
+        ready: function() {
+          // only instanciate the model once
+          if (typeof models[this.name] === 'function') {
+            this.load();
+            return;
+          }
+
+          config.storage = this.storageType;
+          config.modelName = this.name;
+
+          models[config.modelName] = Model(config.modelName, function() {
+            this.persistence(Model[config.storage]);
+          });
+        },
+
+        load: function() {
+          return models[config.modelName].load();
+        },
+
+        all: function () {
+          return models[config.modelName].all().map(function (model) {
+            return model.attributes;
+          });
+        },
+
+        find: function (id) {
+          return models[config.modelName].find(id).attributes;
+        },
+
+        loadDummy: function() {
+          // add new questions
+          dummys.forEach(function(el, index) {
+            var survey = new models[config.modelName]({
+              id: index,
+              title: el.title,
+              questionCount: el.questionCount
+            });
+
+            survey.save();
+          }, this);
+
+          this.fire('changedModel', {
+            asd: 'test'
+          });
+
+          console.log('Dummies were loaded!');
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

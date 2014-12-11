@@ -4,7 +4,10 @@
   <template>
     <link rel="stylesheet" href="ivx-page-surveylist.css">
 
-    <core-list id="list" data="{{ data }}" height="120" style="height: 100%">
+    <!-- non-visual dependencies -->
+    <ivx-model id="surveyModel" name="survey" storageType="localStorage" on-changedModel="{{ asd }}"></ivx-model>
+
+    <core-list id="list" data="{{ surveylist }}" height="120" style="height: 100%">
       <template>
 
         <div surveyId="{{ model.id }}" on-tap="{{ onSurveySelected }}" class="row {{ { selected: selected } | tokenList }}" flex>
@@ -33,64 +36,18 @@
     (function () {
       // private static
 
-      var _surveys = [{
-        title: 'Marktanalyse zum Thema Schokolade',
-        questionCount: 20
-      }, {
-        title: 'Kundenzufriedenheit Q4 2014',
-        questionCount: 11
-      }, {
-        title: 'Einkaufverhalten 18-25 jähriger 12/2014',
-        questionCount: 42
-      }, {
-        title: 'Mitarbeiterzufriedenheit 2014',
-        questionCount: 8
-      }, {
-        title: 'Designumfrage zum Thema IX-234',
-        questionCount: 65
-      }, {
-        title: 'Fussballkonsum während der WM, Marktanalyse',
-        questionCount: 23
-      }, {
-        title: 'Monatliche Ausgaben 30-50 jähriger Q4/2014',
-        questionCount: 11
-      }];
-
       Polymer({
-        created: function() {
-          this.Survey = Model('survey', function() {
-            this.persistence(Model.localStorage);
-          });
+
+        // wait until all elements are attached to the DOM to use the model instance
+        domReady: function() {
+          this.updateSurveyList();
         },
 
-        ready: function() {
-          this.Survey.load(function(models) {
-
-          });
-
-          // add new questions
-          if (this.Survey.all().length == 0) {
-            _surveys.forEach(function(el, index) {
-              var survey = new this.Survey({
-                id: index,
-                title: el.title,
-                questionCount: el.questionCount
-              });
-
-              survey.save();
-            }, this);
-          }
-
-          // init goes here
-          this.data = [];
-          this.selectedSection = 0;
-
-          this.Survey.all().forEach(function(model, index) {
-            this.data.push(model.attributes);
-          }, this);
-        },
+        surveylist: [],
 
         viewModel: {
+          surveylist: [],
+
           dialog: {
             title: 'No title'
           },
@@ -104,15 +61,27 @@
           }]
         },
 
+        updateSurveyList: function() {
+          this.surveylist = this.$.surveyModel.all();
+        },
+
         openContextDialog: function(event, detail, sender) {
-          this.viewModel.dialog.title = this.Survey.find(sender.parentNode.getAttribute('surveyId')).attr('title');
+          var surveyId = +sender.parentNode.getAttribute('surveyId');
+          this.viewModel.dialog.title = this.$.surveyModel.find(surveyId)['title'];
           this.$.dialog.toggle();
         },
 
         onSurveySelected: function(event, detail, sender) {
+          var surveyId = +sender.getAttribute('surveyId');
           this.fire('survey-selected', {
-            survey: this.Survey.find(+sender.getAttribute('surveyId')).attributes
+            survey: this.$.surveyModel.find(surveyId)
           });
+        },
+
+        // never use *Changed as the name for an event handler, these are reserved for Polymer!
+        asd: function(event, detail, sender) {
+          this.updateSurveyList();
+          console.log('event recieved!');
         }
       });
 
