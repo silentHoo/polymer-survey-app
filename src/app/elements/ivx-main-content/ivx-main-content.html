@@ -1,3 +1,26 @@
+<!--
+`ivx-main-content` is the content area wrapper for any content. For example, it can be used
+ within a `<core-header-panel main>` to encapsulate the content from the outer space.
+
+Example:
+
+    <core-drawer-panel>
+      <core-header-panel drawer>...</core-header-panel>
+
+      <core-header-panel main>
+        <core-toolbar id="toolbar">...</core-toolbar>
+
+        <div class="content" fit>
+          <ivx-main-content uriToShow="/myHomePage" fit></ivx-main-content>
+        </div>
+
+      </core-header-panel>
+    </core-drawer-panel>
+
+@group Inovex Survey Elements
+@element ivx-main-content
+@homepage inovex.de
+-->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-router/app-router.html">
 
@@ -40,16 +63,24 @@
 
       Polymer({
 
-        /* Init */
-        domReady: function() {
+        publish: {
+          /**
+           * The uri the content page should show.
+           *
+           * @attribute uriToShow
+           * @type String
+           * @default '/'
+           */
+          uriToShow: '/'
         },
 
-        /* Callbacks */
+        // forces the router to show a detailed page with the survey
         onSurveySelected: function(event, detail, sender) {
           var surveyId = detail.survey.id;
           this.$.router.go('/survey/' + surveyId);
         },
 
+        // as this is the content area, this method reacts on attribute changes of the uri
         uriToShowChanged: function(oldVal, newVal) {
           this.$.router.go(newVal);
         }

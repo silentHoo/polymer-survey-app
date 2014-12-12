@@ -5,7 +5,8 @@
     <link rel="stylesheet" href="ivx-page-surveylist.css">
 
     <!-- non-visual dependencies -->
-    <ivx-model id="surveyModel" name="survey" storageType="localStorage" on-changedModel="{{ asd }}"></ivx-model>
+    <core-signals on-core-signal-survey-changed="{{ onModelChanged }}"></core-signals>
+    <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
 
     <core-list id="list" data="{{ surveylist }}" height="120" style="height: 100%">
       <template>
@@ -34,6 +35,8 @@
   <script src="../../bower_components/js-model/dist/js-model-0.11.0.min.js"></script>
   <script>
     (function () {
+      'use strict';
+
       // private static
 
       Polymer({
@@ -69,6 +72,7 @@
           var surveyId = +sender.parentNode.getAttribute('surveyId');
           this.viewModel.dialog.title = this.$.surveyModel.find(surveyId)['title'];
           this.$.dialog.toggle();
+          event.stopPropagation();
         },
 
         onSurveySelected: function(event, detail, sender) {
@@ -79,9 +83,8 @@
         },
 
         // never use *Changed as the name for an event handler, these are reserved for Polymer!
-        asd: function(event, detail, sender) {
+        onModelChanged: function(event, detail, sender) {
           this.updateSurveyList();
-          console.log('event recieved!');
         }
       });
 

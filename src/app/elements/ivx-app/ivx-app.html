@@ -1,6 +1,20 @@
+<!--
+`ivx-app` is the container for the survey app or the controller. It will show a `<core-drawer-panel>` containing
+a drawer, a toolbar and a content area where the pages are displayed.
+
+You can use the `ivx-app` without any configuration.
+
+Example:
+
+    <ivx-app></ivx-app>
+
+@group Inovex Survey Elements
+@element ivx-app
+@homepage inovex.de
+-->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="ivx-app" attributes="">
+<polymer-element name="ivx-app">
   <template>
     <link rel="stylesheet" href="ivx-app.css">
 
@@ -32,7 +46,7 @@
     </core-drawer-panel>
 
     <!-- dialog -->
-    <ivx-dialog-base id="dialog" heading="{{ dialog.title }}">
+    <ivx-dialog-base id="dialog" transition="core-transition-center" heading="{{ dialog.title }}">
       {{ dialog.content }}
     </ivx-dialog-base>
     <!-- /dialog -->
@@ -44,6 +58,7 @@
       'use strict';
 
       Polymer({
+        // configuration of the single paper-buttons in the drawer panel.
         pageItems: [{
           name: 'Umfragen',
           href: '/surveys',
@@ -56,6 +71,7 @@
           coreIconName: 'account-circle'
         }],
 
+        // configuration of the context menu in the toolbar.
         contextItems: [{
           pageKey: 'load',
           name: 'Umfragen laden'
@@ -74,10 +90,13 @@
 
         uriToShow: '',
 
+        /* Init */
         ready: function() {
           this.$.globals.toolbarTitle = 'UmfrageApp';
         },
 
+        // callback to load the dummy questions
+        // @todo remove in production
         contextItemSelected: function(event) {
           // load questions
           if (event.detail.item.pageKey == 'load') {
@@ -91,6 +110,9 @@
           this.$.dialog.toggle();
         },
 
+        // callback to change the title in the toolbar.
+        // Will also close the drawer, if a page needs to be shown only with the toolbar
+        // and needs some more space.
         drawerItemSelected: function(event) {
           var item = event.detail.item;
 

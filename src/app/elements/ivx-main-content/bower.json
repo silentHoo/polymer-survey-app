@@ -1,14 +1,14 @@
 {
-  "name": "ivx-page-survey",
-  "version": "0.0.0",
+  "name": "ivx-main-content",
+  "version": "0.1.0",
   "keywords": [
-    "seed",
     "polymer",
     "web-components"
   ],
-  "main": "ivx-page-survey.html",
+  "main": "ivx-main-content.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^0.5.1"
+    "polymer": "Polymer/polymer#^0.5.1",
+    "app-router": "~2.1.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^2.0.0"

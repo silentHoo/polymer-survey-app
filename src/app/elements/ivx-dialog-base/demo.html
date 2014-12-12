@@ -10,9 +10,23 @@
 </head>
 <body unresolved>
 
-  <p>An `ivx-dialog` looks like this:</p>
+  <template is="auto-binding">
+    <p>An `ivx-dialog-base` looks like this:</p>
 
-  <ivx-dialog></ivx-dialog>
+    <button on-tap="{{ openDialog }}">Open dialog</button>
+
+    <ivx-dialog-base id="dialog" transition="core-transition-center" heading="Title of the dialog">
+      <p>This text will be shown in the dialog.</p>
+    </ivx-dialog-base>
+  </template>
+
+  <script>
+    var scope = document.querySelector('template[is=auto-binding]');
+
+    scope.openDialog = function() {
+      document.getElementById('dialog').toggle();
+    };
+  </script>
 
 </body>
 </html>

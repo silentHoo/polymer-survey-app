@@ -1,12 +1,39 @@
+<!--
+`ivx-model` is a generic model abstraction layer. It abstracts from the js-model library which
+implements the ActiveRecord pattern.
+
+You can use the `ivx-model` to get a new model instance for the given name. The component will
+only use a single instance to the data source. So all the data is shared across the application.
+
+Example:
+
+    <ivx-model name="survey" storageType="localStorage"></ivx-model>
+
+This will create a new model with the name **survey** which stores the data in the localStorage
+of the browser.
+
+The `ivx-model` will fire a named event to <core-signals> with the name **eventName-changed**.
+You can listen to it by using
+
+    <core-signals on-core-signal-NAME_OF_SIGNAL="{{ callbackHandler }}"></core-signals>
+
+@group Inovex Survey Elements
+@element ivx-model
+@homepage inovex.de
+-->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <polymer-element name="ivx-model" attributes="name storageType">
   <script>
     (function () {
-      // private and static shared across all instances
-      var models = [];
-      var config = {};
+      'use strict';
 
+      // private and static variables shared across all instances
+      var models = {
+        localStorage: []
+      };
+
+      // some dummy question objects to seed the storage with
       var dummys = [{
         title: 'Marktanalyse zum Thema Schokolade',
         questionCount: 20
@@ -31,53 +58,141 @@
       }];
 
       Polymer({
+        /**
+         * Fired when the datasource changes.
+         *
+         * **Note:** This event is just for `<core-signals>`. Use this component with the above
+         * description instead of listening to this event on `ivx-model` directly.
+         *
+         * @event modelName-changed
+         * @param {Object} detail
+         * @param {String} detail.name The name of the event, pattern: modelName-changed
+         * @param {Array} detail.data The changed records.
+         */
+
+        publish: {
+          /**
+           * The storageType of the model. This is used to chose which storage type should be used.
+           * Currently there's only `localStorage` available. REST is also possible by js-model but
+           * must first be added to this component to be supported.
+           *
+           * @attribute storageType
+           * @type String
+           * @default 'localStorage'
+           */
+          storageType: 'localStorage',
+
+          /**
+           * The name of the model. This is used as a unique identifier to store the data under the @storageType
+           * namespace as static data across the application.
+           *
+           * @attribute name
+           * @type String
+           * @default 'yourModel'
+           */
+          name: 'yourModel'
+        },
+
         /* Init */
         ready: function() {
-          // only instanciate the model once
-          if (typeof models[this.name] === 'function') {
-            this.load();
-            return;
+          if (this.storageType != 'localStorage') {
+            throw 'The given value for storageType is not allowed, please refer to the documentation.';
           }
 
-          config.storage = this.storageType;
-          config.modelName = this.name;
+          if (this.name == '') {
+            throw 'You cannot use an empty model name for your model.';
+          }
 
-          models[config.modelName] = Model(config.modelName, function() {
-            this.persistence(Model[config.storage]);
+          // only instanciate the model once
+          if (typeof models[this.storageType][this.name] === 'function') {
+            this._useInstance();
+          } else {
+            this._createInstance();
+          }
+        },
+
+        // create a new instance model
+        _createInstance: function() {
+          var storage = this.storageType;
+          models[this.storageType][this.name] = Model(this.name, function() {
+            this.persistence(Model[storage]);
           });
+
+          this.useInstance();
         },
 
+        // associate static data with this instance
+        _useInstance: function() {
+          this.model = models[this.storageType][this.name];
+          this.load();
+        },
+
+        /**
+         * Calls read() on the persistence adapter and adds the returned models to the collection.
+         * The supplied callback is then passed an array of the newly added models.
+         *
+         * @method load()
+         */
         load: function() {
-          return models[config.modelName].load();
+          return this.model.load();
         },
 
+        /**
+         * Returns an array of the models attributes contained in the collection.
+         *
+         * Will return something like this:
+         *
+         *     [{
+         *       name: 'valueForModel',
+         *       color: 'colorForModel',
+         *       someCount: 12
+         *     }, {
+         *       // ...
+         *     }]
+         *
+         * @method all()
+         */
         all: function () {
-          return models[config.modelName].all().map(function (model) {
+          return this.model.all().map(function (model) {
             return model.attributes;
           });
         },
 
+        /**
+         * Returns the model with the corresponding id.
+         *
+         * Will return something like this:
+         *
+         *     {
+         *       name: 'valueForModel',
+         *       color: 'colorForModel',
+         *       someCount: 12
+         *     }
+         *
+         * @method find(id)
+         * @param {Number} id The id of the record to match.
+         */
         find: function (id) {
-          return models[config.modelName].find(id).attributes;
+          return this.model.find(id).attributes;
         },
 
+        // @todo remove in production
         loadDummy: function() {
           // add new questions
+          var survey = [];
           dummys.forEach(function(el, index) {
-            var survey = new models[config.modelName]({
+            survey[index] = new models[this.storageType][this.name]({
               id: index,
               title: el.title,
               questionCount: el.questionCount
             });
 
-            survey.save();
+            survey[index].save();
           }, this);
 
-          this.fire('changedModel', {
-            asd: 'test'
-          });
-
-          console.log('Dummies were loaded!');
+          // publish via core-signals
+          // use <core-signals on-core-signal-model-changed="{{ onModelChanges }}">
+          this.fire('core-signal', {name: this.name + '-changed', data: survey});
         }
       });
 
