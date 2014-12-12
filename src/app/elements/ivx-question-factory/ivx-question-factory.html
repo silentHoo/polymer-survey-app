@@ -1,0 +1,50 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-question-factory" attributes="text qtype">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      #question {
+        font-size: 3rem;
+      }
+    </style>
+
+    <div id="question">{{ text }}</div>
+    <div id="content"></div>
+
+  </template>
+
+  <script>
+    (function () {
+
+      Polymer({
+        publish: {
+          text: 'Was halten Sie von Arbeitnehmerüberlassung?',
+          qtype: 'text'
+        },
+
+        domReady: function() {
+          var qtypeName = 'ivx-qtype-' + this.qtype;
+          try {
+            document.registerElement(qtypeName);
+          } catch(e) {
+            // element exists -> render
+            this._renderElement(qtypeName);
+            return;
+          }
+
+          console.log('The questiontype "' + this.qtype + '" doesnt exist, please use another.');
+        },
+
+        _renderElement: function(name) {
+          var qtype = document.createElement(name);
+          this.$.content.appendChild(qtype);
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

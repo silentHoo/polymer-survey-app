@@ -40,3 +40,12 @@ html /deep/ .float-right {
 html /deep/ .clear {
   clear: both;
 }
+
+/* Theming (without color, size only) */
+html /deep/ paper-input {
+  width: 100%;
+}
+
+html /deep/ paper-input::shadow paper-input-decorator::shadow .input-body {
+  font-size: 2rem;
+}
