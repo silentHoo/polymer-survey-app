@@ -49,3 +49,16 @@ html /deep/ paper-input {
 html /deep/ paper-input::shadow paper-input-decorator::shadow .input-body {
   font-size: 2rem;
 }
+
+html /deep/ paper-button {
+  font-size: 1rem;
+}
+
+html /deep/ paper-button.highlight {
+  background-color: #2f6fad;
+  color: #fff;
+}
+
+html /deep/ paper-button.highlight::shadow #ripple {
+  color: #30afff;
+}

@@ -1,0 +1,76 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-pager" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-pager.css">
+
+    <div id="wrapper">
+      <div id="page" layout vertical center center-justified fit></div>
+
+      <div id="navContainer">
+        <div class="buttonWrapper">
+          <template if="{{ currentPage > 0 }}">
+            <paper-button on-tap="{{ onPrevPage }}" raised>{{previous}}</paper-button>
+          </template>
+        </div>
+
+        <div class="buttonWrapper">
+          <template if="{{ currentPage < pageCount }}">
+            <paper-button on-tap="{{ onNextPage }}" raised>{{next}}</paper-button>
+          </template>
+
+          <template if="{{ currentPage == pageCount }}">
+            <paper-button class="highlight" on-tap="{{ onSubmit }}" raised>{{submit}}</paper-button>
+          </template>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+
+      Polymer({
+        currentPage: 0,
+        pages: [],
+        pageCount: 0,
+        previous: '<< Zurück',
+        next: 'Weiter >>',
+        submit: 'Beenden!',
+
+        // guaranteed that the element is in the DOM tree
+        attached: function() {
+          // we cannot use <content> since this renders all children, so we grab them via children()
+          this.pages = this.children;
+          this.pageCount = this.pages.length;
+          this.currentPage = 0; // start by 0
+
+          // call manually
+          this.currentPageChanged();
+        },
+
+        onNextPage: function() {
+          if (this.currentPage < this.pageCount) {
+            ++this.currentPage;
+          }
+        },
+
+        onPrevPage: function() {
+          if (this.currentPage > 0) {
+            --this.currentPage;
+          }
+        },
+
+        currentPageChanged: function() {
+          var node = this.$.page;
+          while(node.firstChild) {
+            node.removeChild(node.firstChild);
+          }
+          console.log(this.pages);
+          node.appendChild(this.pages[this.currentPage].cloneNode(true));
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>
