@@ -82,7 +82,9 @@ Example:
 
         // as this is the content area, this method reacts on attribute changes of the uri
         uriToShowChanged: function(oldVal, newVal) {
-          this.$.router.go(newVal);
+          if (newVal != '') {
+            this.$.router.go(newVal);
+          }
         }
       });
 
