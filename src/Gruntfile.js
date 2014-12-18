@@ -17,6 +17,8 @@ module.exports = function (grunt) {
   // load all grunt tasks
   require('load-grunt-tasks')(grunt);
 
+  grunt.loadNpmTasks("grunt-remove-logging");
+
   // configurable paths
   var yeomanConfig = {
     app: 'app',
@@ -25,6 +27,11 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     yeoman: yeomanConfig,
+    removelogging: {
+      dist: {
+        src: "<%= yeoman.dist %>/elements/**/*.html" // Each file will be overwritten with the output!
+      }
+    },
     watch: {
       options: {
         nospawn: true,
@@ -308,6 +315,7 @@ module.exports = function (grunt) {
     'imagemin',
     'concat',
     'autoprefixer',
+    'removelogging',
     'uglify',
     'vulcanize',
     'usemin',
