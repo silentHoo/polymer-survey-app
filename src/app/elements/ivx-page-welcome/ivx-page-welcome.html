@@ -11,15 +11,21 @@
     <div>
       <ivx-pager>
         <page>
-          <ivx-question-factory text="Wie stehen Sie zu ...?" qtype="text" lines="multiple"></ivx-question-factory>
+          <ivx-question-layouter question="Wie stehen Sie zu ...?">
+            <ivx-qtype-text mode="single" required validationType="text" min="3" max="5"></ivx-qtype-text>
+          </ivx-question-layouter>
         </page>
 
         <page>
-          <ivx-question-factory text="Was halten Sie von ...?" qtype="text"></ivx-question-factory>
+          <ivx-question-layouter question="Was halten Sie von ...?">
+            <ivx-qtype-text mode="single"></ivx-qtype-text>
+          </ivx-question-layouter>
         </page>
 
         <page>
-          <ivx-question-factory text="Sind Sie auch der Meinung, dass ...?" qtype="text"></ivx-question-factory>
+          <ivx-question-layouter question="Sind Sie auch der Meinung, dass ...?">
+            <ivx-qtype-text mode="single"></ivx-qtype-text>
+          </ivx-question-layouter>
         </page>
       </ivx-pager>
     </div>
