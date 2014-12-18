@@ -1,6 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-input/paper-autogrow-textarea.html">
 
-<polymer-element name="ivx-qtype-text" attributes="">
+<polymer-element name="ivx-qtype-text" extends="ivx-qtype-base" attributes="lines maxRows">
   <template>
     <style>
       :host {
@@ -8,13 +10,32 @@
       }
     </style>
 
-    <paper-input label="Ihre Antwort ..."></paper-input>
+    <template if="{{ lines == 'single' }}">
+      <paper-input label="Ihre Antwort ..."></paper-input>
+    </template>
+
+    <template if="{{ lines == 'multiple' }}">
+      <paper-input-decorator label="Ihre mehrzeilige Antwort ...">
+        <paper-autogrow-textarea maxRows="{{ maxRows }}">
+          <textarea></textarea>
+        </paper-autogrow-textarea>
+      </paper-input-decorator>
+    </template>
 
   </template>
   <script>
     (function () {
 
       Polymer({
+        publish: {
+          optional: false,
+          lines: 'single', // 'single' or 'multiple'
+          maxRows: 5
+        },
+
+        domReady: function() {
+
+        }
       });
 
     })();

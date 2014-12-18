@@ -1,6 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="ivx-question-factory" attributes="text qtype">
+<polymer-element name="ivx-question-factory" attributes="text qtype optional maxRows">
   <template>
     <style>
       :host {
@@ -21,11 +21,20 @@
     (function () {
 
       Polymer({
+
+        // default config values
         publish: {
+          // all elements
           text: 'Was halten Sie von ...?',
-          qtype: 'text'
+          qtype: 'text',
+          optional: false,
+
+          // text element only
+          lines: 'single',
+          maxRows: 5
         },
 
+        // check if the element exists, if not show an error
         domReady: function() {
           var qtypeName = 'ivx-qtype-' + this.qtype;
           try {
@@ -41,6 +50,15 @@
 
         _renderElement: function(name) {
           var qtype = document.createElement(name);
+
+          // walk through all the published attributes of the target element
+          // and set the parameters to the given property values
+          Object.keys(qtype.publish).forEach(function(attr, i) {
+            if (this[attr]) {
+              qtype[attr] = this[attr];
+            }
+          }, this);
+
           this.$.content.appendChild(qtype);
         }
       });
