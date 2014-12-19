@@ -1,0 +1,297 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>ivx-qtype-text</title>
+
+  <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../elements/ivx-qtype-text/ivx-qtype-text.html">
+
+</head>
+<body>
+
+<ivx-qtype-text id="test-1a" mode="single"></ivx-qtype-text>
+<ivx-qtype-text id="test-1b" mode="single" required></ivx-qtype-text>
+<ivx-qtype-text id="test-1c" mode="single" required validationType="text"></ivx-qtype-text>
+<ivx-qtype-text id="test-1d" mode="single" required validationType="int"></ivx-qtype-text>
+<ivx-qtype-text id="test-1e" mode="single" required validationType="float"></ivx-qtype-text>
+<ivx-qtype-text id="test-1f" mode="single" required validationType="date"></ivx-qtype-text>
+<ivx-qtype-text id="test-1g" mode="single" required validationType="postcode"></ivx-qtype-text>
+<ivx-qtype-text id="test-1h" mode="single" required pattern="(abc)+" customError="You must enter only 'abc' with one or many repeatations"></ivx-qtype-text>
+<ivx-qtype-text id="test-1i" mode="single" required validationType="text" min="1" max="5"></ivx-qtype-text>
+<ivx-qtype-text id="test-1j" mode="single" required validationType="int" min="5" max="10"></ivx-qtype-text>
+
+<!--
+
+Test cases:
+
+  1) mode = 'single'
+    a) without any config
+    b) required
+    c) required + text
+    d) required + int
+    e) required + float
+    f) required + date
+    g) required + postcode
+    h) pattern with customError
+    i) text + min/max
+    j) int + min/max
+
+  2) mode = 'multiple'
+    a) without any config
+    b) maxRows
+
+-->
+
+<script>
+  // helper to only define the name of the element once
+  function myEl(testcase) {
+    return document.querySelector('#test-' + testcase);
+  }
+
+  // Mocha + Chai testsuite
+  suite('ivx-qtype-text, mode = "single"', function () {
+
+    // before run any test, setup first
+    setup(function () {
+    });
+
+    test('1) a) without any config, validation is off', function () {
+      var inputEl = myEl('1a').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 'abc123äöü';
+      assert.ok(inputEl.validity.valid);
+    });
+
+    test('1) b) value is required', function () {
+      var inputEl = myEl('1b').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abc123äöü';
+      assert.ok(inputEl.validity.valid);
+    });
+
+    test('1) c) value is required + any text valid', function () {
+      var inputEl = myEl('1c').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abc123äöü';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 'abcdefghijklmnopqrstuvwxyz';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = '1234567890';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = '12.34';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 12.34;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 23;
+      assert.ok(inputEl.validity.valid);
+    });
+
+    test('1) d) value is required + int in [1, 1000]', function () {
+      var inputEl = myEl('1d').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abc123äöü';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abcdefghijklmnopqrstuvwxyz';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 1;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = '12.34';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 12.34;
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 23;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 999;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 1000;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = -100;
+      assert.notOk(inputEl.validity.valid);
+    });
+
+    test('1) e) value is required + float in [0, 1000]', function () {
+      var inputEl = myEl('1e').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abc123äöü';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abcdefghijklmnopqrstuvwxyz';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 0;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 1;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = '12.34';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 1000.00;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 1000;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 23;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 999;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = -100;
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = -100.00;
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 123.4;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 23.1234;
+      assert.ok(inputEl.validity.valid);
+    });
+
+    test('1) f) value is required + date', function () {
+      var inputEl = myEl('1f').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '01.01.2014';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = '31.12.2014';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = '1.12.2014';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '32.12.2014';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '31.13.2014';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '01.1.2014';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '1.1.2014';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '01.01.14';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '1.1.2014';
+      assert.notOk(inputEl.validity.valid);
+    });
+
+    test('1) g) value is required + german postcode', function () {
+      var inputEl = myEl('1g').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '76547';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = '7654';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = '765479';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abcde';
+      assert.notOk(inputEl.validity.valid);
+    });
+
+    test('1) h) pattern with customError', function () {
+      var inputEl = myEl('1h').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abc';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 'ab';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abcd';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'abcabc';
+      assert.ok(inputEl.validity.valid);
+    });
+
+    test('1) i) validate text with length [1,5]', function () {
+      var inputEl = myEl('1i').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 'a';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 'abcde';
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 'abcdef';
+      assert.notOk(inputEl.validity.valid);
+    });
+
+    test('1) j) validate int in [5,10]', function () {
+      var inputEl = myEl('1j').querySelector('::shadow input');
+
+      inputEl.value = '';
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 1;
+      assert.notOk(inputEl.validity.valid);
+
+      inputEl.value = 5;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 10;
+      assert.ok(inputEl.validity.valid);
+
+      inputEl.value = 11;
+      assert.notOk(inputEl.validity.valid);
+    });
+  });
+</script>
+
+</body>
+</html>
