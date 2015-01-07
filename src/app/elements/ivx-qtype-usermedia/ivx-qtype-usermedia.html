@@ -1,0 +1,188 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-qtype-usermedia" attributes="filter video audio">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      /* see http://css-tricks.com/snippets/css/keyframe-animation-syntax */
+      @-webkit-keyframes recordPulsate {
+        0%   { opacity: 1.0; }
+        50%  { opacity: 0.1; }
+        100% { opacity: 1.0; }
+      }
+
+      @keyframes recordPulsate {
+        0%   { opacity: 1.0; }
+        50%  { opacity: 0.1; }
+        100% { opacity: 1.0; }
+      }
+
+      #startRecording {
+        color: red;
+      }
+
+      .pulsate {
+        animation: recordPulsate 2s infinite linear;
+        -webkit-animation: recordPulsate 2s infinite linear;
+      }
+
+      paper-button > div {
+        margin-left: 0.5rem;
+      }
+
+      .blur {
+        -webkit-filter: blur(3px);
+        -moz-filter: blur(3px);
+        -ms-filter: blur(3px);
+        -o-filter: blur(3px);
+        filter: blur(3px);
+      }
+      .brightness {
+        -webkit-filter: brightness(5);
+        -moz-filter: brightness(5);
+        -ms-filter: brightness(5);
+        -o-filter: brightness(5);
+        filter: brightness(5);
+      }
+      .contrast {
+        -webkit-filter: contrast(8);
+        -moz-filter: contrast(8);
+        -ms-filter: contrast(8);
+        -o-filter: contrast(8);
+        filter: contrast(8);
+      }
+      .hue-rotate {
+        -webkit-filter: hue-rotate(90deg);
+        -moz-filter: hue-rotate(90deg);
+        -ms-filter: hue-rotate(90deg);
+        -o-filter: hue-rotate(90deg);
+        filter: hue-rotate(90deg);
+      }
+      .saturate {
+        -webkit-filter: saturate(10);
+        -moz-filter: saturate(10);
+        -ms-filter: saturate(10);
+        -o-filter: saturate(10);
+        filter: saturate(10);
+      }
+      .grayscale {
+        -webkit-filter: grayscale(1);
+        -moz-filter: grayscale(1);
+        -ms-filter: grayscale(1);
+        -o-filter: grayscale(1);
+        filter: grayscale(1);
+      }
+      .sepia {
+        -webkit-filter: sepia(1);
+        -moz-filter: sepia(1);
+        -ms-filter: sepia(1);
+        -o-filter: sepia(1);
+        filter: sepia(1);
+      }
+      .invert {
+        -webkit-filter: invert(1);
+        -moz-filter: invert(1);
+        -ms-filter: invert(1);
+        -o-filter: invert(1);
+        filter: invert(1);
+      }
+    </style>
+
+    <div vertical layout center>
+      <video id="video"></video>
+      <paper-button raised on-tap="{{ onRecordingTapped }}">
+        <core-icon id="startRecording" icon="radio-button-off"></core-icon>
+        <div>
+          <template if="{{ !_recordingNow }}">Aufnahme starten</template>
+          <template if="{{ _recordingNow }}">Aufnahme läuft</template>
+        </div>
+      </paper-button>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _viewport: {
+          x: 0,
+          y: 0
+        },
+        _stream: {},
+        _recordingNow: false,
+
+        onRecordingTapped: function(event, detail, sender) {
+          this._recordingNow = !this._recordingNow;
+
+          var recordIcon = sender.children[0];
+          recordIcon.icon = recordIcon.icon == 'radio-button-on' ? 'radio-button-off' : 'radio-button-on';
+          recordIcon.className = recordIcon.className == 'pulsate' ? '' : 'pulsate';
+        },
+
+        attached: function() {
+          var me = this;
+          setTimeout(function() {
+            me._viewport.x = me.offsetWidth;
+            me._viewport.y = me.offsetHeight;
+
+            me._initUserMedia();
+          });
+        },
+
+        _initUserMedia: function() {
+          var videoDim = {
+            x: 640,
+            y: 480
+          };
+
+          if (this._viewport.x < 640 + 320 || this._viewport.y < 480 + 240) {
+            videoDim.x = 320;
+            videoDim.y = 240;
+          }
+
+          navigator.getUserMedia = (
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia
+          );
+
+          if (navigator.getUserMedia) {
+            // see https://developer.mozilla.org/en-US/docs/NavigatorUserMedia.getUserMedia
+            var video = this.$.video;
+            navigator.getUserMedia (
+
+              // constraints
+              {
+                video: {
+                  mandatory: {
+                    minWidth: videoDim.x,
+                    minHeight: videoDim.y
+                  }
+                },
+                audio: true
+              },
+
+              // successCallback
+              function(localMediaStream) {
+                this._stream = localMediaStream;
+                video.src = window.URL.createObjectURL(localMediaStream);
+                video.play();
+              },
+
+              // errorCallback
+              function(err) {
+                console.log("The following error occured: " + err);
+              }
+            );
+          } else {
+            alert('getUserMedia() IS NOT supported in your browser :(');
+          }
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

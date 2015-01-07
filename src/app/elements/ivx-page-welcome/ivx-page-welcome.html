@@ -11,6 +11,42 @@
     <div>
       <ivx-pager>
         <page>
+          <ivx-question-layouter question="Nehmen Sie bitte das aktuelle Störgeräusch auf.">
+            <ivx-qtype-usermedia></ivx-qtype-usermedia>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Wählen Sie mehrere Antworten aus den nachfolgenden Antworten aus.">
+            <ivx-qtype-multiple-choice mode="multi-answer">
+              <answer>Antwort 1</answer>
+              <answer>Antwort 2</answer>
+              <answer>Antwort 3</answer>
+              <answer>Antwort 4</answer>
+              <answer>Antwort 5</answer>
+            </ivx-qtype-multiple-choice>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Wählen Sie eine Antwort aus den nachfolgenden Antworten aus.">
+            <ivx-qtype-multiple-choice mode="single-answer">
+              <answer>Antwort A</answer>
+              <answer>Antwort B</answer>
+              <answer>Antwort C</answer>
+              <answer>Antwort D</answer>
+              <answer>Antwort E</answer>
+            </ivx-qtype-multiple-choice>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Mögen Sie Fisch?">
+            <ivx-qtype-yesno></ivx-qtype-yesno>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
           <ivx-question-layouter question="Wie stehen Sie zu ...?">
             <ivx-qtype-text mode="single" required validationType="email" min="3" max="5"></ivx-qtype-text>
           </ivx-question-layouter>

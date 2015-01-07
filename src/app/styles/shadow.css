@@ -62,3 +62,23 @@ html /deep/ paper-button.highlight {
 html /deep/ paper-button.highlight::shadow #ripple {
   color: #30afff;
 }
+
+html /deep/ paper-radio-group paper-radio-button::shadow #ink[checked] {
+  color: #2f6fad;
+}
+
+html /deep/ paper-radio-group paper-radio-button::shadow #onRadio {
+  background-color: #2f6fad;
+}
+
+html /deep/ paper-checkbox::shadow #ink[checked] {
+  color: #2f6fad;
+}
+
+html /deep/ paper-checkbox::shadow #checkbox.checked {
+  border-color: #2f6fad;
+}
+
+html /deep/ paper-button {
+  text-transform: none;
+}
