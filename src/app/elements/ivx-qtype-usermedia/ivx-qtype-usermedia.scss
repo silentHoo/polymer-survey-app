@@ -1,0 +1,82 @@
+:host {
+  display: block;
+}
+
+/* see http://css-tricks.com/snippets/css/keyframe-animation-syntax */
+@-webkit-keyframes recordPulsate {
+  0%   { opacity: 1.0; }
+  50%  { opacity: 0.1; }
+  100% { opacity: 1.0; }
+}
+
+@keyframes recordPulsate {
+  0%   { opacity: 1.0; }
+  50%  { opacity: 0.1; }
+  100% { opacity: 1.0; }
+}
+
+.spaceToTop {
+  margin-top: 1rem;
+}
+
+#videoContainer {
+  width: 640px;
+  height: 480px;
+  border: 1px grey dashed;
+}
+
+#liveVideo {
+  width: 640px;
+  height: 480px;
+}
+
+// https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html
+//
+// grayscale      ex: filter: grayscale(100%);
+// sepia          ex: filter: sepia(100%);
+// saturate       ex: filter: saturate(0%);
+// hue-rotate     ex: filter: hue-rotate(45deg);
+// invert         ex: filter: invert(100%);
+// brightness     ex: filter: brightness(15%);
+// contrast       ex: filter: contrast(200%);
+// blur           ex: filter: blur(2px);
+@mixin filter($filter-type,$filter-amount) {
+  -webkit-filter: $filter-type+unquote('(#{$filter-amount})');
+  -moz-filter: $filter-type+unquote('(#{$filter-amount})');
+  -ms-filter: $filter-type+unquote('(#{$filter-amount})');
+  -o-filter: $filter-type+unquote('(#{$filter-amount})');
+  filter: $filter-type+unquote('(#{$filter-amount})');
+}
+
+.grayscale {
+  @include filter(grayscale, 100%);
+}
+
+.sepia {
+  @include filter(sepia, 1);
+}
+
+.invert {
+  @include filter(invert, 100%);
+}
+
+.brightness {
+  @include filter(brightness, 15%);
+}
+
+.blur {
+  @include filter(blur, 3px);
+}
+
+#recordButton > core-icon {
+  color: red;
+}
+
+.pulsate {
+  animation: recordPulsate 2s infinite linear;
+  /*-webkit-animation: recordPulsate 2s infinite linear;*/
+}
+
+paper-button > div {
+  margin-left: 0.5rem;
+}
