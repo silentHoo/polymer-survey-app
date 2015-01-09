@@ -3,13 +3,13 @@
 }
 
 /* see http://css-tricks.com/snippets/css/keyframe-animation-syntax */
-@-webkit-keyframes recordPulsate {
+@-webkit-keyframes pulsateOpacity {
   0%   { opacity: 1.0; }
   50%  { opacity: 0.1; }
   100% { opacity: 1.0; }
 }
 
-@keyframes recordPulsate {
+@keyframes pulsateOpacity {
   0%   { opacity: 1.0; }
   50%  { opacity: 0.1; }
   100% { opacity: 1.0; }
@@ -73,10 +73,18 @@
 }
 
 .pulsate {
-  animation: recordPulsate 2s infinite linear;
+  animation: pulsateOpacity 2s infinite linear;
   /*-webkit-animation: recordPulsate 2s infinite linear;*/
 }
 
 paper-button > div {
   margin-left: 0.5rem;
+}
+
+#progressLine {
+  margin-top: -3px;
+  width: 0%;
+  height: 5px;
+  background-color: #03a9f4;
+  transition: width 250ms linear 0ms; /* 250ms is the redraw interval, so the progress is smooth */
 }

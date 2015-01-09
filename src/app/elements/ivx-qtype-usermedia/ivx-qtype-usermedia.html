@@ -14,31 +14,44 @@
 
     <div vertical layout center>
       <div id="videoContainer">
-        <template if="{{ _showLiveVideo }}">
+        <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
           <!-- live camera -->
-          <video id="liveVideo" class="{{ _filterSelected }}"></video>
+          <video id="liveVideo" class="{{ _filterSelected }}" muted></video>
         </template>
 
-        <template if="{{ !_showLiveVideo }}">
+        <template if="{{ _currentUIState == 'playbackRecord' }}">
           <!-- playback from existing video -->
-          <video id="playbackVideo" class="{{ _filterSelected }}" controls loop autoplay="true"></video>
+          <video id="playbackVideo" class="{{ _filterSelected }}" on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></video>
+          <audio id="playbackAudio" volume="1.0" type="audio/wave"></audio>
+
+          <!-- progress line -->
+          <div id="progressLine"></div>
         </template>
       </div>
 
       <div id="buttonContainer" class="spaceToTop">
         <!-- First enable camera/mic to record anything -->
-        <template if="{{ !_userAcceptedMediaAccess }}">
+        <template if="{{ _currentUIState == 'waitingForDeviceAccess' }}">
           <paper-button raised on-tap="{{ onEnableTapped }}">
             <core-icon icon="av:videocam"></core-icon>
             <div>Zugriff aktivieren</div>
           </paper-button>
         </template>
 
-        <template if="{{ _userAcceptedMediaAccess }}">
+        <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
           <div center layout horizontal>
             <div center layout vertical>
               <paper-button id="recordButton" raised on-tap="{{ onRecordingTapped }}">
-                <core-icon icon="radio-button-off"></core-icon>
+
+                <!-- glow/pulsate the record icon in recording mode -->
+                <template if="{{ !_recordingNow }}">
+                  <core-icon icon="radio-button-off"></core-icon>
+                </template>
+
+                <template if="{{ _recordingNow }}">
+                  <core-icon icon="radio-button-on" class="pulsate"></core-icon>
+                </template>
+
                 <div>
                   <template if="{{ !_recordingNow }}">Aufnahme starten</template>
                   <template if="{{ _recordingNow }}">Aufnahme stoppen</template>
@@ -57,6 +70,36 @@
             </div>
           </div>
         </template>
+
+        <template if="{{ _currentUIState == 'playbackRecord' }}">
+          <div center layout horizontal>
+
+            <!-- play button -->
+            <template if="{{ _playerMode == 'videoStopped' || _playerMode == 'videoPaused' }}">
+              <paper-button id="playButton" raised on-tap="{{ onPlayTapped }}">
+                <core-icon icon="av:play-arrow"></core-icon>
+              </paper-button>
+            </template>
+
+            <!-- pause button -->
+            <template if="{{ _playerMode == 'videoPlaying' }}">
+              <paper-button id="pauseButton" raised on-tap="{{ onPauseTapped }}">
+                <core-icon icon="av:pause"></core-icon>
+              </paper-button>
+            </template>
+
+            <!-- stop button -->
+            <paper-button id="stopButton" raised on-tap="{{ onStopTapped }}">
+              <core-icon icon="av:stop"></core-icon>
+            </paper-button>
+
+            <!-- redo button -->
+            <paper-button id="redoButton" raised on-tap="{{ onRedoTapped }}">
+              <core-icon icon="av:replay"></core-icon>
+              <div>Aufnahme wiederholen</div>
+            </paper-button>
+          </div>
+        </template>
       </div>
       <div id="consoleContainer" class="spaceToTop"></div>
     </div>
@@ -66,31 +109,34 @@
     (function () {
       Polymer({
         _viewport: {
-          x: 0,
-          y: 0
+          width: 0,
+          height: 0
         },
 
         _filters: ['Kein Filter', 'grayscale', 'sepia', 'invert', 'brightness', 'blur'],
         _filterSelected: 'Kein Filter',
 
-        _userAcceptedMediaAccess: false,
+        _uiStateEnum: {
+          WAITING_FOR_DEVICE_ACCESS: 'waitingForDeviceAccess',
+          DEVICE_ACCESS_GRANTED: 'deviceAccessGranted',
+          PLAYBACK_RECORD: 'playbackRecord'
+        },
+        _currentUIState: '',
+        _playerMode: 'videoStopped',
 
         // *** video specific ***
-        _showLiveVideo: true,
         _videoCanvas: document.createElement('canvas'), // offscreen canvas
         _videoFrames: [],
+        _videoBlob: null,
 
         // *** audio specific ***
         _audioRecorder: null,
         _audioContext: null,
-        _realAudioInput: null,
         _inputPoint: null,
+        _audioBlob: null,
 
         // *** general ***
         _stream: {},
-        _recordingNow: false,
-
-        _consoleContainer: null,
 
         _startTime: null,
         _endTime: null,
@@ -98,12 +144,23 @@
 
         _rafId: null,
 
+        ready: function() {
+          this._currentUIState = this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS;
+        },
+
+        _shortSelect: function(selector) {
+          return this.shadowRoot.querySelector(selector);
+        },
+
         onRecordingTapped: function(event, detail, sender) {
           this._recordingNow = !this._recordingNow;
 
-          // visual aspect
-          this._changeUIState(sender.children[0]);
 
+          /* visual aspect
+          var recordIcon = sender.children[0];
+          recordIcon.icon = recordIcon.icon == 'radio-button-on' ? 'radio-button-off' : 'radio-button-on';
+          recordIcon.className = recordIcon.className == 'pulsate' ? '' : 'pulsate';
+*/
           // recording
           if (this._recordingNow) {
             this._startRecord();
@@ -112,26 +169,24 @@
           }
         },
 
-        _changeUIState: function(recordIcon) {
-          recordIcon.icon = recordIcon.icon == 'radio-button-on' ? 'radio-button-off' : 'radio-button-on';
-          recordIcon.className = recordIcon.className == 'pulsate' ? '' : 'pulsate';
-        },
-
         _startRecord: function() {
           this._startRecordVideo();
           this._startRecordAudio();
         },
 
         _startRecordVideo: function() {
+          this._videoBlob = null; // reset blob
           this._videoFrames = [];
-          this._consoleContainer = this.shadowRoot.querySelector('#consoleContainer');
+
+          // clear the canvas first (optional)
+          this._videoCanvas.getContext('2d').clearRect(0, 0, this._videoCanvas.width, this._videoCanvas.height);
 
           function drawVideoFrame_(time) {
             this._rafId = requestAnimationFrame((drawVideoFrame_).bind(this)); // cross browser safe!
 
-            this._videoCanvas.getContext('2d').drawImage(this.$.liveVideo, 0, 0, this._videoCanvas.width, this._videoCanvas.height);
+            this._videoCanvas.getContext('2d').drawImage(this._shortSelect('#liveVideo'), 0, 0, this._videoCanvas.width, this._videoCanvas.height);
 
-            this._consoleContainer.innerHTML = 'Recording... ' + Math.round((Date.now() - this._startTime) / 1000) + 's';
+            this._shortSelect('#consoleContainer').innerHTML = 'Recording... ' + Math.round((Date.now() - this._startTime) / 1000) + 's';
 
             // Read back canvas as webp.
             var url = this._videoCanvas.toDataURL('image/webp', 1); // image/jpeg is a way faster :(
@@ -143,13 +198,21 @@
         },
 
         _startRecordAudio: function() {
+          this._audioBlob = null; // reset blob
+
           this._audioRecorder.clear();
           this._audioRecorder.record();
         },
 
         _stopRecord: function() {
+          // switch from live to recorded video
+          this._currentUIState = this._uiStateEnum.PLAYBACK_RECORD;
+          this._playerMode = 'videoStopped';
+
           this._stopRecordVideo();
-          this._stopRecordAudio();
+          this._stopRecordAudio((function() {
+            this._embedVideoAudioPreview();
+          }).bind(this));
         },
 
         _stopRecordVideo: function() {
@@ -157,61 +220,105 @@
           this._endTime = Date.now();
           this._totalDuration = ((this._endTime - this._startTime) / 1000);
 
-          this._consoleContainer.innerHTML = ('Frames captured: ' + this._videoFrames.length + ' => ' + this._totalDuration + 's Video');
-          this._embedVideoPreview();
+          // adjust the recorded frames to the duration, so we get the real speed!
+          var fps = this._videoFrames.length / this._totalDuration;
+          this._videoBlob = Whammy.fromImageArray(this._videoFrames, fps);
+
+          this._shortSelect('#consoleContainer').innerHTML = ('Frames captured: ' + this._videoFrames.length + ', ' +
+                                                this._totalDuration + 's Video (~' + Math.floor(fps) + 'fps)');
         },
 
-        _stopRecordAudio: function() {
+        _stopRecordAudio: function(callbackExportDone) {
           this._audioRecorder.stop();
-          this._audioRecorder.getBuffer(function(buffers) {
+
+          // just play audio direct via the audioContext API
+          /*
+          this._audioRecorder.getBuffer((function(buffers) {
             // buffers is a two-dimensional stereo buffer
             var newSource = this._audioContext.createBufferSource();
             var newBuffer = this._audioContext.createBuffer(2, buffers[0].length, this._audioContext.sampleRate);
             newBuffer.getChannelData(0).set(buffers[0]);
             newBuffer.getChannelData(1).set(buffers[1]);
-            newSource.buffer = newBuffer;
 
+            newSource.buffer = newBuffer;
             newSource.connect(this._audioContext.destination);
             newSource.start(0);
-          });
+          }).bind(this));
+          */
 
-          // force download the wave
-//          this._audioRecorder.exportWAV(function(audioBlob) {
-//             Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
-//          });
+          this._audioRecorder.exportWAV((function(audioBlob) {
+            // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
+            this._audioBlob = audioBlob;
+            callbackExportDone();
+          }).bind(this));
         },
 
-        _embedVideoPreview: function() {
-          // switch from live to recorded video
-          this._showLiveVideo = false;
-
-          // binding is already applied in Polymer.job to 'this' context
+        _embedVideoAudioPreview: function() {
+          // delay a bit to catch the DOM changed ...
           this.job('delayAbit', function() {
-            var playbackVideo = this.shadowRoot.querySelector('#playbackVideo');
+            // binding is already applied in Polymer.job to 'this' context
+            var playbackVideo = this._shortSelect('#playbackVideo');
+            var playbackAudio = this._shortSelect('#playbackAudio');
+
+            // adjust size of player to video size
             playbackVideo.style.width = this._videoCanvas.width + 'px';
             playbackVideo.style.height = this._videoCanvas.height + 'px';
 
-            // adjust the recorded frames to the duration, so we get the real speed!
-            var fps = this._videoFrames.length / this._totalDuration;
-            var webmBlob = Whammy.fromImageArray(this._videoFrames, fps);
-
-            playbackVideo.src = window.URL.createObjectURL(webmBlob);
+            // add blob to src of video/audio elements
+            playbackVideo.src = window.URL.createObjectURL(this._videoBlob);
+            playbackAudio.src = window.URL.createObjectURL(this._audioBlob);
           });
         },
 
         attached: function() {
           this.job('delayAbit', function() {
-            this._viewport.x = this.offsetWidth;
-            this._viewport.y = this.offsetHeight;
+            this._viewport.width = this.offsetWidth;
+            this._viewport.height = this.offsetHeight;
           });
         },
 
-        onEnableTapped: function() {
+        onEnableTapped: function(event, detail, sender) {
           this._initGetUserMedia();
         },
 
         onFilterTapped: function(event, detail, sender) {
           this._filterSelected = sender.getAttribute('name');
+        },
+
+        onPlaybackEnded: function(event, detail, sender) {
+          this._playerMode = 'videoStopped';
+          this._shortSelect('#progressLine').style.width = '100%';
+        },
+
+        onPlaybackTimeupdate: function(event, detail, sender) {
+          var percentPlayed = (sender.currentTime / this._totalDuration) * 100;
+          this._shortSelect('#progressLine').style.width = percentPlayed + '%';
+        },
+
+        onPlayTapped: function(event, detail, sender) {
+          this._playerMode = 'videoPlaying';
+
+          this._shortSelect('#playbackVideo').play();
+          this._shortSelect('#playbackAudio').play();
+        },
+
+        onPauseTapped: function(event, detail, sender) {
+          this._playerMode = 'videoPaused';
+
+          this._shortSelect('#playbackVideo').pause();
+          this._shortSelect('#playbackAudio').pause();
+        },
+
+        onStopTapped: function(event, detail, sender) {
+          this._playerMode = 'videoStopped';
+
+          this._shortSelect('#playbackVideo').load();
+          this._shortSelect('#playbackAudio').load();
+        },
+
+        onRedoTapped: function(event, detail, sender) {
+          this._currentUIState = this._uiStateEnum.DEVICE_ACCESS_GRANTED;
+          this._initVideoAudio();
         },
 
         _initAudioContext: function() {
@@ -228,18 +335,34 @@
           this._inputPoint = this._audioContext.createGain();
 
           // Create an AudioNode from the stream.
-          this._realAudioInput = this._audioContext.createMediaStreamSource(this._stream);
-          this._audioInput = this._realAudioInput;
+          this._audioInput = this._audioContext.createMediaStreamSource(this._stream);
           this._audioInput.connect(this._inputPoint);
 
           this._audioRecorder = new Recorder(this._inputPoint, {
             workerPath: '/bower_components/Recorderjs/recorderWorker.js'
           });
 
+          // mute the gain level to not loop the microphone input back to the speakers
           var zeroGain = this._audioContext.createGain();
           zeroGain.gain.value = 0.0;
           this._inputPoint.connect(zeroGain);
           zeroGain.connect(this._audioContext.destination);
+        },
+
+        _initVideoAudio: function() {
+          this._currentUIState = this._uiStateEnum.DEVICE_ACCESS_GRANTED;
+
+          // we must short delay to catch the DOM changes ...
+          this.job('waitForDOM', function() {
+            var liveVideo = this._shortSelect('#liveVideo');
+
+            // show live video
+            liveVideo.src = window.URL.createObjectURL(this._stream);
+            liveVideo.play();
+          });
+
+          // init Audio
+          this._initAudioContext();
         },
 
         _initGetUserMedia: function() {
@@ -248,7 +371,7 @@
             height: 480
           };
 
-          if (this._viewport.x < 640 + 320 || this._viewport.y < 480 + 240) {
+          if (this._viewport.width < 640 + 320 || this._viewport.height < 480 + 240) {
             videoDim.width = 320;
             videoDim.height = 240;
           }
@@ -277,9 +400,9 @@
                 },
                 audio: {
                   mandatory: {
-                    googEchoCancellation: true,
-                    googAutoGainControl: true,
-                    googNoiseSuppression: true,
+                    googEchoCancellation: false,
+                    googAutoGainControl: false,
+                    googNoiseSuppression: false,
                     googHighpassFilter: false
                   },
                   optional: []
@@ -289,15 +412,8 @@
               // successCallback
               (function(stream) {
                 this._stream = stream;
-                this._userAcceptedMediaAccess = true;
 
-                // show live video
-                var video = this.$.liveVideo;
-                video.src = window.URL.createObjectURL(this._stream);
-                video.play();
-
-                // init Audio
-                this._initAudioContext();
+                this._initVideoAudio();
               }).bind(this),
 
               // errorCallback
