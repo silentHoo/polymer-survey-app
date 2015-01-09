@@ -61,7 +61,7 @@
 }
 
 .brightness {
-  @include filter(brightness, 15%);
+  @include filter(brightness, 150%);
 }
 
 .blur {
@@ -87,4 +87,21 @@ paper-button > div {
   height: 5px;
   background-color: #03a9f4;
   transition: width 250ms linear 0ms; /* 250ms is the redraw interval, so the progress is smooth */
+}
+
+#audioVisualizer {
+  height: 100px;
+  position: relative;
+  margin-top: -125px;
+  padding: 10px;
+  opacity: 0.2;
+  /*-webkit-box-reflect: below 3px -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(255,255,255,0.2)));*/
+}
+
+#audioVisualizer > div {
+  width: 2.5%;
+  background-color: #03a9f4;
+  display: inline-block;
+  position: absolute;
+  bottom: 0px;
 }

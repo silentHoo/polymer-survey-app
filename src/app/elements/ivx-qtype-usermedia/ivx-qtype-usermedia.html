@@ -17,6 +17,9 @@
         <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
           <!-- live camera -->
           <video id="liveVideo" class="{{ _filterSelected }}" muted></video>
+
+          <!-- visualizer -->
+          <div id="audioVisualizer"></div>
         </template>
 
         <template if="{{ _currentUIState == 'playbackRecord' }}">
@@ -132,8 +135,8 @@
         // *** audio specific ***
         _audioRecorder: null,
         _audioContext: null,
-        _inputPoint: null,
         _audioBlob: null,
+        _analyserNode: null,
 
         // *** general ***
         _stream: {},
@@ -329,24 +332,78 @@
             return;
           }
 
+          // very good introduction into Web Audio API (AudioContext):
+          // -> http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
           this._audioContext = new AudioContext();
 
-          // taken from http://www.webaudiodemos.appspot.com/AudioRecorder/js/main.js
-          this._inputPoint = this._audioContext.createGain();
+// Test only!
+          this._analyserNode = this._audioContext.createAnalyser();
+          this._analyserNode.fftSize = 64;
+// Test only!
+
+          // partly taken from http://www.webaudiodemos.appspot.com/AudioRecorder/js/main.js
+
+          // The construction of the audio is based on audio nodes:
+          // [1] audioSourceNode: This is the live signal of the webcam + microphone
+          // [2] volumeFullNode: This is the first node connected to [1], gain level at 1.0
+          // [3] volumeZeroNode: This is the next node connected to [2], gain level at 0.0
+
+          // design:
+          // audioSourceNode -> volumeFullNode -> volumeZeroNode -> destination (loud speakers)
+          //                          ^
+          //                   RecorderJS records
+          //                 with volume level here
+          var volumeFullNode = this._audioContext.createGain();
+          volumeFullNode.gain.value = 1.0;
 
           // Create an AudioNode from the stream.
-          this._audioInput = this._audioContext.createMediaStreamSource(this._stream);
-          this._audioInput.connect(this._inputPoint);
+          var audioSourceNode = this._audioContext.createMediaStreamSource(this._stream);
+          audioSourceNode.connect(volumeFullNode);
 
-          this._audioRecorder = new Recorder(this._inputPoint, {
+          this._audioRecorder = new Recorder(volumeFullNode, {
             workerPath: '/bower_components/Recorderjs/recorderWorker.js'
           });
 
           // mute the gain level to not loop the microphone input back to the speakers
-          var zeroGain = this._audioContext.createGain();
-          zeroGain.gain.value = 0.0;
-          this._inputPoint.connect(zeroGain);
-          zeroGain.connect(this._audioContext.destination);
+          var volumeZeroNode = this._audioContext.createGain();
+          volumeZeroNode.gain.value = 0.0;
+// Test only!
+          volumeFullNode.connect(this._analyserNode);
+          this._analyserNode.connect(volumeZeroNode);
+// Test only!
+          //volumeFullNode.connect(volumeZeroNode); // uncomment after test!!!
+          volumeZeroNode.connect(this._audioContext.destination);
+        },
+
+        _initAudioVisualizer: function() {
+          this.async(function() {
+            var frequCount = this._analyserNode.frequencyBinCount;
+            var frequencyData = new Uint8Array(frequCount);
+
+            var barSpacingPercent = 100 / frequCount;
+
+            var visualBars = '';
+            for (var i = 0; i < frequCount; i++) {
+              visualBars += '<div style="left:' + i * barSpacingPercent + '%"></div>';
+            }
+            this._shortSelect("#audioVisualizer").innerHTML = visualBars;
+
+            // Get the frequency data and update the visualisation
+            var analyser = this._analyserNode;
+            var bars = Array.prototype.slice.call(this.shadowRoot.querySelectorAll("#audioVisualizer > div"));
+
+            function update() {
+              requestAnimationFrame(update);
+
+              analyser.getByteFrequencyData(frequencyData);
+
+              bars.forEach(function (bar, index) {
+                bar.style.height = frequencyData[index] + 'px';
+              });
+            };
+
+            update();
+          });
         },
 
         _initVideoAudio: function() {
@@ -363,6 +420,9 @@
 
           // init Audio
           this._initAudioContext();
+
+          // init audio visualizer
+          this._initAudioVisualizer();
         },
 
         _initGetUserMedia: function() {
