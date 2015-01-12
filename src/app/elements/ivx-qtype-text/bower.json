@@ -2,13 +2,13 @@
   "name": "ivx-qtype-text",
   "version": "0.0.0",
   "keywords": [
-    "seed",
     "polymer",
     "web-components"
   ],
   "main": "ivx-qtype-text.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^0.5.1"
+    "polymer": "Polymer/polymer#^0.5.2",
+    "H5F": "~1.1.1"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^2.0.0"

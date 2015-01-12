@@ -1,0 +1,22 @@
+{
+  "name": "ivx-qtype-usermedia",
+  "version": "0.0.0",
+  "keywords": [
+    "mediarecorder",
+    "recorder",
+    "audio",
+    "video",
+    "image",
+    "polymer",
+    "web-components"
+  ],
+  "main": "ivx-qtype-usermedia.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^0.5.2",
+    "Recorderjs": "mattdiamond/Recorderjs#284c439cd3073d0c1690232219ab62b178faefd3",
+    "whammy": "antimatter15/whammy#ea91215a4bcce68030fdbc1201d5bb267b27c4e4"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^2.0.0"
+  }
+}
