@@ -1,7 +1,38 @@
+<!--
+`ivx-qtype-usermedia` can be used to record audio and video from the devices microphone and camera. It uses only the
+standard APIs **Web Audio API** and **UserMedia API**. It also overlays the live video output with a audio visualization.
+
+Please note that this component is a fancy wrapper around those APIs and provides you with the essential functionality
+for recording video and audio. There are also some filters added, which the user can apply on the video. These filters
+are merged into the video stream. They're only applied via the CSS3 selector `filter`.
+The APIs are currently (January 2015) only available in the Blink engine. Trident and Gecko doesn't provide those API
+and because there's no fallback mechanism implemented in this component, you should implement those by yourself or
+use another implementation to fix this.
+
+Please note too that the audio and video stream can not be recorded as one blob record. This is because of the API
+limitation. As a result of that a video exists of a recorded video stream and a recorded audio stream. The recorded
+audio and video will be started at the same time, when the user plays a recorded video. There could be some asynchronity
+by playing the video
+
+Use the attribute `mode` to switch between the types of recording (video (audio+video), audio (only audio), image).
+
+You can use the `ivx-qtype-usermedia` element like the following.
+
+// @todo: dependencies feheln in der bower.json
+
+Example:
+
+    <ivx-qtype-usermedia mode="video"></ivx-qtype-usermedia>
+
+@group Inovex Survey Elements
+@element ivx-qtype-usermedia
+@homepage inovex.de
+-->
+
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-icons/av-icons.html">
 
-<polymer-element name="ivx-qtype-usermedia" attributes="filter mode">
+<polymer-element name="ivx-qtype-usermedia" attributes="mode">
   <template>
     <!-- Media Encoder WebM -->
     <script src="../../bower_components/whammy/whammy.js"></script>
@@ -111,72 +142,94 @@
   <script>
     (function () {
       Polymer({
+        /**
+         * The usermedia mode to record from. Valid modes are `video`, `audio` and `image`.
+         *
+         * @attribute mode
+         * @type String
+         * @default 'video'
+         */
+        publish: {
+          mode: 'video'
+        },
+
+        // internal resource for storing the width and height of space available
         _viewport: {
           width: 0,
           height: 0
         },
 
+        // filters to apply on the video via CSS3
         _filters: ['Kein Filter', 'grayscale', 'sepia', 'invert', 'brightness', 'blur'],
         _filterSelected: 'Kein Filter',
 
+        // the UI states
         _uiStateEnum: {
           WAITING_FOR_DEVICE_ACCESS: 'waitingForDeviceAccess',
           DEVICE_ACCESS_GRANTED: 'deviceAccessGranted',
           PLAYBACK_RECORD: 'playbackRecord'
         },
         _currentUIState: '',
-        _playerMode: 'videoStopped',
+        _playerMode: 'videoStopped',  // substate
 
-        // *** video specific ***
+        // video specific
+        _videoDim: {
+          width: 640,
+          height: 480
+        },
         _videoCanvas: document.createElement('canvas'), // offscreen canvas
         _videoFrames: [],
+        // stores the video recorded from the stream as blob
         _videoBlob: null,
 
-        // *** audio specific ***
+        // audio specific
         _audioRecorder: null,
         _audioContext: null,
+        // stores the audio recorded from the stream as blob
         _audioBlob: null,
         _analyserNode: null,
 
-        // *** general ***
+        // the stream object (getUserMedia)
         _stream: {},
 
+        // startTime for the recording
         _startTime: null,
+        // endTime for the recording
         _endTime: null,
+        // duration for the recording
         _totalDuration: null,
 
+        // requestAnimationFrame ID
         _rafId: null,
 
+        // called when usermedia is ready
         ready: function() {
+          // setting the current UI state to waiting for access (earliest state)
           this._currentUIState = this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS;
+
+          // set the video dimension, based on the viewport size
+          if (this._viewport.width < this._videoDim.width + 100 || this._viewport.height < this._videoDim.height + 100) {
+            this._videoDim.width = 320;
+            this._videoDim.height = 240;
+          }
+
+          // canvas is only the half of the size
+          this._videoCanvas.width = this._videoDim.width * 2;
+          this._videoCanvas.height = this._videoDim.height * 2;
         },
 
+        // short helper method to query the shadowRoot DOM
         _shortSelect: function(selector) {
           return this.shadowRoot.querySelector(selector);
         },
 
-        onRecordingTapped: function(event, detail, sender) {
-          this._recordingNow = !this._recordingNow;
-
-
-          /* visual aspect
-          var recordIcon = sender.children[0];
-          recordIcon.icon = recordIcon.icon == 'radio-button-on' ? 'radio-button-off' : 'radio-button-on';
-          recordIcon.className = recordIcon.className == 'pulsate' ? '' : 'pulsate';
-*/
-          // recording
-          if (this._recordingNow) {
-            this._startRecord();
-          } else {
-            this._stopRecord();
-          }
-        },
-
+        // starts the record for the current mode
         _startRecord: function() {
           this._startRecordVideo();
           this._startRecordAudio();
         },
 
+        // starts the record of the video stream
         _startRecordVideo: function() {
           this._videoBlob = null; // reset blob
           this._videoFrames = [];
@@ -184,11 +237,11 @@
           // clear the canvas first (optional)
           this._videoCanvas.getContext('2d').clearRect(0, 0, this._videoCanvas.width, this._videoCanvas.height);
 
+          // draw the current video frame into the canvas 2D context to read them back
+          // as image.
           function drawVideoFrame_(time) {
             this._rafId = requestAnimationFrame((drawVideoFrame_).bind(this)); // cross browser safe!
-
             this._videoCanvas.getContext('2d').drawImage(this._shortSelect('#liveVideo'), 0, 0, this._videoCanvas.width, this._videoCanvas.height);
-
             this._shortSelect('#consoleContainer').innerHTML = 'Recording... ' + Math.round((Date.now() - this._startTime) / 1000) + 's';
 
             // Read back canvas as webp.
@@ -196,10 +249,12 @@
             this._videoFrames.push(url);
           };
 
+          // set the startTime to now and request the first frame
           this._startTime = Date.now();
           this._rafId = requestAnimationFrame((drawVideoFrame_).bind(this));
         },
 
+        // starts the audio recording
         _startRecordAudio: function() {
           this._audioBlob = null; // reset blob
 
@@ -207,6 +262,7 @@
           this._audioRecorder.record();
         },
 
+        // stops the record for the current mode
         _stopRecord: function() {
           // switch from live to recorded video
           this._currentUIState = this._uiStateEnum.PLAYBACK_RECORD;
@@ -218,6 +274,7 @@
           }).bind(this));
         },
 
+        // stops the record for the video stream
         _stopRecordVideo: function() {
           cancelAnimationFrame(this._rafId);
           this._endTime = Date.now();
@@ -231,23 +288,9 @@
                                                 this._totalDuration + 's Video (~' + Math.floor(fps) + 'fps)');
         },
 
+        // stops the record of the audio stream
         _stopRecordAudio: function(callbackExportDone) {
           this._audioRecorder.stop();
-
-          // just play audio direct via the audioContext API
-          /*
-          this._audioRecorder.getBuffer((function(buffers) {
-            // buffers is a two-dimensional stereo buffer
-            var newSource = this._audioContext.createBufferSource();
-            var newBuffer = this._audioContext.createBuffer(2, buffers[0].length, this._audioContext.sampleRate);
-            newBuffer.getChannelData(0).set(buffers[0]);
-            newBuffer.getChannelData(1).set(buffers[1]);
-
-            newSource.buffer = newBuffer;
-            newSource.connect(this._audioContext.destination);
-            newSource.start(0);
-          }).bind(this));
-          */
 
           this._audioRecorder.exportWAV((function(audioBlob) {
             // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
@@ -256,8 +299,9 @@
           }).bind(this));
         },
 
+        // connect the stream source to the HTML video- and audioplayer
         _embedVideoAudioPreview: function() {
-          // delay a bit to catch the DOM changed ...
+          // delay a bit to catch the DOM changes ...
           this.job('delayAbit', function() {
             // binding is already applied in Polymer.job to 'this' context
             var playbackVideo = this._shortSelect('#playbackVideo');
@@ -273,6 +317,7 @@
           });
         },
 
+        // attached callback, called when the template elements are attached to the DOM
         attached: function() {
           this.job('delayAbit', function() {
             this._viewport.width = this.offsetWidth;
@@ -280,24 +325,41 @@
           });
         },
 
+        // event handler to initialize the UserMedia API
         onEnableTapped: function(event, detail, sender) {
           this._initGetUserMedia();
         },
 
+        // event handler to start and stop recording
+        onRecordingTapped: function(event, detail, sender) {
+          this._recordingNow = !this._recordingNow;
+
+          // recording
+          if (this._recordingNow) {
+            this._startRecord();
+          } else {
+            this._stopRecord();
+          }
+        },
+
+        // event handler to apply the selected filter
         onFilterTapped: function(event, detail, sender) {
           this._filterSelected = sender.getAttribute('name');
         },
 
+        // event handler to hack the width of the
         onPlaybackEnded: function(event, detail, sender) {
           this._playerMode = 'videoStopped';
           this._shortSelect('#progressLine').style.width = '100%';
         },
 
+        // event handler to sync the current playback time with the visual progress bar
         onPlaybackTimeupdate: function(event, detail, sender) {
           var percentPlayed = (sender.currentTime / this._totalDuration) * 100;
           this._shortSelect('#progressLine').style.width = percentPlayed + '%';
         },
 
+        // event handler to start playing the recorded stream(s) (based on the current mode)
         onPlayTapped: function(event, detail, sender) {
           this._playerMode = 'videoPlaying';
 
@@ -305,6 +367,7 @@
           this._shortSelect('#playbackAudio').play();
         },
 
+        // event handler to pause the playing audio/video (based on the current mode)
         onPauseTapped: function(event, detail, sender) {
           this._playerMode = 'videoPaused';
 
@@ -312,6 +375,7 @@
           this._shortSelect('#playbackAudio').pause();
         },
 
+        // event handler to stop the playing audio/video (based on the current mode)
         onStopTapped: function(event, detail, sender) {
           this._playerMode = 'videoStopped';
 
@@ -319,11 +383,19 @@
           this._shortSelect('#playbackAudio').load();
         },
 
+        // event handler to dismiss the current recording to start a new one
         onRedoTapped: function(event, detail, sender) {
           this._currentUIState = this._uiStateEnum.DEVICE_ACCESS_GRANTED;
           this._initVideoAudio();
         },
 
+        _initVideo: function() {
+          var liveVideo = this._shortSelect('#liveVideo');
+          liveVideo.src = window.URL.createObjectURL(this._stream);
+          liveVideo.play();
+        },
+
+        // initializes the audio context. See source code below for more comments and details.
         _initAudioContext: function() {
           window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -336,45 +408,54 @@
           // -> http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
           this._audioContext = new AudioContext();
 
-// Test only!
-          this._analyserNode = this._audioContext.createAnalyser();
-          this._analyserNode.fftSize = 64;
-// Test only!
-
-          // partly taken from http://www.webaudiodemos.appspot.com/AudioRecorder/js/main.js
-
           // The construction of the audio is based on audio nodes:
+
           // [1] audioSourceNode: This is the live signal of the webcam + microphone
           // [2] volumeFullNode: This is the first node connected to [1], gain level at 1.0
-          // [3] volumeZeroNode: This is the next node connected to [2], gain level at 0.0
+          // [3] analyserNode: This is the node to visualize the audio stream.
+          // [4] volumeZeroNode: This is the next node connected to [2], gain level at 0.0
 
-          // design:
-          // audioSourceNode -> volumeFullNode -> volumeZeroNode -> destination (loud speakers)
+          // audioSourceNode -> volumeFullNode -> analyserNode -> volumeZeroNode -> destination (loud speakers)
           //                          ^
           //                   RecorderJS records
-          //                 with volume level here
+          //               with volume level 1.0 here
+
+          // [1]: Create an AudioNode from the stream.
+          var audioSourceNode = this._audioContext.createMediaStreamSource(this._stream);
+
+          // [2]: Create a control node to set the gain level to the maximum (1.0).
           var volumeFullNode = this._audioContext.createGain();
           volumeFullNode.gain.value = 1.0;
 
-          // Create an AudioNode from the stream.
-          var audioSourceNode = this._audioContext.createMediaStreamSource(this._stream);
-          audioSourceNode.connect(volumeFullNode);
+          // [3]: Create an AnalyserNode to visualize the live stream audio data.
+          //      See more at https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
+          this._analyserNode = this._audioContext.createAnalyser();
+          this._analyserNode.fftSize = 64; // size of the Fast Fourier Transformation
 
+          // [4]: Create a control node to mute the gain level to not loop the
+          //      microphone input back to the speakers.
+          var volumeZeroNode = this._audioContext.createGain();
+          volumeZeroNode.gain.value = 0.0;
+
+          // *** Recording ***
           this._audioRecorder = new Recorder(volumeFullNode, {
             workerPath: '/bower_components/Recorderjs/recorderWorker.js'
           });
 
-          // mute the gain level to not loop the microphone input back to the speakers
-          var volumeZeroNode = this._audioContext.createGain();
-          volumeZeroNode.gain.value = 0.0;
-// Test only!
+          // *** Wiring all together ***
+          // Connect [1] with [2]
+          audioSourceNode.connect(volumeFullNode);
+          // Connect [2] with [3]
           volumeFullNode.connect(this._analyserNode);
+          // Connect [3] with [4]
           this._analyserNode.connect(volumeZeroNode);
-// Test only!
-          //volumeFullNode.connect(volumeZeroNode); // uncomment after test!!!
+          // Connect [4] with output device
           volumeZeroNode.connect(this._audioContext.destination);
         },
 
+        // This code initializes the bar graphs overlay for the live video stream. The code is taken from
+        // http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
+        // Thanks to Ian Reah.
         _initAudioVisualizer: function() {
           this.async(function() {
             var frequCount = this._analyserNode.frequencyBinCount;
@@ -406,39 +487,27 @@
           });
         },
 
+        // Resets the UI State to the second state available (after the user granted access to the mic + webcam).
+        // This method is used to do the first initializing (BEFORE the very first recording) and to reset the
+        // state AFTER a recording was made.
         _initVideoAudio: function() {
           this._currentUIState = this._uiStateEnum.DEVICE_ACCESS_GRANTED;
 
           // we must short delay to catch the DOM changes ...
           this.job('waitForDOM', function() {
-            var liveVideo = this._shortSelect('#liveVideo');
-
-            // show live video
-            liveVideo.src = window.URL.createObjectURL(this._stream);
-            liveVideo.play();
+            // init video
+            this._initVideo();
           });
 
-          // init Audio
+          // init audio
           this._initAudioContext();
 
           // init audio visualizer
           this._initAudioVisualizer();
         },
 
+        // Initializes the MediaCapture API
         _initGetUserMedia: function() {
-          var videoDim = {
-            width: 640,
-            height: 480
-          };
-
-          if (this._viewport.width < 640 + 320 || this._viewport.height < 480 + 240) {
-            videoDim.width = 320;
-            videoDim.height = 240;
-          }
-
-          this._videoCanvas.width = videoDim.width * 2;
-          this._videoCanvas.height = videoDim.height * 2;
-
           navigator.getUserMedia = (
             navigator.getUserMedia ||
             navigator.webkitGetUserMedia ||
@@ -454,8 +523,8 @@
               {
                 video: {
                   mandatory: {
-                    minWidth: videoDim.width,
-                    minHeight: videoDim.height
+                    minWidth: this._videoDim.width,
+                    minHeight: this._videoDim.height
                   }
                 },
                 audio: {
@@ -471,8 +540,8 @@
 
               // successCallback
               (function(stream) {
+                // save the stream in this object to access it everywhere
                 this._stream = stream;
-
                 this._initVideoAudio();
               }).bind(this),
 
@@ -486,7 +555,6 @@
           }
         }
       });
-
     })();
   </script>
 </polymer-element>
