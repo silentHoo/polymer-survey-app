@@ -16,9 +16,22 @@ by playing the video
 
 Use the attribute `mode` to switch between the types of recording (video (audio+video), audio (only audio), image).
 
-You can use the `ivx-qtype-usermedia` element like the following.
+== **Please Note** ==
 
-// @todo: dependencies feheln in der bower.json
+This component only work in the following browsers with all features:
+
+- Firefox >= 25
+- Chrome >= 21
+- Android Browser >= 37
+- Opera >= 18
+- Opera Mobile >= 24
+- Chrome for Android >= 39
+- Safari >= 6 (Audio only)
+- iOS Safari >= 6.1 (Audio only)
+
+== **Please Note** ==
+
+You can use the `ivx-qtype-usermedia` element like the following.
 
 Example:
 
@@ -31,8 +44,9 @@ Example:
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-icons/av-icons.html">
+<link rel="import" href="../../bower_components/core-icons/image-icons.html">
 
-<polymer-element name="ivx-qtype-usermedia" attributes="mode">
+<polymer-element name="ivx-qtype-usermedia" attributes="mode visualizeAudio">
   <template>
     <!-- Media Encoder WebM -->
     <script src="../../bower_components/whammy/whammy.js"></script>
@@ -44,99 +58,179 @@ Example:
     <link rel="stylesheet" href="ivx-qtype-usermedia.css">
 
     <div vertical layout center>
-      <div id="videoContainer">
-        <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
-          <!-- live camera -->
-          <video id="liveVideo" class="{{ _filterSelected }}" muted></video>
 
-          <!-- visualizer -->
-          <div id="audioVisualizer"></div>
-        </template>
+      <!-- START video / device container -->
+      <div horizontal layout center>
 
-        <template if="{{ _currentUIState == 'playbackRecord' }}">
-          <!-- playback from existing video -->
-          <video id="playbackVideo" class="{{ _filterSelected }}" on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></video>
-          <audio id="playbackAudio" volume="1.0" type="audio/wave"></audio>
+        <!-- *** video container *** -->
+        <div id="videoContainer" flex>
+          <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
+            <!-- live camera -->
+            <video flex id="liveVideo" class="{{ _filterSelected }}" muted></video>
 
-          <!-- progress line -->
-          <div id="progressLine"></div>
-        </template>
+            <!-- visualizer -->
+            <template if="[[ mode == 'audio' || mode == 'video' ]]">
+              <div id="audioVisualizer"></div>
+            </template>
+          </template>
+
+          <template if="{{ _currentUIState == 'mediaRecorded' && (mode == 'video' || mode == 'audio') }}">
+            <!-- playback from existing video -->
+            <template if="[[ mode == 'video' ]]">
+              <video id="playbackVideo" class="{{ _filterSelected }}" on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></video>
+              <audio id="playbackAudio" volume="1.0" type="audio/wave"></audio>
+            </template>
+
+            <template if="[[ mode == 'audio' ]]">
+              <audio id="playbackAudio" volume="1.0" type="audio/wave" on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></audio>
+            </template>
+
+            <!-- progress line -->
+            <div id="progressLine"></div>
+          </template>
+
+          <template if="{{ _currentUIState == 'mediaRecorded' && mode == 'image' }}">
+            <!-- picture from camera -->
+            <img src="{{ _imageDataURL }}" class="{{ _filterSelected }}">
+          </template>
+        </div>
+
+        <!-- *** device list *** -->
+        <div self-end> <!-- positioning on bottom -->
+          <div id="deviceList" layout vertical>
+            <template if="[[ (mode == 'video' || mode == 'image') && _devices.cameras.length > 0 ]]">
+              <paper-radio-group selected="{{ _devices.selected.cameraId }}" class="spaceToTop" layout vertical>
+                <template repeat="{{ device, index in _devices.cameras }}">
+                  <paper-radio-button
+                    name="{{ device.id }}"
+                    label="Kamera {{ index + 1 }}"
+                    on-tap="{{ onCameraTapped }}">
+                  </paper-radio-button>
+                </template>
+              </paper-radio-group>
+            </template>
+
+            <template if="[[ mode == 'video' || mode == 'audio' ]]">
+              <paper-radio-group selected="{{ _devices.selected.microphoneId }}" class="spaceToTop" layout vertical>
+                <template repeat="{{ device, index in _devices.microphones }}">
+                  <paper-radio-button
+                    name="{{ device.id }}"
+                    label="Mikrofon {{ index + 1 }}"
+                    on-tap="{{ onMicrophoneTapped }}">
+                  </paper-radio-button>
+                </template>
+              </paper-radio-group>
+
+              <paper-slider min="0" max="100" value="[[ _microphoneGainLevelInit * 100 ]]" on-immediate-value-change="{{ onMicrophoneVolumeChange }}"></paper-slider>
+            </template>
+          </div>
+        </div>
       </div>
+      <!-- END video / device container -->
 
+      <!-- *** button container *** -->
       <div id="buttonContainer" class="spaceToTop">
         <!-- First enable camera/mic to record anything -->
         <template if="{{ _currentUIState == 'waitingForDeviceAccess' }}">
-          <paper-button raised on-tap="{{ onEnableTapped }}">
+
+          <!-- activate button -->
+          <paper-button raised on-tap="{{ onEnableTapped }}" class="spaceToTop">
             <core-icon icon="av:videocam"></core-icon>
             <div>Zugriff aktivieren</div>
           </paper-button>
+
         </template>
 
         <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
           <div center layout horizontal>
             <div center layout vertical>
-              <paper-button id="recordButton" raised on-tap="{{ onRecordingTapped }}">
 
-                <!-- glow/pulsate the record icon in recording mode -->
-                <template if="{{ !_recordingNow }}">
-                  <core-icon icon="radio-button-off"></core-icon>
-                </template>
+              <template bind ref="audioVideoImageButtons"></template>
 
-                <template if="{{ _recordingNow }}">
-                  <core-icon icon="radio-button-on" class="pulsate"></core-icon>
-                </template>
-
-                <div>
-                  <template if="{{ !_recordingNow }}">Aufnahme starten</template>
-                  <template if="{{ _recordingNow }}">Aufnahme stoppen</template>
-                </div>
-              </paper-button>
-
-              <paper-radio-group selected="{{ _filterSelected }}" class="spaceToTop">
-                <template repeat="{{ filter, index in _filters }}">
-                  <paper-radio-button
-                    name="{{ filter }}"
-                    label="{{ filter }}"
-                    on-tap="{{ onFilterTapped }}">
-                  </paper-radio-button>
-                </template>
-              </paper-radio-group>
+              <!-- filters -->
+              <template if="[[ mode == 'video' || mode == 'image' ]]">
+                <paper-radio-group selected="{{ _filterSelected }}" class="spaceToTop">
+                  <template repeat="{{ filter, index in _filters }}">
+                    <paper-radio-button
+                      name="{{ filter }}"
+                      label="{{ filter }}"
+                      on-tap="{{ onFilterTapped }}">
+                    </paper-radio-button>
+                  </template>
+                </paper-radio-group>
+              </template>
             </div>
           </div>
         </template>
 
-        <template if="{{ _currentUIState == 'playbackRecord' }}">
+        <template if="{{ _currentUIState == 'mediaRecorded' }}">
           <div center layout horizontal>
 
-            <!-- play button -->
-            <template if="{{ _playerMode == 'videoStopped' || _playerMode == 'videoPaused' }}">
-              <paper-button id="playButton" raised on-tap="{{ onPlayTapped }}">
-                <core-icon icon="av:play-arrow"></core-icon>
+            <template if="[[ mode == 'audio' || mode == 'video' ]]">
+              <!-- play button -->
+              <template if="{{ _playerMode == 'mediaStopped' || _playerMode == 'mediaPaused' }}">
+                <paper-button id="playButton" raised on-tap="{{ onPlayTapped }}">
+                  <core-icon icon="av:play-arrow"></core-icon>
+                </paper-button>
+              </template>
+
+              <!-- pause button -->
+              <template if="{{ _playerMode == 'mediaPlaying' }}">
+                <paper-button id="pauseButton" raised on-tap="{{ onPauseTapped }}">
+                  <core-icon icon="av:pause"></core-icon>
+                </paper-button>
+              </template>
+
+              <!-- stop button -->
+              <paper-button id="stopButton" raised on-tap="{{ onStopTapped }}">
+                <core-icon icon="av:stop"></core-icon>
               </paper-button>
             </template>
 
-            <!-- pause button -->
-            <template if="{{ _playerMode == 'videoPlaying' }}">
-              <paper-button id="pauseButton" raised on-tap="{{ onPauseTapped }}">
-                <core-icon icon="av:pause"></core-icon>
+            <template if="[[ mode == 'audio' || mode == 'video' || mode == 'image' ]]">
+              <!-- redo button -->
+              <paper-button raised on-tap="{{ onRedoTapped }}">
+                <core-icon icon="av:replay"></core-icon>
+                <div>Aufnahme wiederholen</div>
               </paper-button>
             </template>
-
-            <!-- stop button -->
-            <paper-button id="stopButton" raised on-tap="{{ onStopTapped }}">
-              <core-icon icon="av:stop"></core-icon>
-            </paper-button>
-
-            <!-- redo button -->
-            <paper-button id="redoButton" raised on-tap="{{ onRedoTapped }}">
-              <core-icon icon="av:replay"></core-icon>
-              <div>Aufnahme wiederholen</div>
-            </paper-button>
           </div>
         </template>
       </div>
+
       <div id="consoleContainer" class="spaceToTop"></div>
     </div>
+
+    <!-- START Bound templates -->
+    <template id="audioVideoImageButtons">
+      <template if="[[ mode == 'audio' || mode == 'video' ]]">
+        <paper-button id="recordButton" raised on-tap="{{ onRecordingTapped }}">
+
+          <!-- glow/pulsate the record icon in recording mode -->
+          <template if="{{ !_recordingNow }}">
+            <core-icon icon="radio-button-off"></core-icon>
+          </template>
+
+          <template if="{{ _recordingNow }}">
+            <core-icon icon="radio-button-on" class="pulsate"></core-icon>
+          </template>
+
+          <div>
+            <template if="{{ !_recordingNow }}">Aufnahme starten</template>
+            <template if="{{ _recordingNow }}">Aufnahme stoppen</template>
+          </div>
+        </paper-button>
+      </template>
+
+      <template if="[[ mode == 'image' ]]">
+        <paper-button id="snapButton" raised on-tap="{{ onSnapTapped }}">
+          <core-icon icon="image:photo-camera"></core-icon>
+          <div>Bild aufnehmen</div>
+        </paper-button>
+      </template>
+    </template>
+    <!-- END Bound templates -->
+
   </template>
 
   <script>
@@ -149,8 +243,17 @@ Example:
          * @type String
          * @default 'video'
          */
+
+        /**
+         * Enables or disables the audio visualizer.
+         *
+         * @attribute visualizeAudio
+         * @type Boolean
+         * @default true
+         */
         publish: {
-          mode: 'video'
+          mode: 'video',
+          visualizeAudio: true
         },
 
         // internal resource for storing the width and height of space available
@@ -167,10 +270,14 @@ Example:
         _uiStateEnum: {
           WAITING_FOR_DEVICE_ACCESS: 'waitingForDeviceAccess',
           DEVICE_ACCESS_GRANTED: 'deviceAccessGranted',
-          PLAYBACK_RECORD: 'playbackRecord'
+          MEDIA_RECORDED: 'mediaRecorded'
         },
         _currentUIState: '',
-        _playerMode: 'videoStopped',  // substate
+        _playerMode: 'mediaStopped',  // substate
+        _recordingNow: false,
+
+        // image specific
+        _imageDataURL: null,
 
         // video specific
         _videoDim: {
@@ -188,6 +295,8 @@ Example:
         // stores the audio recorded from the stream as blob
         _audioBlob: null,
         _analyserNode: null,
+        _microphoneGainLevelInit: 0.8,
+        _volumeFullNode: null,
 
         // the stream object (getUserMedia)
         _stream: {},
@@ -202,20 +311,93 @@ Example:
         // requestAnimationFrame ID
         _rafId: null,
 
+        // device sources
+        _devices: {
+          microphones: [],
+          cameras: [],
+          other: [],
+          selected: {
+            cameraId: '',
+            microphoneId: ''
+          }
+        },
+
         // called when usermedia is ready
         ready: function() {
+          this._detectDeviceSources();
+
           // setting the current UI state to waiting for access (earliest state)
           this._currentUIState = this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS;
 
-          // set the video dimension, based on the viewport size
-          if (this._viewport.width < this._videoDim.width + 100 || this._viewport.height < this._videoDim.height + 100) {
-            this._videoDim.width = 320;
-            this._videoDim.height = 240;
+          if (this.mode == 'video' || this.mode == 'image') {
+            // set the video dimension, based on the viewport size
+            if (this._viewport.width < this._videoDim.width + 100 || this._viewport.height < this._videoDim.height + 100) {
+              this._videoDim.width = 320;
+              this._videoDim.height = 240;
+            }
+
+            // canvas is only the half of the size
+            this._videoCanvas.width = this._videoDim.width * 2;
+            this._videoCanvas.height = this._videoDim.height * 2;
+          }
+        },
+
+        _detectDeviceSources: function() {
+          if (typeof MediaStreamTrack === 'undefined') {
+            alert('Your browser does NOT support MediaStreamTrack, no device detection possible :(');
+            return;
           }
 
-          // canvas is only the half of the size
-          this._videoCanvas.width = this._videoDim.width * 2;
-          this._videoCanvas.height = this._videoDim.height * 2;
+          var sortDevices = function(sources) {
+            for (var i = 0; i < sources.length; i++) {
+              if (sources[i].kind == 'audio') {
+                this._devices.microphones.push(sources[i]);
+              } else if (sources[i].kind == 'video') {
+                this._devices.cameras.push(sources[i]);
+              } else {
+                this._devices.other.push(sources[i]);
+              }
+            }
+
+            var me = this;
+            var checkCameras = function() {
+              if (me._devices.cameras.length == 0) {
+                alert('You need at least one camera to use that component - could not find any :(');
+                return false;
+              }
+            };
+
+            var checkMicrophones = function() {
+              if (me._devices.microphones.length == 0) {
+                alert('You need at least one microphone to use that component - could not find any :(');
+                return false;
+              }
+            };
+
+            if (this.mode == 'audio') {
+              if (checkMicrophones() === false) {
+                return;
+              }
+            }
+
+            if (this.mode == 'video') {
+              if (checkMicrophones() === false || checkCameras() === false) {
+                return;
+              }
+            }
+
+            if (this.mode == 'image') {
+              if (checkCameras() === false) {
+                return;
+              }
+            }
+
+            // default is first?
+            this._devices.selected.cameraId = this._devices.cameras[0].id;
+            this._devices.selected.microphoneId = this._devices.microphones[0].id;
+          };
+
+          MediaStreamTrack.getSources(sortDevices.bind(this));
         },
 
         // short helper method to query the shadowRoot DOM
@@ -223,35 +405,66 @@ Example:
           return this.shadowRoot.querySelector(selector);
         },
 
+        _takePicture: function() {
+          this._resetCanvas();
+
+          this._videoCanvas.getContext('2d').drawImage(
+            this._shortSelect('#liveVideo'),
+            0,
+            0,
+            this._videoCanvas.width,
+            this._videoCanvas.height
+          );
+
+          // Read back canvas as jpeg.
+          this._imageDataURL = this._videoCanvas.toDataURL('image/jpeg', 0.92);
+        },
+
+        _showRecordingDuration: function() {
+          this.async(function() {
+            var container = this._shortSelect('#consoleContainer');
+            container.innerHTML = 'Recording... ' + Math.round((Date.now() - this._startTime) / 1000) + 's';
+
+            if (this._recordingNow == true) {
+              this._showRecordingDuration();
+            }
+          }, null, 1000);
+        },
+
         // starts the record for the current mode
         _startRecord: function() {
-          this._startRecordVideo();
+          this._startTime = Date.now();
+
+          if (this.mode == 'video') {
+            this._startRecordVideo();
+          }
           this._startRecordAudio();
+
+          this._showRecordingDuration();
+        },
+
+        _resetCanvas: function() {
+          this._videoCanvas.getContext('2d').clearRect(0, 0, this._videoCanvas.width, this._videoCanvas.height);
         },
 
         // starts the record of the video stream
         _startRecordVideo: function() {
           this._videoBlob = null; // reset blob
           this._videoFrames = [];
+          this._resetCanvas();
 
-          // clear the canvas first (optional)
-          this._videoCanvas.getContext('2d').clearRect(0, 0, this._videoCanvas.width, this._videoCanvas.height);
-
-          // draw the current video frame into the canvas 2D context to read them back
-          // as image.
-          function drawVideoFrame_(time) {
-            this._rafId = requestAnimationFrame((drawVideoFrame_).bind(this)); // cross browser safe!
+          // draw the current video frame into the canvas 2D context to read them back as image.
+          function drawVideoFrame(time) {
+            this._rafId = requestAnimationFrame((drawVideoFrame).bind(this)); // cross browser safe!
             this._videoCanvas.getContext('2d').drawImage(this._shortSelect('#liveVideo'), 0, 0, this._videoCanvas.width, this._videoCanvas.height);
-            this._shortSelect('#consoleContainer').innerHTML = 'Recording... ' + Math.round((Date.now() - this._startTime) / 1000) + 's';
 
             // Read back canvas as webp.
-            var url = this._videoCanvas.toDataURL('image/webp', 1); // image/jpeg is a way faster :(
+            var url = this._videoCanvas.toDataURL('image/webp', 0.80); // image/jpeg is a way faster :(
             this._videoFrames.push(url);
           };
 
-          // set the startTime to now and request the first frame
-          this._startTime = Date.now();
-          this._rafId = requestAnimationFrame((drawVideoFrame_).bind(this));
+          // request the first frame
+          this._rafId = requestAnimationFrame((drawVideoFrame).bind(this));
         },
 
         // starts the audio recording
@@ -264,22 +477,25 @@ Example:
 
         // stops the record for the current mode
         _stopRecord: function() {
-          // switch from live to recorded video
-          this._currentUIState = this._uiStateEnum.PLAYBACK_RECORD;
-          this._playerMode = 'videoStopped';
+          this._endTime = Date.now();
+          this._totalDuration = ((this._endTime - this._startTime) / 1000);
 
-          this._stopRecordVideo();
-          this._stopRecordAudio((function() {
-            this._embedVideoAudioPreview();
-          }).bind(this));
+          // switch from live to recorded video
+          this._currentUIState = this._uiStateEnum.MEDIA_RECORDED;
+          this._playerMode = 'mediaStopped';
+
+          if (this.mode == 'video') {
+            this._stopRecordVideo();
+            this._embedVideoPreview();
+          }
+
+          this._stopRecordAudio();
+          this._embedAudioPreview();
         },
 
         // stops the record for the video stream
         _stopRecordVideo: function() {
           cancelAnimationFrame(this._rafId);
-          this._endTime = Date.now();
-          this._totalDuration = ((this._endTime - this._startTime) / 1000);
-
           // adjust the recorded frames to the duration, so we get the real speed!
           var fps = this._videoFrames.length / this._totalDuration;
           this._videoBlob = Whammy.fromImageArray(this._videoFrames, fps);
@@ -289,31 +505,31 @@ Example:
         },
 
         // stops the record of the audio stream
-        _stopRecordAudio: function(callbackExportDone) {
+        _stopRecordAudio: function() {
           this._audioRecorder.stop();
+        },
 
+        _embedAudioPreview: function() {
           this._audioRecorder.exportWAV((function(audioBlob) {
             // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
             this._audioBlob = audioBlob;
-            callbackExportDone();
+
+            // add blob to src of audio element
+            var playbackAudio = this._shortSelect('#playbackAudio');
+            playbackAudio.src = window.URL.createObjectURL(this._audioBlob);
           }).bind(this));
         },
 
-        // connect the stream source to the HTML video- and audioplayer
-        _embedVideoAudioPreview: function() {
-          // delay a bit to catch the DOM changes ...
-          this.job('delayAbit', function() {
-            // binding is already applied in Polymer.job to 'this' context
+        _embedVideoPreview: function() {
+          // adjust size of player to video size
+          this.job('waitForDOMChanges', function() {
             var playbackVideo = this._shortSelect('#playbackVideo');
-            var playbackAudio = this._shortSelect('#playbackAudio');
 
-            // adjust size of player to video size
             playbackVideo.style.width = this._videoCanvas.width + 'px';
             playbackVideo.style.height = this._videoCanvas.height + 'px';
 
-            // add blob to src of video/audio elements
+            // add blob to src of video element
             playbackVideo.src = window.URL.createObjectURL(this._videoBlob);
-            playbackAudio.src = window.URL.createObjectURL(this._audioBlob);
           });
         },
 
@@ -325,9 +541,35 @@ Example:
           });
         },
 
+        // event handler to reinit the UserMedia stream, when the camera source changes
+        onCameraTapped: function(event, detail, sender) {
+          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED && !this._recordingNow) {
+            this._initGetUserMedia();
+          }
+        },
+
+        // event handler to reinit the UserMedia stream, when the microphone source changes
+        onMicrophoneTapped: function(event, detail, sender) {
+          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED && !this._recordingNow) {
+            this._initGetUserMedia();
+          }
+        },
+
+        onMicrophoneVolumeChange: function(event, detail, sender) {
+          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED) {
+            this._volumeFullNode.gain.value = sender.immediateValue / 100;
+          }
+        },
+
         // event handler to initialize the UserMedia API
         onEnableTapped: function(event, detail, sender) {
           this._initGetUserMedia();
+        },
+
+        // event handler to grap a picture of the current stream frame
+        onSnapTapped: function(event, detail, sender) {
+          this._takePicture();
+          this._currentUIState = this._uiStateEnum.MEDIA_RECORDED;
         },
 
         // event handler to start and stop recording
@@ -349,7 +591,7 @@ Example:
 
         // event handler to hack the width of the
         onPlaybackEnded: function(event, detail, sender) {
-          this._playerMode = 'videoStopped';
+          this._playerMode = 'mediaStopped';
           this._shortSelect('#progressLine').style.width = '100%';
         },
 
@@ -361,31 +603,36 @@ Example:
 
         // event handler to start playing the recorded stream(s) (based on the current mode)
         onPlayTapped: function(event, detail, sender) {
-          this._playerMode = 'videoPlaying';
+          this._playerMode = 'mediaPlaying';
 
-          this._shortSelect('#playbackVideo').play();
+          if (this.mode == 'video') {
+            this._shortSelect('#playbackVideo').play();
+          }
           this._shortSelect('#playbackAudio').play();
         },
 
         // event handler to pause the playing audio/video (based on the current mode)
         onPauseTapped: function(event, detail, sender) {
-          this._playerMode = 'videoPaused';
+          this._playerMode = 'mediaPaused';
 
-          this._shortSelect('#playbackVideo').pause();
+          if (this.mode == 'video') {
+            this._shortSelect('#playbackVideo').pause();
+          }
           this._shortSelect('#playbackAudio').pause();
         },
 
         // event handler to stop the playing audio/video (based on the current mode)
         onStopTapped: function(event, detail, sender) {
-          this._playerMode = 'videoStopped';
+          this._playerMode = 'mediaStopped';
 
-          this._shortSelect('#playbackVideo').load();
+          if (this.mode == 'video') {
+            this._shortSelect('#playbackVideo').load();
+          }
           this._shortSelect('#playbackAudio').load();
         },
 
         // event handler to dismiss the current recording to start a new one
         onRedoTapped: function(event, detail, sender) {
-          this._currentUIState = this._uiStateEnum.DEVICE_ACCESS_GRANTED;
           this._initVideoAudio();
         },
 
@@ -423,9 +670,9 @@ Example:
           // [1]: Create an AudioNode from the stream.
           var audioSourceNode = this._audioContext.createMediaStreamSource(this._stream);
 
-          // [2]: Create a control node to set the gain level to the maximum (1.0).
-          var volumeFullNode = this._audioContext.createGain();
-          volumeFullNode.gain.value = 1.0;
+          // [2]: Create a control node to set the gain level to a high value.
+          this._volumeFullNode = this._audioContext.createGain();
+          this._volumeFullNode.gain.value = this._microphoneGainLevelInit;
 
           // [3]: Create an AnalyserNode to visualize the live stream audio data.
           //      See more at https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
@@ -438,15 +685,15 @@ Example:
           volumeZeroNode.gain.value = 0.0;
 
           // *** Recording ***
-          this._audioRecorder = new Recorder(volumeFullNode, {
+          this._audioRecorder = new Recorder(this._volumeFullNode, {
             workerPath: '/bower_components/Recorderjs/recorderWorker.js'
           });
 
           // *** Wiring all together ***
           // Connect [1] with [2]
-          audioSourceNode.connect(volumeFullNode);
+          audioSourceNode.connect(this._volumeFullNode);
           // Connect [2] with [3]
-          volumeFullNode.connect(this._analyserNode);
+          this._volumeFullNode.connect(this._analyserNode);
           // Connect [3] with [4]
           this._analyserNode.connect(volumeZeroNode);
           // Connect [4] with output device
@@ -473,14 +720,21 @@ Example:
             var analyser = this._analyserNode;
             var bars = Array.prototype.slice.call(this.shadowRoot.querySelectorAll("#audioVisualizer > div"));
 
+            var lastTime = Date.now();
+
             function update() {
               requestAnimationFrame(update);
 
-              analyser.getByteFrequencyData(frequencyData);
+              // every 25ms
+              var currentTime = Date.now();
+              if (currentTime - lastTime > 25) {
+                lastTime = currentTime;
+                analyser.getByteFrequencyData(frequencyData);
 
-              bars.forEach(function (bar, index) {
-                bar.style.height = frequencyData[index] + 'px';
-              });
+                bars.forEach(function (bar, index) {
+                  bar.style.height = frequencyData[index] + 'px';
+                });
+              }
             };
 
             update();
@@ -496,14 +750,20 @@ Example:
           // we must short delay to catch the DOM changes ...
           this.job('waitForDOM', function() {
             // init video
-            this._initVideo();
+            if (this.mode != 'audio') {
+              this._initVideo();
+            }
           });
 
-          // init audio
-          this._initAudioContext();
+          if (this.mode != 'image') {
+            // init audio
+            this._initAudioContext();
+          }
 
           // init audio visualizer
-          this._initAudioVisualizer();
+          if (this.visualizeAudio && this.mode != 'image') {
+            this._initAudioVisualizer();
+          }
         },
 
         // Initializes the MediaCapture API
@@ -515,27 +775,42 @@ Example:
             navigator.msGetUserMedia
           );
 
+          var videoConfig = {
+            mandatory: {
+              minWidth: this._videoDim.width,
+              minHeight: this._videoDim.height
+            },
+            optional: [{ sourceId: this._devices.selected.cameraId }]
+          };
+
+          var audioConfig = {
+            mandatory: {
+              googEchoCancellation: false,
+              googAutoGainControl: false,
+              googNoiseSuppression: false,
+              googHighpassFilter: false
+            },
+            optional: [{ sourceId: this._devices.selected.microphoneId }]
+          };
+
+          // if the mode is image, we don't need any audio
+          if (this.mode == 'image') {
+            audioConfig = false;
+          }
+
+          // if the mode is audio, we don't need any video
+          if (this.mode == 'audio') {
+            videoConfig = false;
+          }
+
           if (navigator.getUserMedia) {
             // see https://developer.mozilla.org/en-US/docs/NavigatorUserMedia.getUserMedia
             navigator.getUserMedia (
 
               // constraints
               {
-                video: {
-                  mandatory: {
-                    minWidth: this._videoDim.width,
-                    minHeight: this._videoDim.height
-                  }
-                },
-                audio: {
-                  mandatory: {
-                    googEchoCancellation: false,
-                    googAutoGainControl: false,
-                    googNoiseSuppression: false,
-                    googHighpassFilter: false
-                  },
-                  optional: []
-                }
+                video: videoConfig,
+                audio: audioConfig
               },
 
               // successCallback
