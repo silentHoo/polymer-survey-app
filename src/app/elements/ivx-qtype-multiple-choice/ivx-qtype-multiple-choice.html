@@ -62,8 +62,7 @@
         _answers: [],
 
         ready: function() {
-          // async is equivalent to setTimout
-          this.async(this.prepareDistributedNodes, this, 0);
+          this.async(this.prepareDistributedNodes, null, 0);
         },
 
         prepareDistributedNodes: function() {
