@@ -63,10 +63,12 @@ Example:
       <div horizontal layout center>
 
         <!-- *** video container *** -->
-        <div id="videoContainer" flex>
+        <div id="videoContainer" class="[[ mode ]]" flex>
           <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
-            <!-- live camera -->
-            <video flex id="liveVideo" class="{{ _filterSelected }}" muted></video>
+            <template if="[[ mode == 'video' ]]">
+              <!-- live camera -->
+              <video flex id="liveVideo" class="{{ _filterSelected }}" muted></video>
+            </template>
 
             <!-- visualizer -->
             <template if="[[ mode == 'audio' || mode == 'video' ]]">
@@ -77,12 +79,12 @@ Example:
           <template if="{{ _currentUIState == 'mediaRecorded' && (mode == 'video' || mode == 'audio') }}">
             <!-- playback from existing video -->
             <template if="[[ mode == 'video' ]]">
-              <video id="playbackVideo" class="{{ _filterSelected }}" on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></video>
-              <audio id="playbackAudio" volume="1.0" type="audio/wave"></audio>
+              <video id="playbackVideo" style="width:{{ _videoCanvas.width }}px; height: {{ _videoCanvas.height }}px;" class="{{ _filterSelected }}" on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></video>
+              <audio id="playbackAudio" src="{{ _audioObjectURL }}" volume="1.0" type="audio/wave"></audio>
             </template>
 
             <template if="[[ mode == 'audio' ]]">
-              <audio id="playbackAudio" volume="1.0" type="audio/wave" on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></audio>
+              <audio id="playbackAudio" src="{{ _audioObjectURL }}" volume="1.0" type="audio/wave" on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></audio>
             </template>
 
             <!-- progress line -->
@@ -198,7 +200,19 @@ Example:
         </template>
       </div>
 
-      <div id="consoleContainer" class="spaceToTop"></div>
+      <div id="consoleContainer" class="spaceToTop">
+        <template if="{{ (mode == 'audio' || mode == 'video') && _recordingNow }}">
+          Recording ... {{ _recordingTime }}s
+        </template>
+
+        <template if="{{ mode == 'audio' && !_recordingNow && _currentUIState == 'mediaRecorded' }}">
+          Recorded {{ _totalDuration }}s
+        </template>
+
+        <template if="{{ mode == 'video' && !_recordingNow && _currentUIState == 'mediaRecorded' }}">
+          Frames captured: {{ _videoFrames.length }}, {{ _totalDuration }}s Video (~{{ _fps }} fps)
+        </template>
+      </div>
     </div>
 
     <!-- START Bound templates -->
@@ -286,6 +300,7 @@ Example:
         },
         _videoCanvas: document.createElement('canvas'), // offscreen canvas
         _videoFrames: [],
+        _fps: 0,
         // stores the video recorded from the stream as blob
         _videoBlob: null,
 
@@ -294,6 +309,7 @@ Example:
         _audioContext: null,
         // stores the audio recorded from the stream as blob
         _audioBlob: null,
+        _audioObjectURL: null,
         _analyserNode: null,
         _microphoneGainLevelInit: 0.8,
         _volumeFullNode: null,
@@ -307,6 +323,8 @@ Example:
         _endTime: null,
         // duration for the recording
         _totalDuration: null,
+        // will run up when in recording mode
+        _recordingTime: 0,
 
         // requestAnimationFrame ID
         _rafId: null,
@@ -342,6 +360,7 @@ Example:
           }
         },
 
+        // detects the device sources available to the browser
         _detectDeviceSources: function() {
           if (typeof MediaStreamTrack === 'undefined') {
             alert('Your browser does NOT support MediaStreamTrack, no device detection possible :(');
@@ -349,6 +368,9 @@ Example:
           }
 
           var sortDevices = function(sources) {
+            this._devices.microphones = [];
+            this._devices.cameras = [];
+
             for (var i = 0; i < sources.length; i++) {
               if (sources[i].kind == 'audio') {
                 this._devices.microphones.push(sources[i]);
@@ -420,15 +442,17 @@ Example:
           this._imageDataURL = this._videoCanvas.toDataURL('image/jpeg', 0.92);
         },
 
-        _showRecordingDuration: function() {
-          this.async(function() {
-            var container = this._shortSelect('#consoleContainer');
-            container.innerHTML = 'Recording... ' + Math.round((Date.now() - this._startTime) / 1000) + 's';
+        _updateRecordingDuration: function() {
+          var update = function() {
+            this._recordingTime = Math.round((Date.now() - this._startTime) / 1000);
 
             if (this._recordingNow == true) {
-              this._showRecordingDuration();
+              this._updateRecordingDuration();
             }
-          }, null, 1000);
+          };
+
+          update();
+          this.async(update, null, 1000);
         },
 
         // starts the record for the current mode
@@ -440,7 +464,7 @@ Example:
           }
           this._startRecordAudio();
 
-          this._showRecordingDuration();
+          this._updateRecordingDuration();
         },
 
         _resetCanvas: function() {
@@ -497,11 +521,8 @@ Example:
         _stopRecordVideo: function() {
           cancelAnimationFrame(this._rafId);
           // adjust the recorded frames to the duration, so we get the real speed!
-          var fps = this._videoFrames.length / this._totalDuration;
-          this._videoBlob = Whammy.fromImageArray(this._videoFrames, fps);
-
-          this._shortSelect('#consoleContainer').innerHTML = ('Frames captured: ' + this._videoFrames.length + ', ' +
-                                                this._totalDuration + 's Video (~' + Math.floor(fps) + 'fps)');
+          this._fps = Math.floor(this._videoFrames.length / this._totalDuration);
+          this._videoBlob = Whammy.fromImageArray(this._videoFrames, this._fps);
         },
 
         // stops the record of the audio stream
@@ -513,10 +534,7 @@ Example:
           this._audioRecorder.exportWAV((function(audioBlob) {
             // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
             this._audioBlob = audioBlob;
-
-            // add blob to src of audio element
-            var playbackAudio = this._shortSelect('#playbackAudio');
-            playbackAudio.src = window.URL.createObjectURL(this._audioBlob);
+            this._audioObjectURL = window.URL.createObjectURL(this._audioBlob);;
           }).bind(this));
         },
 
