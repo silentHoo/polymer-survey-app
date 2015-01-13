@@ -18,7 +18,7 @@ Use the attribute `mode` to switch between the types of recording (video (audio+
 
 == **Please Note** ==
 
-This component only work in the following browsers with all features:
+This component only work in the following browsers:
 
 - Firefox >= 25
 - Chrome >= 21
@@ -65,7 +65,7 @@ Example:
         <!-- *** video container *** -->
         <div id="videoContainer" class="[[ mode ]]" flex>
           <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
-            <template if="[[ mode == 'video' ]]">
+            <template if="[[ mode == 'video' || mode == 'image' ]]">
               <!-- live camera -->
               <video flex id="liveVideo" class="{{ _filterSelected }}" muted></video>
             </template>
