@@ -63,11 +63,11 @@ html /deep/ paper-button.highlight::shadow #ripple {
   color: #30afff;
 }
 
-html /deep/ paper-radio-group paper-radio-button::shadow #ink[checked] {
+html /deep/ paper-radio-button::shadow #ink[checked] {
   color: #2f6fad;
 }
 
-html /deep/ paper-radio-group paper-radio-button::shadow #onRadio {
+html /deep/ paper-radio-button::shadow #onRadio {
   background-color: #2f6fad;
 }
 
