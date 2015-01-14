@@ -20,14 +20,19 @@ Use the attribute `mode` to switch between the types of recording (video (audio+
 
 This component only work in the following browsers:
 
-- Firefox >= 25
-- Chrome >= 21
+*** Mobile Browsers ***
+
 - Android Browser >= 37
-- Opera >= 18
-- Opera Mobile >= 24
 - Chrome for Android >= 39
-- Safari >= 6 (Audio only)
 - iOS Safari >= 6.1 (Audio only)
+- Opera Mobile >= 24
+
+*** Desktop Browsers ***
+
+- Chrome >= 21
+- Firefox >= 25
+- Safari >= 6 (Audio only)
+- Opera >= 18
 
 == **Please Note** ==
 
@@ -215,7 +220,7 @@ Example:
       </div>
     </div>
 
-    <!-- START Bound templates -->
+    <!-- START bound templates -->
     <template id="audioVideoImageButtons">
       <template if="[[ mode == 'audio' || mode == 'video' ]]">
         <paper-button id="recordButton" raised on-tap="{{ onRecordingTapped }}">
@@ -243,7 +248,7 @@ Example:
         </paper-button>
       </template>
     </template>
-    <!-- END Bound templates -->
+    <!-- END bound templates -->
 
   </template>
 
@@ -467,6 +472,7 @@ Example:
           this._updateRecordingDuration();
         },
 
+        // resets the canvas context
         _resetCanvas: function() {
           this._videoCanvas.getContext('2d').clearRect(0, 0, this._videoCanvas.width, this._videoCanvas.height);
         },
@@ -538,6 +544,7 @@ Example:
           }).bind(this));
         },
 
+        // sets the video config
         _embedVideoPreview: function() {
           // adjust size of player to video size
           this.job('waitForDOMChanges', function() {
