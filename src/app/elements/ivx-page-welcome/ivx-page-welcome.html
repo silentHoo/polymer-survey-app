@@ -10,6 +10,41 @@
 
     <div>
       <ivx-pager>
+        <!--
+        <page>
+          <ivx-question-layouter question="Likert-Skala">
+            <ivx-qtype-likert mode="" columns="--, -, o, +, ++, keine Angabe">
+              <row></row>
+            </ivx-qtype-likert>
+          </ivx-question-layouter>
+        </page>
+        -->
+
+        <page>
+          <ivx-question-layouter question="Auswahlmatrix">
+            <ivx-qtype-selection-matrix mode="multi-answer" preselectedColumn="1">
+              <!-- we cannot use `col` or `columns` here :( -->
+              <col-item>Antwort 1</col-item>
+              <col-item>Antwort 2</col-item>
+              <col-item>Antwort 3</col-item>
+              <col-item>Antwort 4</col-item>
+              <col-item>Antwort 5</col-item>
+              <col-item>Antwort 6</col-item>
+
+              <row-item>Aussage 1</row-item>
+              <row-item>Aussage 2</row-item>
+              <row-item>Aussage 3</row-item>
+              <row-item>Aussage 4</row-item>
+              <row-item>Aussage 5</row-item>
+              <row-item>Aussage 6</row-item>
+              <row-item>Aussage 7</row-item>
+              <row-item>Aussage 8</row-item>
+              <row-item>Aussage 9</row-item>
+              <row-item>Aussage 10</row-item>
+            </ivx-qtype-selection-matrix>
+          </ivx-question-layouter>
+        </page>
+
         <page>
           <ivx-question-layouter question="Audio">
             <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
