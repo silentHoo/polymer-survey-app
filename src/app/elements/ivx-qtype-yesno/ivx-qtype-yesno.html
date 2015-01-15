@@ -1,0 +1,34 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-qtype-yesno" attributes="">
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin-top: 1rem;
+      }
+
+      /* default values can be overwritten with /deep/ and ::shadow  */
+      paper-radio-group {
+        font-size: 1.25rem;
+      }
+    </style>
+
+    <div horizontal center-justified layout>
+      <paper-radio-group selected="">
+        <paper-radio-button name="yes" label="Ja"></paper-radio-button>
+        <paper-radio-button name="no" label="Nein"></paper-radio-button>
+      </paper-radio-group>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+
+      Polymer({
+        // define element prototype here
+      });
+
+    })();
+  </script>
+</polymer-element>

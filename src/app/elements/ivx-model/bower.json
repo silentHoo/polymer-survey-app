@@ -1,0 +1,16 @@
+{
+  "name": "ivx-model",
+  "version": "0.1.0",
+  "keywords": [
+    "polymer",
+    "web-components"
+  ],
+  "main": "ivx-model.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^0.5.1",
+    "js-model": "https://github.com/silentHoo/js-model.git"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^2.0.0"
+  }
+}

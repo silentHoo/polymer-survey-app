@@ -1,0 +1,137 @@
+<!--
+`ivx-app` is the container for the survey app or the controller. It will show a `<core-drawer-panel>` containing
+a drawer, a toolbar and a content area where the pages are displayed.
+
+You can use the `ivx-app` without any configuration.
+
+Example:
+
+    <ivx-app></ivx-app>
+
+@group Inovex Survey Elements
+@element ivx-app
+@homepage inovex.de
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-app">
+  <template>
+    <link rel="stylesheet" href="ivx-app.css">
+
+    <!-- non-visual dependencies -->
+    <app-globals id="globals"></app-globals>
+    <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
+
+    <core-drawer-panel id="drawerPanel">
+      <core-header-panel drawer>
+        <ivx-drawer-content items="{{ pageItems }}" on-item-selected="{{ drawerItemSelected }}"></ivx-drawer-content>
+      </core-header-panel>
+
+      <core-header-panel main id="hPanel">
+
+        <core-toolbar id="toolbar">
+          <core-icon-button id="toggleButton" icon="menu" core-drawer-toggle></core-icon-button>
+          <span flex>{{ $.globals.toolbarTitle }}</span>
+
+          <div relative>
+            <ivx-context-menu id="contextMenu" items="{{ contextItems }}" on-item-selected="{{ contextItemSelected }}"></ivx-context-menu>
+          </div>
+        </core-toolbar>
+
+        <div class="content" fit>
+          <ivx-main-content uriToShow="{{ uriToShow }}" id="mainContent" fit></ivx-main-content>
+        </div>
+
+      </core-header-panel>
+    </core-drawer-panel>
+
+    <!-- dialog -->
+    <ivx-dialog-base id="dialog" transition="core-transition-center" heading="{{ dialog.title }}">
+      {{ dialog.content }}
+    </ivx-dialog-base>
+    <!-- /dialog -->
+  </template>
+
+  <script src="../../bower_components/js-model/dist/js-model-0.11.0.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        // configuration of the single paper-buttons in the drawer panel.
+        pageItems: [{
+          name: 'Umfragen',
+          href: '/surveys',
+          closeDrawer: false,
+          coreIconName: 'assignment'
+        }, {
+          name: 'Anmelden',
+          href: '/authorize',
+          closeDrawer: true,
+          coreIconName: 'account-circle'
+        }],
+
+        // configuration of the context menu in the toolbar.
+        contextItems: [{
+          pageKey: 'load',
+          name: 'Umfragen laden'
+        }, {
+          pageKey: 'config',
+          name: 'Einstellungen'
+        }, {
+          pageKey: 'about',
+          name: 'Über'
+        }],
+
+        dialog: {
+          title: '',
+          content: ''
+        },
+
+        uriToShow: '',
+
+        /* Init */
+        ready: function() {
+          this.$.globals.toolbarTitle = 'UmfrageApp';
+        },
+
+        // callback to load the dummy questions
+        // @todo remove in production
+        contextItemSelected: function(event) {
+          // load questions
+          if (event.detail.item.pageKey == 'load') {
+            this.$.surveyModel.loadDummy();
+            return;
+          }
+
+          this.dialog.title = event.detail.item.name;
+          this.dialog.content = 'Inhalt von ' + event.detail.item.name + ' ... hier rein!';
+
+          this.$.dialog.toggle();
+        },
+
+        // callback to change the title in the toolbar.
+        // Will also close the drawer, if a page needs to be shown only with the toolbar
+        // and needs some more space.
+        drawerItemSelected: function(event) {
+          var item = event.detail.item;
+
+          // switch to narrow mode if forced
+          if (item.closeDrawer) {
+            this.$.drawerPanel.narrow = true;
+            this.$.drawerPanel.togglePanel();
+          } else {
+            this.$.drawerPanel.narrow = false;
+          }
+
+          // change title to current page title
+          this.$.globals.toolbarTitle = item.name;
+
+          // route to current page
+          this.uriToShow = item.href;
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

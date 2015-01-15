@@ -1,0 +1,93 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-page-surveylist" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-page-surveylist.css">
+
+    <!-- non-visual dependencies -->
+    <core-signals on-core-signal-survey-changed="{{ onModelChanged }}"></core-signals>
+    <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
+
+    <core-list id="list" data="{{ surveylist }}" height="120" style="height: 100%">
+      <template>
+
+        <div surveyId="{{ model.id }}" on-tap="{{ onSurveySelected }}" class="row {{ { selected: selected } | tokenList }}" flex>
+          <div class="title">{{ model.title }}</div>
+          <div class="questionCount">Anzahl der Fragen: {{ model.questionCount }}</div>
+          <paper-icon-button icon="more-vert" on-tap="{{ openContextDialog }}"></paper-icon-button>
+        </div>
+
+      </template>
+    </core-list>
+
+    <paper-fab class="fab" icon="add"></paper-fab>
+
+    <!-- dialog -->
+    <ivx-dialog-context id="dialog" transition="core-transition-center" layered="true" heading="{{ viewModel.dialog.title }}">
+      <template repeat="{{ item in viewModel.contextList }}">
+        <div class="entry">{{ item.name }}</div>
+      </template>
+    </ivx-dialog-context>
+    <!-- /dialog -->
+
+  </template>
+
+  <script src="../../bower_components/js-model/dist/js-model-0.11.0.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // private static
+
+      Polymer({
+
+        // wait until all elements are attached to the DOM to use the model instance
+        domReady: function() {
+          this.updateSurveyList();
+        },
+
+        surveylist: [],
+
+        viewModel: {
+          surveylist: [],
+
+          dialog: {
+            title: 'No title'
+          },
+
+          contextList: [{
+            name: 'Ergebnisse anzeigen'
+          }, {
+            name: 'Umfrage bearbeiten'
+          }, {
+            name: 'Umfrage löschen'
+          }]
+        },
+
+        updateSurveyList: function() {
+          this.surveylist = this.$.surveyModel.all();
+        },
+
+        openContextDialog: function(event, detail, sender) {
+          var surveyId = +sender.parentNode.getAttribute('surveyId');
+          this.viewModel.dialog.title = this.$.surveyModel.find(surveyId)['title'];
+          this.$.dialog.toggle();
+          event.stopPropagation();
+        },
+
+        onSurveySelected: function(event, detail, sender) {
+          var surveyId = +sender.getAttribute('surveyId');
+          this.fire('survey-selected', {
+            survey: this.$.surveyModel.find(surveyId)
+          });
+        },
+
+        // never use *Changed as the name for an event handler, these are reserved for Polymer!
+        onModelChanged: function(event, detail, sender) {
+          this.updateSurveyList();
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

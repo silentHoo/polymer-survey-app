@@ -1,0 +1,147 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-animated-pages/core-animated-pages.html">
+<link rel="import" href="../../bower_components/core-animated-pages/transitions/slide-from-right.html">
+
+<polymer-element name="ivx-pager" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-pager.css">
+
+    <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
+    <div style="display: none;">
+      <content id="distributedContent" select="page"></content>
+    </div>
+
+    <div id="wrapper" touch-action="pan-x" on-trackstart="{{ onTouchStart }}" on-trackend="{{ onTouchEnd }}" on-track="{{ onTouchTrack }}">
+      <core-animated-pages
+        id="pageContent"
+        transitions="slide-from-right"
+        selected="{{ currentPage }}"
+        on-core-animated-pages-transition-prepare="{{ onAnimationStart }}"
+        on-core-animated-pages-transition-end="{{ onAnimationEnd }}"
+        fit>
+        <!--
+          <section slide-from-right>
+            <div layout vertical center center-justified style="height: 100%">
+              {{ page }}
+            </div>
+          </section>
+        -->
+      </core-animated-pages>
+
+      <div id="navContainer">
+        <template if="{{ navigationVisible }}">
+        <div class="buttonWrapper">
+          <template if="{{ currentPage > 0 }}">
+            <paper-button on-tap="{{ onPrevPage }}" raised>{{previous}}</paper-button>
+          </template>
+        </div>
+
+        <div class="buttonWrapper">
+          <template if="{{ currentPage < pageCount - 1 }}">
+            <paper-button on-tap="{{ onNextPage }}" raised>{{next}}</paper-button>
+          </template>
+
+          <template if="{{ currentPage == pageCount - 1 }}">
+            <paper-button class="highlight" on-tap="{{ onSubmit }}" raised>{{submit}}</paper-button>
+          </template>
+        </div>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <!-- for a good introduction in insertion points see patterns:
+  https://github.com/PolymerLabs/polymer-patterns/tree/master/snippets/insertion-points -->
+
+  <script>
+    (function () {
+
+      Polymer({
+        currentPage: 0,
+        pageCount: 0,
+        previous: '<< Zurück',
+        next: 'Weiter >>',
+        submit: 'Beenden!',
+        navigationVisible: true,
+
+        // guarantees that the element is in the DOM tree
+        attached: function() {
+          // insert content into sections
+          this.async(this.prepareDistributedNodes, this, 0);
+        },
+
+        prepareDistributedNodes: function() {
+          var distributedNodes = this.$.distributedContent.getDistributedNodes();
+          [].forEach.call(distributedNodes, function(node, i) {
+            /*
+             We want to create this template:
+
+             <section slide-from-right>
+             <div layout vertical center center-justified style="height: 100%">
+             {{ page }}
+             </div>
+             </section>
+             */
+
+            // create section
+            var section = document.createElement('section');
+            section.setAttribute('slide-from-right', true);
+
+            // create div
+            var div = document.createElement('div');
+            div.setAttribute('layout', true);
+            div.setAttribute('vertical', true);
+            div.setAttribute('center', true);
+            div.setAttribute('center-justified', true);
+            div.setAttribute('style', 'height:100%');
+
+            // insert distributed content node
+            div.appendChild(node);
+
+            var docFragment = document.createDocumentFragment();
+            docFragment.appendChild(section);
+            docFragment.childNodes[0].appendChild(div);
+
+            this.$.pageContent.appendChild(docFragment);
+
+            this.pageCount = this.$.pageContent.children.length;
+            this.currentPage = 0; // start by 0
+          }, this);
+        },
+
+        onTouchStart: function(args) {
+          //console.log('start');
+        },
+
+        onTouchTrack: function(event) {
+          //console.log(event.dx);
+        },
+
+        onTouchEnd: function(args) {
+          //console.log('end');
+        },
+
+        onAnimationStart: function() {
+          this.navigationVisible = false;
+        },
+
+        onAnimationEnd: function() {
+          this.navigationVisible = true;
+        },
+
+        onNextPage: function() {
+          if (this.currentPage < this.pageCount) {
+            ++this.currentPage;
+          }
+        },
+
+        onPrevPage: function() {
+          if (this.currentPage > 0) {
+            --this.currentPage;
+          }
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

@@ -1,0 +1,26 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-qtype-base" attributes="optional">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+  </template>
+  <script>
+    (function () {
+
+      Polymer({
+        publish: {
+          optional: false
+        },
+
+        valid: function() {
+          // you should implement this
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

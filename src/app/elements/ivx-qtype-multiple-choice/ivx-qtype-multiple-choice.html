@@ -1,0 +1,79 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-qtype-multiple-choice" attributes="mode">
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin-top: 1rem;
+      }
+
+      /* default values can be overwritten with /deep/ and ::shadow  */
+      paper-radio-group,
+      core-label {
+        font-size: 1.25rem;
+      }
+
+      paper-radio-button {
+        display: block;
+        padding-top: 0.1rem !important;
+      }
+
+      core-label {
+        padding-top: 1rem !important;
+      }
+
+        core-label > div {
+          margin-left: 1rem;
+        }
+    </style>
+
+    <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
+    <div style="display: none;">
+      <content id="distributedContent" select="answer"></content>
+    </div>
+
+    <template if="{{ mode == 'single-answer' }}">
+      <div vertical layout center>
+        <paper-radio-group selected="">
+          <template repeat="{{ answer, index in _answers }}">
+            <paper-radio-button name="{{ answer }}" label="{{ answer }}"></paper-radio-button>
+          </template>
+        </paper-radio-group>
+      </div>
+    </template>
+
+    <template if="{{ mode == 'multi-answer' }}">
+      <div vertical layout center>
+        <template repeat="{{ answer, index in _answers }}">
+          <core-label horizontal layout>
+            <paper-checkbox for></paper-checkbox>
+            <div>{{ answer }}</div>
+          </core-label>
+        </template>
+      </div>
+    </template>
+  </template>
+
+  <script>
+    (function () {
+
+      Polymer({
+        _answers: [],
+
+        ready: function() {
+          this.async(this.prepareDistributedNodes, null, 0);
+        },
+
+        prepareDistributedNodes: function() {
+          this._answers = [];
+          var distributedNodes = this.$.distributedContent.getDistributedNodes();
+          [].forEach.call(distributedNodes, function(node, i) {
+            this._answers.push(node.innerHTML);
+          }, this);
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

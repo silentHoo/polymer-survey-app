@@ -1,0 +1,143 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-input/paper-autogrow-textarea.html">
+
+<polymer-element name="ivx-qtype-text" extends="ivx-qtype-base" attributes="mode maxRows required validationType min max pattern customError">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <template if="{{ mode == 'single' }}">
+      <form>
+        <paper-input-decorator
+          id="inputDecorator"
+          label="Ihre Antwort ..."
+          error="{{ _error }}">
+
+          <input
+            id="input"
+            is="core-input"
+            value="{{ _inputValue }}"
+          >
+
+        </paper-input-decorator>
+      </form>
+    </template>
+
+    <template if="{{ mode == 'multiple' }}">
+      <form>
+        <paper-input-decorator label="Ihre mehrzeilige Antwort ..." >
+          <paper-autogrow-textarea maxRows="{{ maxRows }}">
+            <textarea></textarea>
+          </paper-autogrow-textarea>
+        </paper-input-decorator>
+      </form>
+    </template>
+
+  </template>
+  <script>
+    (function () {
+      // private, static, shared
+      var _isInt = function(value) {
+        return !isNaN(value) &&
+          parseInt(Number(value)) == value &&
+          !isNaN(parseInt(value, 10));
+      };
+
+      Polymer({
+        publish: {
+          mode: 'single', // 'single' or 'multiple'
+          maxRows: 5,
+
+          // validation
+          required: false,
+          validationType: '',
+          min: 1,
+          max: 1000,
+          pattern: '',
+          customError: ''
+        },
+
+        _regex: '',
+        _error: '',
+
+        ready: function() {
+          H5F.setup(this.querySelectorAll('form'));
+
+          if (this.required) {
+            this.$.input.required = true; // data-binding doesnt work here, so we need to do it with JavaScript,
+                                          // only this will set the value to === true
+          }
+
+          if (!_isInt(this.min) || !_isInt(this.max)) {
+            console.log('Attribute "min" or "max" is set but it is not a valid integer value.');
+          }
+
+          switch (this.validationType) {
+            case 'text':
+              this._regex = '^.{'+this.min+','+this.max+'}$';
+              this._error = 'Bitte geben Sie einen Text zwischen '+this.min+' und '+this.max+' Zeichen ein.';
+              break;
+            case 'int':
+              this._error = 'Bitte geben Sie eine Ganzzahl zwischen '+this.min+' und '+this.max+' ein.';
+              this.$.input.type = 'number';
+              this.$.input.min = this.min;
+              this.$.input.max = this.max;
+              break;
+            case 'float':
+              this._error = 'Bitte geben Sie eine Kommazahl ein.';
+              this.$.input.type = 'number';
+              this.$.input.min = 0;
+              this.$.input.max = this.max;
+              this.$.input.step = 'any';
+              break;
+            case 'date':
+              this._regex = '^(0[1-9]|1[0-9]|2[0-9]|3[01]).(0[1-9]|1[012]).[0-9]{4}$'; // dd.mm.YYYY
+              this._error = 'Bitte geben Sie ein Datum ein.';
+              break;
+            case 'email':
+              this.$.input.type = 'email';
+              this.$.input.required = true
+              this._error = 'Bitte geben Sie eine E-Mail Adresse ein.';
+              break;
+            case 'postcode':
+              this._regex = '^[0-9]{5}$';
+              this._error = 'Bitte geben Sie eine Postleitzahl ein.';
+              break;
+            default:
+              if (this.pattern == '' && this.customError == '') {
+                return;
+              }
+
+              if (this.pattern == '' || this.customError == '') {
+                console.log('There is either no "pattern" or "customError" attribute set. Please specify both or use ' +
+                'a valid preset "validationType" value.');
+              } else {
+                if (this.pattern != '') {
+                  this._regex = this.pattern;
+                  this._error = this.customError;
+                }
+              }
+              break;
+          }
+
+          // finally: set it
+          if (this._regex != '') {
+            this.$.input.pattern = this._regex;
+          }
+        },
+
+        _inputValueChanged: function() {
+          this.$.inputDecorator.isInvalid = !this.$.input.validity.valid;
+        }
+      });
+
+    })();
+  </script>
+
+  <!-- polyfill for iOS support -->
+  <script type="text/javascript" src="../../bower_components/H5F/h5f.min.js"></script>
+</polymer-element>

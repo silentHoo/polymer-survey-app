@@ -1,0 +1,42 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-question-layouter" attributes="question layout">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      #question {
+        font-size: 3rem;
+        text-align: center;
+        padding-left: 3rem;
+        padding-right: 3rem;
+      }
+
+      #content {
+        margin-top: 2rem;
+      }
+    </style>
+
+    <template if="{{ layout == 'slides' }}">
+      <div id="question">{{ question }}</div>
+      <div id="content"><content></content></div>
+    </template>
+
+  </template>
+
+  <script>
+    (function () {
+
+      Polymer({
+
+        publish: {
+          question: 'Was halten Sie von ...?',
+          layout: 'slides'
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

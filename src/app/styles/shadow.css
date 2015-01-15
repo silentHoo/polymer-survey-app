@@ -1,0 +1,84 @@
+/**
+ * Appwide Shadow DOM styling
+ *
+ * Shadow DOM support is not integrated into libsass -> https://github.com/sass/libsass/issues/452
+ */
+
+/* Drawer area (left) */
+ivx-app::shadow core-header-panel[drawer] {
+  background-color: #fefefe;
+}
+
+/* Toolbar (top) */
+ivx-app::shadow core-toolbar {
+  background-color: rgba(40, 180, 255, 0.05);
+}
+
+/* Drawer items (not selected) */
+ivx-app::shadow ivx-drawer-content::shadow paper-item {
+  background-color: #fff;
+}
+
+/* (selected) */
+ivx-app::shadow ivx-drawer-content::shadow paper-item.core-selected {
+  background-color: rgba(40, 180, 255, 0.05);
+}
+
+/* Drawer paper-ripple color */
+ivx-app::shadow ivx-drawer-content::shadow paper-item::shadow paper-ripple {
+  color: #258dc8;
+}
+
+html /deep/ .float-left {
+  float: left;
+}
+
+html /deep/ .float-right {
+  float: right;
+}
+
+html /deep/ .clear {
+  clear: both;
+}
+
+/* Theming (without color, size only) */
+html /deep/ paper-input {
+  width: 100%;
+}
+
+html /deep/ paper-input::shadow paper-input-decorator::shadow .input-body {
+  font-size: 2rem;
+}
+
+html /deep/ paper-button {
+  font-size: 1rem;
+}
+
+html /deep/ paper-button.highlight {
+  background-color: #2f6fad;
+  color: #fff;
+}
+
+html /deep/ paper-button.highlight::shadow #ripple {
+  color: #30afff;
+}
+
+html /deep/ paper-radio-button::shadow #ink[checked] {
+  color: #2f6fad;
+}
+
+html /deep/ paper-radio-button::shadow #onRadio {
+  background-color: #2f6fad;
+}
+
+html /deep/ paper-checkbox::shadow #ink[checked] {
+  color: #2f6fad;
+}
+
+html /deep/ paper-checkbox::shadow #checkbox.checked {
+  border-color: #2f6fad;
+}
+
+html /deep/ paper-button {
+  text-transform: none;
+}

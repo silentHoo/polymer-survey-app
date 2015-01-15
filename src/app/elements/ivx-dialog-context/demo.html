@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>ivx-dialog-context Demo</title>
+
+  <script src="../../bower_components/webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="ivx-dialog-context.html">
+
+</head>
+<body unresolved>
+
+<template is="auto-binding">
+  <p>An `ivx-dialog-context` looks like this:</p>
+
+  <button on-tap="{{ openDialog }}">Open dialog</button>
+
+  <ivx-dialog-context id="dialog" transition="core-transition-center" layered="true" heading="Titel goes here">
+    <div class="entry">Entry #1</div>
+    <div class="entry">Entry #2</div>
+    <div class="entry">Entry #3</div>
+    <div class="entry">Entry #4</div>
+    <div class="entry">Entry #5</div>
+  </ivx-dialog-context>
+</template>
+
+<script>
+  var scope = document.querySelector('template[is=auto-binding]');
+
+  scope.openDialog = function() {
+    document.getElementById('dialog').toggle();
+  };
+</script>
+
+</body>
+</html>

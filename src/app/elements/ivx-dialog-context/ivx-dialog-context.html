@@ -1,0 +1,111 @@
+<!--
+`ivx-dialog-context` is an extension to the `ivx-dialog-base` and adds additional stylings to
+the dialog to let all ivx-dialogs appear in the same fashion.
+
+There's no functionality in this component, only styling.
+
+Example:
+
+    <ivx-dialog-context id="dialog" transition="core-transition-center" layered="true" heading="Titel goes here">
+      <div class="entry">Entry #1</div>
+      <div class="entry">Entry #2</div>
+      <div class="entry">Entry #3</div>
+      <div class="entry">Entry #4</div>
+      <div class="entry">Entry #5</div>
+    </ivx-dialog-context>
+
+Material Design: <a href="http://www.google.com/design/spec/components/dialogs.html">Dialogs</a>
+
+`paper-dialog` is an overlay with a drop shadow.
+
+Example:
+
+    <paper-dialog heading="Dialog Title">
+      <p>Some content</p>
+    </paper-dialog>
+
+Styling
+-------
+
+Because a `paper-dialog` is `layered` by default, you need to use the `/deep/`
+combinator to style all instances of the `paper-dialog`. Style the position,
+colors and other inherited properties of the dialog using the
+`html /deep/ paper-dialog` selector. Use the `html /deep/ paper-dialog::shadow #scroller` selector to size the dialog. Note that if you provided actions, the height
+of the actions will be added to the height of the dialog.
+
+    html /deep/ paper-dialog {
+        color: green;
+    }
+
+    html /deep/ paper-dialog::shadow #scroller {
+        height: 300px;
+        width: 300px;
+    }
+
+Transitions
+-----------
+
+You can use transitions provided by `core-transition` with this element.
+
+    <paper-dialog transition="core-transition-center">
+      <p>Some content</p>
+    </paper-dialog>
+
+Accessibility
+-------------
+
+By default, the `aria-label` will be set to the value of the `heading` attribute.
+
+@group Inovex Survey Elements
+@element ivx-dialog-context
+@extends ivx-dialog-base
+@homepage inovex.de
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../ivx-dialog-base/ivx-dialog-base.html">
+
+<polymer-element name="ivx-dialog-context" extends="ivx-dialog-base" noscript>
+  <template>
+    <style>
+      :host::shadow {
+        display: block;
+      }
+
+      :host::shadow #scroller {
+        padding: 0 !important;
+      }
+
+      :host::shadow h1 {
+        padding-top: 3rem;
+        padding-right: 4rem;
+        padding-left: 0.6rem;
+        padding-bottom: 0;
+
+        color: #fff;
+        font-size: 1.5rem;
+        text-overflow: clip;
+        text-overflow: ellipsis;
+        text-overflow: " ...";
+        white-space: nowrap;
+        overflow: hidden;
+
+        background: #258dc8; /* Old browsers */
+        background: -moz-linear-gradient(top,  #258dc8 0%, #258dc8 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#258dc8), color-stop(100%,#258dc8)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  #258dc8 0%,#258dc8 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  #258dc8 0%,#258dc8 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  #258dc8 0%,#258dc8 100%); /* IE10+ */
+        background: linear-gradient(to bottom,  #258dc8 0%,#258dc8 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#258dc8', endColorstr='#258dc8',GradientType=0 ); /* IE6-9 */
+      }
+
+      :host::shadow::content .entry {
+        padding: 1.2rem 0 1.2rem 3rem;
+        background-color: #FFF;
+        color: #258dc8;
+      }
+    </style>
+
+    <shadow></shadow>
+  </template>
+</polymer-element>

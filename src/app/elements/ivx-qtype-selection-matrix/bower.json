@@ -1,0 +1,18 @@
+{
+  "name": "ivx-qtype-selection-matrix",
+  "version": "0.1.0",
+  "keywords": [
+    "selection matrix",
+    "matrix",
+    "survey matrix",
+    "polymer",
+    "web-components"
+  ],
+  "main": "ivx-qtype-selection-matrix.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^0.5.2"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^2.0.0"
+  }
+}

@@ -1,0 +1,121 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-page-welcome" attributes="" noscript>
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div>
+      <ivx-pager>
+        <!--
+        <page>
+          <ivx-question-layouter question="Likert-Skala">
+            <ivx-qtype-likert mode="" columns="--, -, o, +, ++, keine Angabe">
+              <row></row>
+            </ivx-qtype-likert>
+          </ivx-question-layouter>
+        </page>
+        -->
+
+        <page>
+          <ivx-question-layouter question="Auswahlmatrix #1">
+            <ivx-qtype-selection-matrix mode="multi-answer" preselectedColumn="1">
+              <!-- we cannot use `col` or `columns` here :( -->
+              <col-item>Product 1</col-item>
+              <col-item>Product 2</col-item>
+              <col-item>Product 3</col-item>
+
+              <row-item>Feature A</row-item>
+              <row-item>Feature B</row-item>
+              <row-item>Feature C</row-item>
+            </ivx-qtype-selection-matrix>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Auswahlmatrix #2">
+            <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="2">
+              <!-- we cannot use `col` or `columns` here :( -->
+              <col-item>Product 1</col-item>
+              <col-item>Product 2</col-item>
+              <col-item>Product 3</col-item>
+
+              <row-item>Feature A</row-item>
+              <row-item>Feature B</row-item>
+              <row-item>Feature C</row-item>
+            </ivx-qtype-selection-matrix>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Audio">
+            <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Video (visualizeAudio=false)">
+            <ivx-qtype-usermedia visualizeAudio="false" mode="video"></ivx-qtype-usermedia>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Video (visualizeAudio=true)">
+            <ivx-qtype-usermedia visualizeAudio="true" mode="video"></ivx-qtype-usermedia>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Image">
+            <ivx-qtype-usermedia mode="image"></ivx-qtype-usermedia>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Wählen Sie MEHRERE Antworten aus den nachfolgenden Antworten aus.">
+            <ivx-qtype-multiple-choice mode="multi-answer">
+              <answer>Antwort 1</answer>
+              <answer>Antwort 2</answer>
+              <answer>Antwort 3</answer>
+              <answer>Antwort 4</answer>
+              <answer>Antwort 5</answer>
+            </ivx-qtype-multiple-choice>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Wählen Sie EINE Antwort aus den nachfolgenden Antworten aus.">
+            <ivx-qtype-multiple-choice mode="single-answer">
+              <answer>Antwort A</answer>
+              <answer>Antwort B</answer>
+              <answer>Antwort C</answer>
+              <answer>Antwort D</answer>
+              <answer>Antwort E</answer>
+            </ivx-qtype-multiple-choice>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Mögen Sie ...?">
+            <ivx-qtype-yesno></ivx-qtype-yesno>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Ihre E-Mail Adresse:">
+            <ivx-qtype-text mode="single" required validationType="email" min="3" max="5"></ivx-qtype-text>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Geben Sie Text ein:">
+            <ivx-qtype-text mode="single"></ivx-qtype-text>
+          </ivx-question-layouter>
+        </page>
+      </ivx-pager>
+    </div>
+  </template>
+</polymer-element>

@@ -1,0 +1,15 @@
+{
+  "name": "src",
+  "version": "0.0.0",
+  "dependencies": {
+    "core-elements": "Polymer/core-elements#^0.5.2",
+    "paper-elements": "Polymer/paper-elements#^0.5.2",
+    "polymer": "Polymer/polymer#^0.5.2",
+    "js-model": "https://github.com/silentHoo/js-model.git#~0.11.0",
+    "app-router": "~2.1.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^2.0.0",
+    "polymer-gestures": "https://github.com/Polymer/polymer-gestures.git#~0.5.2"
+  }
+}
