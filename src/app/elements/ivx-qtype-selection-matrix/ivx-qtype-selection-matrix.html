@@ -132,6 +132,7 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
 
   <script>
     (function () {
+      'use strict';
 
       Polymer({
         /**
@@ -166,7 +167,7 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
         _matrixState: [],
 
         ready: function() {
-          this._initMatrixState();
+          this._initState();
         },
 
         domReady: function() {
@@ -185,13 +186,13 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
           }, this);
         },
 
-        _restoreMatrixState: function() {
+        _restoreState: function() {
           this._iterateMatrix((function(rowId, colId) {
             this._getItem(rowId, colId).checked = this._matrixState[rowId][colId];
           }).bind(this));
         },
 
-        _initMatrixState: function() {
+        _initState: function() {
           // read in the content nodes
           this._prepareDistributedNodes('cols', this.$.cols.getDistributedNodes());
           this._prepareDistributedNodes('rows', this.$.rows.getDistributedNodes());
