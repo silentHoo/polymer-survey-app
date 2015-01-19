@@ -6,6 +6,10 @@
       :host {
         display: block;
       }
+
+      /* This is the styling for the item elements which are given as children of the
+         ivx-qtype-rank element. */
+
     </style>
 
     <div>
@@ -19,6 +23,19 @@
           </ivx-question-layouter>
         </page>
         -->
+
+        <page>
+          <ivx-question-layouter question="Bitte sortieren Sie die folgenden Aussagen">
+            <ivx-qtype-rank>
+              <item>Antwort 1</item>
+              <item>Antwort 2</item>
+              <item>Antwort 3</item>
+              <item>Antwort 4</item>
+              <item>Antwort 5</item>
+              <item>Antwort 6</item>
+            </ivx-qtype-rank>
+          </ivx-question-layouter>
+        </page>
 
         <page>
           <ivx-question-layouter question="Auswahlmatrix">

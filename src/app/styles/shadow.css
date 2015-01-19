@@ -82,3 +82,24 @@ html /deep/ paper-checkbox::shadow #checkbox.checked {
 html /deep/ paper-button {
   text-transform: none;
 }
+
+/* the item selector will match the given element in the `ivx-qtype-rank` element
+   but will also match the item in the avatar (this is when the item is dragged
+   around). So we need only one style to get the same appearance. */
+html /deep/ item {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 0.5rem;
+  padding: 1rem;
+  background-color: #0066bb;
+  color: white;
+  border: 1px #0066bb solid;
+}
+
+/* This is the avatar container to use when this pull-request will not be accepted:
+   https://github.com/Polymer/core-drag-drop/pull/12 */
+/*core-drag-avatar item {
+  border: 1px grey dotted;
+  opacity: 0.8;
+}*/
