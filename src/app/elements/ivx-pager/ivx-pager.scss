@@ -24,3 +24,14 @@ page {
 core-animated-pages {
   margin: 1rem;
 }
+
+paper-progress {
+  position: absolute;
+  bottom: 0;
+  height: 0.5rem;
+  width: 100%;
+
+  &::shadow #activeProgress {
+    transition: transform 500ms ease 0ms;
+  }
+}

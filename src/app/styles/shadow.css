@@ -112,3 +112,7 @@ html /deep/ paper-slider.noprogress /deep/ .ring > #sliderKnob > #sliderKnobInne
   background-color: #3f51b5 !important;
   border: none !important;
 }
+
+html /deep/ ivx-pager::shadow paper-progress::shadow #activeProgress {
+  background-color: #3f51b5;
+}

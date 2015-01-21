@@ -11,7 +11,10 @@
       <content id="distributedContent" select="page"></content>
     </div>
 
+    <paper-progress min="0" max="{{ pageCount - 1 }}" value="{{ currentPage }}"></paper-progress>
+
     <div id="wrapper" touch-action="pan-x" on-trackstart="{{ onTouchStart }}" on-trackend="{{ onTouchEnd }}" on-track="{{ onTouchTrack }}">
+
       <core-animated-pages
         id="pageContent"
         transitions="slide-from-right"
@@ -110,7 +113,7 @@
         },
 
         onTouchStart: function(args) {
-          //console.log('start');
+          //console.log(args);
         },
 
         onTouchTrack: function(event) {
