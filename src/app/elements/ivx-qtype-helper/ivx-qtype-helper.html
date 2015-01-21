@@ -1,0 +1,38 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-qtype-helper" attributes="" constructor="IvxQTypeHelper">
+  <template>
+    <div id="widthElement" style="width:100%; height:0px;"></div>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var _getDistributedNodes = function(distributedNodes) {
+        var nodes = [];
+
+        [].forEach.call(distributedNodes, function(node, i) {
+          nodes.push(node.innerHTML);
+        }, this);
+
+        return nodes;
+      };
+
+      Polymer({
+        getDistributedNodesArray: function(distributedNodes) {
+          return _getDistributedNodes(distributedNodes);
+        },
+
+        getWidth: function() {
+          return this.$.widthElement.clientWidth;
+        },
+
+        getWidthFromElement: function(element) {
+          return element.clientWidth;
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>
