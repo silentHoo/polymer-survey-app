@@ -6,24 +6,59 @@
       :host {
         display: block;
       }
-
-      /* This is the styling for the item elements which are given as children of the
-         ivx-qtype-rank element. */
-
     </style>
 
     <div>
       <ivx-pager>
-        <!--
+
         <page>
-          <ivx-question-layouter question="Likert-Skala">
-            <ivx-qtype-likert mode="" columns="--, -, o, +, ++, keine Angabe">
-              <row></row>
+          <ivx-question-layouter question="Likert-Skala (Range)">
+            <ivx-qtype-likert mode="slide" preselectedColumn="3">
+              <col-item>trifft zu</col-item>
+              <col-item>trifft eher zu</col-item>
+              <col-item>unentschieden</col-item>
+              <col-item>trifft eher nicht zu</col-item>
+              <col-item>trifft nicht zu</col-item>
+              <col-item>keine Angabe</col-item>
+
+              <row-item>Meine Hochschule gehört zu den angesehensten in Deutschland</row-item>
+              <row-item>Die Netzabdeckung meines Mobilfunkanbieters ist gut</row-item>
+              <row-item>Aussage 3</row-item>
+              <row-item>Aussage 4</row-item>
+              <row-item>Aussage 5</row-item>
+              <row-item>Aussage 6</row-item>
+              <row-item>Aussage 7</row-item>
+              <row-item>Aussage 8</row-item>
+              <row-item>Aussage 9</row-item>
+              <row-item>Aussage 10</row-item>
             </ivx-qtype-likert>
           </ivx-question-layouter>
         </page>
-        -->
+<!--
+        <page>
+          <ivx-question-layouter question="Likert-Skala (Matrix)">
+            <ivx-qtype-likert mode="matrix">
+              <col-item>--</col-item>
+              <col-item>-</col-item>
+              <col-item>o</col-item>
+              <col-item>+</col-item>
+              <col-item>++</col-item>
+              <col-item>k.A.</col-item>
 
+              <row-item>Aussage 1</row-item>
+              <row-item>Aussage 2</row-item>
+              <row-item>Aussage 3</row-item>
+              <row-item>Aussage 4</row-item>
+              <row-item>Aussage 5</row-item>
+              <row-item>Aussage 6</row-item>
+              <row-item>Aussage 7</row-item>
+              <row-item>Aussage 8</row-item>
+              <row-item>Aussage 9</row-item>
+              <row-item>Aussage 10</row-item>
+            </ivx-qtype-likert>
+          </ivx-question-layouter>
+        </page>
+-->
         <page>
           <ivx-question-layouter question="Bitte sortieren Sie die folgenden Aussagen">
             <ivx-qtype-rank>
@@ -36,12 +71,12 @@
             </ivx-qtype-rank>
           </ivx-question-layouter>
         </page>
-
+<!--
         <page>
           <ivx-question-layouter question="Auswahlmatrix">
             <ivx-qtype-selection-matrix mode="multi-answer" preselectedColumn="1">
               <!-- we cannot use `col` or `columns` here :( -->
-              <col-item>Antwort 1</col-item>
+<!--              <col-item>Antwort 1</col-item>
               <col-item>Antwort 2</col-item>
               <col-item>Antwort 3</col-item>
               <col-item>Antwort 4</col-item>
@@ -61,7 +96,7 @@
             </ivx-qtype-selection-matrix>
           </ivx-question-layouter>
         </page>
-
+-->
         <page>
           <ivx-question-layouter question="Audio">
             <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>

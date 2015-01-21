@@ -1,0 +1,180 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../ivx-qtype-helper/ivx-qtype-helper.html">
+
+<polymer-element name="ivx-qtype-likert" attributes="mode preselectedColumn">
+  <template>
+    <link rel="stylesheet" href="ivx-qtype-likert.css">
+
+    <ivx-qtype-helper id="helperComponent"></ivx-qtype-helper>
+
+    <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
+    <!--  -> related: https://www.w3.org/Bugs/Public/show_bug.cgi?id=18429 -->
+    <div style="display: none;">
+      <content id="cols" select="col-item"></content>
+      <content id="rows" select="row-item"></content>
+    </div>
+
+    <template if="[[ mode == 'matrix' ]]" bind ref="matrixModeTemplate"></template>
+    <template if="[[ mode == 'slide' ]]" bind ref="slideModeTemplate"></template>
+
+    <!-- template for mode="matrix" -->
+    <template id="matrixModeTemplate">
+      <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="{{ preselectedColumn }}">
+
+        <!-- repeat for every column -->
+        <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
+          <col-item>{{ col }}</col-item>
+        </template>
+
+        <!-- repeat for every row -->
+        <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
+          <row-item>{{ row }}</row-item>
+        </template>
+
+      </ivx-qtype-selection-matrix>
+    </template>
+
+    <!-- template for mode="slide" -->
+    <template id="slideModeTemplate">
+      <div vertical layout id="slideModeWrapper">
+        <div horizontal layout id="colHeadWrapper">
+
+          <!-- repeat for every column -->
+          <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
+            <div class="colHead">{{ col }}</div>
+          </template>
+
+        </div>
+
+        <!-- repeat for every row -->
+        <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
+          <div horizontal layout>
+            <div class="firstCol">{{ row }}</div>
+            <div flex three>
+              <paper-slider class="noprogress" snaps min="1" max="{{ _distributedNodes.cols.length }}" step="1"></paper-slider>
+            </div>
+          </div>
+        </template>
+
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        publish: {
+          mode: 'slide',
+          preselectedColumn: ''
+        },
+
+        computed: {
+          colCount: '_distributedNodes.cols.length'
+        },
+
+        _distributedNodes: {
+          cols: [],
+          rows: []
+        },
+
+        _dimensions: {
+          sliderProgress: 0,
+          component: 0,
+          firstCol: 0,
+          colMaxHeight: 0,
+          referencePoint: 0,
+
+          // calculated
+          colHead: 0
+        },
+
+        _sliderMarkers: null,
+
+        ready: function() {
+          this._initState();
+        },
+
+        domReady: function() {
+          if (this.mode == 'slide') {
+            this._updateDimensions();
+            this._updateColHeadDimensions();
+          }
+
+          if (this.preselectedColumn !== '') {
+            if (this.preselectedColumn > 0 && this.preselectedColumn < this._distributedNodes.cols.length) {
+              this._checkColumn(this.preselectedColumn);
+            } else {
+              console.log('The preselected column is not > 0 nor <= the column count!');
+            }
+          }
+        },
+
+        _checkColumn: function(columnNumber) {
+          var paperSlider = Array.prototype.slice.call(this.shadowRoot.querySelectorAll('paper-slider'));
+          [].forEach.call(paperSlider, function(node, i) {
+            node.immediateValue = columnNumber;
+          });
+        },
+
+        _initState: function() {
+          this._distributedNodes.cols = this.$.helperComponent.getDistributedNodesArray(this.$.cols.getDistributedNodes());
+          this._distributedNodes.rows = this.$.helperComponent.getDistributedNodesArray(this.$.rows.getDistributedNodes());
+        },
+
+        _updateDimensions: function() {
+          // get all the slider markers
+          this._sliderMarkers = this.shadowRoot.querySelectorAll('paper-slider /deep/ .slider-marker');
+
+          // save the dimensions
+          var sliderProgress  = this.shadowRoot.querySelector('paper-slider::shadow paper-progress::shadow #progressContainer');
+          var firstCol        = this.shadowRoot.querySelector('.firstCol');
+
+          //this._dimensions.component = this.$.helperComponent.getWidth(); // gets the width directly from the element
+          // all others are using the method provided by the helperComponent
+          this._dimensions.sliderProgress   = this.$.helperComponent.getWidthFromElement(sliderProgress);
+          this._dimensions.firstCol         = this.$.helperComponent.getWidthFromElement(firstCol);
+
+          // calculated
+          this._dimensions.colHead = this._dimensions.sliderProgress / (this.colCount - 1);
+        },
+
+        _updateColHeadDimensions: function() {
+          var colHeads = this.shadowRoot.querySelectorAll('.colHead');
+
+          var posFirstSliderMarker  = this._sliderMarkers[0].getBoundingClientRect().left;
+          var posFirstColHead       = colHeads[0].getBoundingClientRect().left;
+          var colOffset             = posFirstSliderMarker - posFirstColHead - this._dimensions.firstCol;
+
+          [].forEach.call(colHeads, function(node, i) {
+            // CSS3 transforms are considered in the getBoundingClientRet()
+            var bb = node.getBoundingClientRect();
+
+            var posShift = this._dimensions.colHead * i;  // we shift every column text i times to the slider marker ...
+            var centerOffset = bb.width / 2;              // ... and move them by 50% left, to adjust the position to
+                                                          // the center of the columns bounding rect.
+
+            // we also must respect the ::after part of the paper-slider, which is 3px so we add +3px for each node
+            // to the offset.
+            centerOffset += 3 * i;
+
+            node.style['margin-left'] =  (posShift - centerOffset) + 'px';
+
+            // save the height of the maximum column box
+            if (bb.height > this._dimensions.colMaxHeight) {
+              this._dimensions.colMaxHeight = bb.height;
+            }
+          }, this);
+
+          this.$.colHeadWrapper.style['margin-top']     = this._dimensions.colMaxHeight + 'px';
+          this.$.colHeadWrapper.style['margin-bottom']  = this._dimensions.colMaxHeight / 2 + 'px';
+          this.$.colHeadWrapper.style['margin-left']    = this._dimensions.firstCol + colOffset + 'px';
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>
