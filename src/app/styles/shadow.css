@@ -88,9 +88,8 @@ html /deep/ paper-button {
    around). So we need only one style to get the same appearance. */
 html /deep/ item {
   display: block;
-  width: 100%;
   text-align: center;
-  margin: 0.5rem;
+  margin-bottom: 0.5rem;
   padding: 1rem;
   background-color: #0066bb;
   color: white;
@@ -103,3 +102,13 @@ html /deep/ item {
   border: 1px grey dotted;
   opacity: 0.8;
 }*/
+
+html /deep/ paper-slider.noprogress /deep/ #activeProgress {
+  display: none;
+  visibility: hidden;
+}
+
+html /deep/ paper-slider.noprogress /deep/ .ring > #sliderKnob > #sliderKnobInner {
+  background-color: #3f51b5 !important;
+  border: none !important;
+}
