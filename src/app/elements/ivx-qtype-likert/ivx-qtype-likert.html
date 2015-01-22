@@ -72,10 +72,6 @@
           preselectedColumn: ''
         },
 
-        computed: {
-          colCount: '_distributedNodes.cols.length'
-        },
-
         _distributedNodes: {
           cols: [],
           rows: []
@@ -139,7 +135,7 @@
           this._dimensions.firstCol         = this.$.helperComponent.getWidthFromElement(firstCol);
 
           // calculated
-          this._dimensions.colHead = this._dimensions.sliderProgress / (this.colCount - 1);
+          this._dimensions.colHead = this._dimensions.sliderProgress / (this._distributedNodes.cols.length - 1);
         },
 
         _updateColHeadDimensions: function() {
