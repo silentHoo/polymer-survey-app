@@ -1,8 +1,34 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-animated-pages/core-animated-pages.html">
 <link rel="import" href="../../bower_components/core-animated-pages/transitions/slide-from-right.html">
+<link rel="import" href="../../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../../bower_components/core-icons/image-icons.html">
 
-<polymer-element name="ivx-pager" attributes="">
+<!--
+This component divides the provided content into pages and acts as a `<core-animated-pages>` wrapper. All configuration
+is encapsulated within the components.
+
+The following features are additionally integrated within this component:
+*
+- `<paper-progress-bar>`: A progress bar which gives the user visual feedback of the current progress.
+- `<paper-fab>`: Two paper-fab buttons two switch to the previous and next page.
+- `navigation bar`: This is the second navigation option to chose from, when using this component.
+- `gesture support`: To swipe the slides, this component also implements a dragging feature.
+
+Example:
+
+    <ivx-pager navigation="bar" showProgress>
+      <page optional="true">
+        ... Your page content here ...
+      </page>
+    </ivx-pager>
+
+@group Question Type Survey Elements
+@element ivx-pager
+@homepage https://github.com/silentHoo
+-->
+
+<polymer-element name="ivx-pager" attributes="navigation showProgress">
   <template>
     <link rel="stylesheet" href="ivx-pager.css">
 
@@ -11,61 +37,173 @@
       <content id="distributedContent" select="page"></content>
     </div>
 
-    <paper-progress min="0" max="{{ pageCount - 1 }}" value="{{ currentPage }}"></paper-progress>
+    <!-- the progress of the current page -->
+    <tempalte if="{{ showProgress }}">
+      <paper-progress min="0" max="{{ pageCount - 1 }}" value="{{ currentPage }}"></paper-progress>
+    </tempalte>
 
-    <div id="wrapper" touch-action="pan-x" on-trackstart="{{ onTouchStart }}" on-trackend="{{ onTouchEnd }}" on-track="{{ onTouchTrack }}">
+    <!-- navigation = fab: fab buttons to switch between the pages -->
+    <template if="[[ navigationVisible && navigation == 'fab' ]]">
+      <div id="paperFabWrapper">
+        <paper-fab
+          icon="arrow-back"
+          title="Zurück"
+          role="button"
+          tabindex="0"
+          aria-label="arrow-back"
+          on-tap="{{ onPrevPage }}"
+          class="{{ {highlight: canMoveToPrevPage} | tokenList}}"
+          >
+        </paper-fab>
 
-      <core-animated-pages
-        id="pageContent"
-        transitions="slide-from-right"
-        selected="{{ currentPage }}"
-        on-core-animated-pages-transition-prepare="{{ onAnimationStart }}"
-        on-core-animated-pages-transition-end="{{ onAnimationEnd }}"
-        fit>
+        <paper-fab
+          icon="arrow-forward"
+          title="Weiter"
+          role="button"
+          tabindex="0"
+          aria-label="arrow-forward"
+          on-tap="{{ onNextPage }}"
+          class="{{ {highlight: canMoveToNextPage} | tokenList}}"
+          >
+        </paper-fab>
+      </div>
+    </template>
+
+    <!-- navigation = bar: two bars to switch between the pages -->
+    <template if="[[ navigation == 'bar' ]]">
+      <div id="btWrapper" horizontal layout justified>
+
+        <template if="{{ navigationVisible }}">
+          <div id="btPrev" class="{{ {highlight: canMoveToPrevPage} | tokenList}}">
+            <template if="{{ currentPage > 0 }}">
+              <div class="icon-wrapper" on-tap="{{ onPrevPage }}" vertical layout center-center>
+                <core-icon icon="image:navigate-before"></core-icon>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <template if="{{ navigationVisible }}">
+          <div id="btNext" class="{{ {highlight: canMoveToNextPage } | tokenList}}">
+            <template if="{{ currentPage < pageCount - 1 }}">
+              <div class="icon-wrapper" on-tap="{{ onNextPage }}" vertical layout center-center>
+                <core-icon icon="image:navigate-next"></core-icon>
+              </div>
+            </template>
+          </div>
+        </template>
+
+      </div>
+    </template>
+
+    <!-- page content area -->
+    <core-animated-pages
+      id="pageContent"
+      transitions="slide-from-right"
+      selected="{{ currentPage }}"
+      on-core-animated-pages-transition-prepare="{{ onAnimationStart }}"
+      on-core-animated-pages-transition-end="{{ onAnimationEnd }}"
+      fit
+      touch-action="pan-x pan-y"
+      on-trackstart="{{ onTouchStart }}"
+      on-trackend="{{ onTouchEnd }}"
+      on-track="{{ onTouchTrack }}"
+      class="trackable {{ animateLostTouch }}"
+      >
+
         <!--
-          <section slide-from-right>
-            <div layout vertical center center-justified style="height: 100%">
+          This template will be inserted via JavaScript.
+
+          <section slide-from-right class="trackable">
+            <div layout vertical center center-justified style="height: 100%" class="trackable">
               {{ page }}
             </div>
           </section>
         -->
-      </core-animated-pages>
 
-      <div id="navContainer">
-        <template if="{{ navigationVisible }}">
-        <div class="buttonWrapper">
-          <template if="{{ currentPage > 0 }}">
-            <paper-button on-tap="{{ onPrevPage }}" raised>{{previous}}</paper-button>
-          </template>
-        </div>
+    </core-animated-pages>
 
-        <div class="buttonWrapper">
-          <template if="{{ currentPage < pageCount - 1 }}">
-            <paper-button on-tap="{{ onNextPage }}" raised>{{next}}</paper-button>
-          </template>
-
-          <template if="{{ currentPage == pageCount - 1 }}">
-            <paper-button class="highlight" on-tap="{{ onSubmit }}" raised>{{submit}}</paper-button>
-          </template>
-        </div>
-        </template>
-      </div>
-    </div>
   </template>
-
-  <!-- for a good introduction in insertion points see patterns:
-  https://github.com/PolymerLabs/polymer-patterns/tree/master/snippets/insertion-points -->
 
   <script>
     (function () {
 
+      // private, static, shared
+      var _createTemplateByNode = function(node) {
+        // create section
+        var section = document.createElement('section');
+        section.setAttribute('slide-from-right', true);
+
+        // create div
+        var div = document.createElement('div');
+        div.setAttribute('layout', true);
+        div.setAttribute('vertical', true);
+        div.setAttribute('center', true);
+        div.setAttribute('center-justified', true);
+        div.setAttribute('style', 'height:100%');
+        div.classList.add('trackable');
+
+        // insert distributed content node
+        div.appendChild(node);
+
+        var docFragment = document.createDocumentFragment();
+        docFragment.appendChild(section);
+        docFragment.childNodes[0].appendChild(div);
+
+        return docFragment;
+      };
+
+      // a short helper function to apply a style on
+      var _setStyle = function(element, prop, val) {
+        element.style[prop] = val;
+      };
+
       Polymer({
-        currentPage: 0,
-        pageCount: 0,
-        previous: '<< Zurück',
-        next: 'Weiter >>',
-        submit: 'Beenden!',
-        navigationVisible: true,
+
+        /**
+         * The navigation type. You can choose between two fab buttons on the right, bottom corner or two bar columns
+         * on the left and right side of the page.
+         *
+         * Use 'fab' or 'bar'.
+         *
+         * @attribute navigation
+         * @type String
+         * @default 'fab'
+         */
+
+        /**
+         * A flag that indicates if a `<paper-progress>` bar should be displayed at the top of the pages viewport.
+         *
+         * @attribute showProgress
+         * @type Boolean
+         * @default true
+         */
+        publish: {
+          navigation: 'fab',
+          showProgress: true
+        },
+
+        currentPage: 0,             // holds the number of the current page.
+        pageCount: 0,               // count(pages) the user provided.
+        navigationVisible: true,    // indicates if the navigation should be visible or not.
+        optionalPages: [],          // array with numbers which indicates what pages are optional and can be skipped.
+        animateLostTouch: '',       // if the user stops dragging, this var will hold the name of the class for an
+                                    // css applied animation.
+        touchOffsetToSwitch: 80,    // how many pixels the user must drag, to switch the page if the user stops the
+                                    // drag. Value must be divided by touchSmoothness.
+        touchSmoothness: 4,         // the divider to make the touchOffset a bit slower and delay it x times.
+        dragging: false,            // true if the user is touching/dragging
+        touchOffset: 0,             // the current offset the user made between drag start position and current position
+        touchValid: false,          // flag that indicates if the touch action is valid. Only .trackable elements are
+                                    // valid elements to begin dragging a slide.
+        touchPositionReference: 0,  // holds the position the user starts to drag to calculate the offset.
+        touchDirection: '',         // stores 'left' or 'right' to hold the info in which direction the user swipes.
+        pageOriginLeft: 0,          // the origin left position of the #pageContent element to restore after drag.
+        pageOriginRight: 0,         // the origin right position of the #pageContent element to restore after drag.
+
+        // states
+        canMoveToNextPage: false,   // indicates if on drop at the current position will switch to the next page.
+        canMoveToPrevPage: false,   // indicates if on drop at the current position will switch to the previous page.
 
         // guarantees that the element is in the DOM tree
         attached: function() {
@@ -73,55 +211,80 @@
           this.async(this.prepareDistributedNodes, this, 0);
         },
 
+        domReady: function() {
+          this.pageOriginLeft = this.$.pageContent.style.left == '' ? 0 : parseInt(this.$.pageContent.style.left);
+          this.pageOriginRight = this.$.pageContent.style.right == '' ? 0 : parseInt(this.$.pageContent.style.right);
+        },
+
         prepareDistributedNodes: function() {
           var distributedNodes = this.$.distributedContent.getDistributedNodes();
+
           [].forEach.call(distributedNodes, function(node, i) {
-            /*
-             We want to create this template:
+            var optional = node.getAttribute('optional') === '' || node.getAttribute('optional') == 'true';
 
-             <section slide-from-right>
-             <div layout vertical center center-justified style="height: 100%">
-             {{ page }}
-             </div>
-             </section>
-             */
+            if (optional) {
+              this.optionalPages.push(i);
+            }
 
-            // create section
-            var section = document.createElement('section');
-            section.setAttribute('slide-from-right', true);
-
-            // create div
-            var div = document.createElement('div');
-            div.setAttribute('layout', true);
-            div.setAttribute('vertical', true);
-            div.setAttribute('center', true);
-            div.setAttribute('center-justified', true);
-            div.setAttribute('style', 'height:100%');
-
-            // insert distributed content node
-            div.appendChild(node);
-
-            var docFragment = document.createDocumentFragment();
-            docFragment.appendChild(section);
-            docFragment.childNodes[0].appendChild(div);
-
-            this.$.pageContent.appendChild(docFragment);
-
-            this.pageCount = this.$.pageContent.children.length;
-            this.currentPage = 0; // start by 0
+            this.$.pageContent.appendChild(_createTemplateByNode(node));
           }, this);
+
+          this.pageCount = distributedNodes.length;
         },
 
-        onTouchStart: function(args) {
-          //console.log(args);
+        // filter which will be needed later to skip pages
+        isOptional: function(value) {
+          if (this.optionalPages.indexOf(value) != -1) {
+            return true;
+          }
+
+          return false;
         },
 
+        // when the user drags something in the element the template calls this method
+        onTouchStart: function(event) {
+          // we check first if the user will drag a valid (.trackable) element
+          var classList = event.path[0].classList;
+          this.touchValid = classList.length != 0 && 'trackable'.indexOf(classList) != -1;
+
+          // if the user will drag an element we don't want, we simply return
+          if (!this.touchValid) {
+            return;
+          }
+
+          // the user dragged a correct element, we save the x coordinate
+          this.touchPositionReference = event.screenX;
+
+          // now the user is dragging
+          this.dragging = true;
+        },
+
+        // will be called by the `core-animated-pages` when the user drags an element around
         onTouchTrack: function(event) {
-          //console.log(event.dx);
+          // if the user has not dragged the .trackable elements, we do nothing and return
+          if (!this.touchValid) {
+            return;
+          }
+
+          // we save the current screen position ...
+          var currentPosition = event.screenX;
+
+          // ... and calculate the offset between current and reference point (here started the user to drag)
+          var draggedOffset = currentPosition - this.touchPositionReference;
+
+          this.touchOffset = Math.floor(draggedOffset / 4);             // make the offset a bit smoother
+          this.touchDirection = draggedOffset < 0 ? 'left' : 'right';   // get the drag direction
+
+          _setStyle(this.$.pageContent, 'left', this.pageOriginLeft + this.touchOffset + 'px');
+          _setStyle(this.$.pageContent, 'right', this.pageOriginRight - this.touchOffset + 'px');
+
+          // update status
+          this.canMoveToNextPage = Math.abs(this.touchOffset) >= this.touchOffsetToSwitch && this.touchDirection == 'left';
+          this.canMoveToPrevPage = Math.abs(this.touchOffset) >= this.touchOffsetToSwitch && this.touchDirection == 'right';
         },
 
-        onTouchEnd: function(args) {
-          //console.log('end');
+        onTouchEnd: function(event) {
+          this.dragging = false;
         },
 
         onAnimationStart: function() {
@@ -141,6 +304,34 @@
         onPrevPage: function() {
           if (this.currentPage > 0) {
             --this.currentPage;
+          }
+        },
+
+        // when the this.dragging variable changes, animations are started and the pages may change
+        draggingChanged: function(oldVal, newVal) {
+          if (newVal === true) {
+            this.animateLostTouch = '';
+          } else {
+            this.animateLostTouch = 'lostTouch';
+
+            // move to the page the user wants to switch to
+            if (Math.abs(this.touchOffset) >= this.touchOffsetToSwitch) {
+              this.async(function () {
+                if (this.touchDirection == 'left') {
+                  this.onNextPage();
+                } else {
+                  this.onPrevPage();
+                }
+              }, 1000);
+            }
+
+            // reset variables
+            this.touchOffset = 0;
+            this.canMoveToNextPage = false;
+            this.canMoveToPrevPage = false;
+
+            _setStyle(this.$.pageContent, 'left', this.pageOriginLeft + 'px');
+            _setStyle(this.$.pageContent, 'right', this.pageOriginRight + '0px');
           }
         }
       });
