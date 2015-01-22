@@ -116,3 +116,7 @@ html /deep/ paper-slider.noprogress /deep/ .ring > #sliderKnob > #sliderKnobInne
 html /deep/ ivx-pager::shadow paper-progress::shadow #activeProgress {
   background-color: #3f51b5;
 }
+
+html /deep/ ivx-pager::shadow core-icon {
+  color: grey;
+}
