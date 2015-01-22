@@ -2,26 +2,10 @@
 
 <polymer-element name="ivx-question-layouter" attributes="question layout">
   <template>
-    <style>
-      :host {
-        display: block;
-      }
-
-      #question {
-        font-size: 3rem;
-        text-align: center;
-        padding-left: 3rem;
-        padding-right: 3rem;
-      }
-
-      #content {
-        margin-top: 2rem;
-        width: 100%;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-question-layouter.css">
 
     <template if="{{ layout == 'slides' }}">
-      <div id="question">{{ question }}</div>
+      <div id="question" class="fadeInDown">{{ question }}</div>
       <div id="content"><content></content></div>
     </template>
 
