@@ -183,6 +183,8 @@ Example:
           showProgress: true
         },
 
+        distributedNodes: null,     // all distributed nodes (potential pages).
+        insertedPages: [],          // stores all the page numbers of what pages are already appended to the dom.
         currentPage: 0,             // holds the number of the current page.
         pageCount: 0,               // count(pages) the user provided.
         navigationVisible: true,    // indicates if the navigation should be visible or not.
@@ -208,7 +210,10 @@ Example:
         // guarantees that the element is in the DOM tree
         attached: function() {
           // insert content into sections
-          this.async(this.prepareDistributedNodes, this, 0);
+          this.prepareDistributedNodes();
+
+          // we need to insert the first page
+          this.attachPage(0);
         },
 
         domReady: function() {
@@ -217,19 +222,16 @@ Example:
         },
 
         prepareDistributedNodes: function() {
-          var distributedNodes = this.$.distributedContent.getDistributedNodes();
+          this.distributedNodes = this.$.distributedContent.getDistributedNodes();
+          this.pageCount = this.distributedNodes.length;
 
-          [].forEach.call(distributedNodes, function(node, i) {
+          [].forEach.call(this.distributedNodes, function(node, i) {
             var optional = node.getAttribute('optional') === '' || node.getAttribute('optional') == 'true';
 
             if (optional) {
               this.optionalPages.push(i);
             }
-
-            this.$.pageContent.appendChild(_createTemplateByNode(node));
           }, this);
-
-          this.pageCount = distributedNodes.length;
         },
 
         // filter which will be needed later to skip pages
@@ -289,21 +291,32 @@ Example:
 
         onAnimationStart: function() {
           this.navigationVisible = false;
+          console.log('animation start');
         },
 
         onAnimationEnd: function() {
           this.navigationVisible = true;
+          console.log('animation end');
         },
 
         onNextPage: function() {
-          if (this.currentPage < this.pageCount) {
-            ++this.currentPage;
+          if (this.currentPage < this.pageCount - 1) {
+            // first we need to insert the next page
+            this.attachPage(++this.currentPage);
           }
         },
 
         onPrevPage: function() {
           if (this.currentPage > 0) {
             --this.currentPage;
+          }
+        },
+
+        // attaches the pages if requested (but only if the page isn't already inserted)
+        attachPage: function(number) {
+          if (this.insertedPages.indexOf(number) == -1) {
+            this.$.pageContent.appendChild(_createTemplateByNode(this.distributedNodes[number]));
+            this.insertedPages.push(number);
           }
         },
 
