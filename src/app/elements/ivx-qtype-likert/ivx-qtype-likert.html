@@ -22,12 +22,12 @@
       <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="{{ preselectedColumn }}">
 
         <!-- repeat for every column -->
-        <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
+        <template repeat="{{ col, colIndex in _columns }}">
           <col-item>{{ col }}</col-item>
         </template>
 
         <!-- repeat for every row -->
-        <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
+        <template repeat="{{ row, rowIndex in _rows }}">
           <row-item>{{ row }}</row-item>
         </template>
 
@@ -40,18 +40,25 @@
         <div horizontal layout id="colHeadWrapper">
 
           <!-- repeat for every column -->
-          <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
+          <template repeat="{{ col in _columns }}">
             <div class="colHead">{{ col }}</div>
           </template>
 
         </div>
 
         <!-- repeat for every row -->
-        <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
-          <div horizontal layout>
+        <template repeat="{{ row in _rows }}">
+          <div class="row" horizontal layout>
             <div class="firstCol">{{ row }}</div>
             <div flex three>
-              <paper-slider class="noprogress" snaps min="1" max="{{ _distributedNodes.cols.length }}" step="1"></paper-slider>
+              <paper-slider
+                class="noprogress"
+                snaps
+                min="1"
+                max="{{ _columns.length }}"
+                step="1"
+              >
+              </paper-slider>
             </div>
           </div>
         </template>
@@ -66,42 +73,188 @@
     (function () {
       'use strict';
 
+      var instance;
+
       Polymer({
         publish: {
           mode: 'slide',
           preselectedColumn: ''
         },
 
-        _distributedNodes: {
-          cols: [],
-          rows: []
-        },
+        // dev
+        myInstance: -1,
+        _firstRun: true,
 
-        _dimensions: {
-          sliderProgress: 0,
-          component: 0,
-          firstCol: 0,
-          colMaxHeight: 0,
-          referencePoint: 0,
-
-          // calculated
-          colHead: 0
-        },
-
+        _posFirstColHead: 0,
         _sliderMarkers: null,
+        _colHeads: null,
+        _columns: [],
+        _rows: [],
+
+        _dimSliderProgress: 0,
+        _dimComponent: 0,
+        _dimFirstCol: 0,
+        _dimColMaxHeight: 0,
+        _dimReferencePoint: 0,
+        _dimColHead: 0,
+
+        created: function() {
+          if (!instance) {
+            instance = 1;
+            this.myInstance = 1;
+          } else {
+            ++instance;
+            this.myInstance = instance;
+          }
+
+          console.log(this.myInstance + ' created');
+        },
 
         ready: function() {
-          this._initState();
+          console.log(this.myInstance + ' ready');
+        },
+
+        attached: function() {
+          console.log(this.myInstance + ' attached');
+          this._init();
         },
 
         domReady: function() {
-          if (this.mode == 'slide') {
-            this._updateDimensions();
-            this._updateColHeadDimensions();
-          }
+          console.log(this.myInstance + ' domReady');
+        },
 
+        detached: function() {
+          console.log(this.myInstance + ' detached');
+        },
+
+        _addResizeEvent: function() {
+          window.addEventListener('resize', this._onResizeWindow.bind(this));
+        },
+
+        _removeResizeEvent: function() {
+          window.removeEventListener('resize', this._onResizeWindow.bind(this));
+        },
+
+        _setupColumns: function() {
+          console.log(this.myInstance + ' setupColumns()');
+
+          this._columns = [];
+          [].forEach.call(this.$.cols.getDistributedNodes(), function (node, i) {
+            this._columns.push(node.innerHTML); /*.cloneNode(true).innerHTML*/
+          }, this);
+        },
+
+        _setupRows: function() {
+          console.log(this.myInstance + ' setupRows()');
+
+          this._rows = [];
+          [].forEach.call(this.$.rows.getDistributedNodes(), function (node, i) {
+            this._rows.push(node.cloneNode(true).innerHTML);
+          }, this);
+        },
+
+        _getDOMNodeReferences: function(doneCallback) {
+          console.log(this.myInstance + ' getDOMNodeReferences()');
+
+          this.job('waiting for data binding', function() {
+            this._sliderProgress  = this.shadowRoot.querySelector('paper-slider::shadow paper-progress::shadow #progressContainer');
+            this._firstCol        = this.shadowRoot.querySelector('.firstCol');
+            this._sliderMarkers   = this.shadowRoot.querySelectorAll('paper-slider /deep/ .slider-marker');
+            this._colHeads        = this.shadowRoot.querySelectorAll('.colHead');
+
+            doneCallback();
+          });
+        },
+
+        _init: function() {
+          console.log(this.myInstance + ' init()');
+
+          this.job('waiting for data binding', function() {
+            if (!this._isVisible()) {
+              console.log(this.myInstance + ' I do nothing!');
+              return;
+            }
+
+            if (this._firstRun) {
+              console.log(this.myInstance + ' This is my first run!');
+              this._firstRun = false;
+
+              if (this.mode == 'slide') {
+                this._getDOMNodeReferences((function() {
+                  this._posFirstColHead = this._colHeads[0].getBoundingClientRect().left;
+                  this._updateSlideView();
+                }).bind(this));
+              }
+
+              this._setupColumns();
+              this._setupRows();
+              this._addResizeEvent();
+            }
+          });
+        },
+
+        _isVisible: function() {
+          return this.offsetParent !== null;
+        },
+
+        _updateSlideView: function() {
+          console.log(this.myInstance + ' updateSlideView()');
+
+          this.job('waiting for inner elements to be prepared', function() {
+            this._recalculateDimensions();
+          }, 0);
+
+          this._checkColumns();
+        },
+
+        _recalculateDimensions: function() {
+          // grab the elements first
+          this._dimSliderProgress = this.$.helperComponent.getWidthFromElement(this._sliderProgress);
+          this._dimFirstCol = this.$.helperComponent.getWidthFromElement(this._firstCol);
+          this._dimColHead = this._dimSliderProgress / (this._columns.length - 1);
+
+          // move the .colHeadWrapper to the right by the given dimensions
+          this.$.colHeadWrapper.style['margin-left'] = (this._dimFirstCol + 30) + 'px';
+
+          // for all .colHead nodes move them to the correct column position
+          [].forEach.call(this._colHeads, function (node, i) {
+            var bb = node.getBoundingClientRect();
+
+            var posShift = this._dimColHead * i;   // we shift every column text i times to the slider marker ...
+            var centerOffset = bb.width / 2;       // ... and move them by 50% left, to adjust the position to
+                                                   // the center of the columns bounding rect.
+
+            // we also must respect the ::after part of the paper-slider, which is 3px so we add +3px for each node
+            // to the offset.
+            centerOffset -= 3 * i;
+
+            node.style['transform'] = 'translateX(' + (posShift - centerOffset) + 'px) rotate(-45deg)';
+          }, this);
+
+          // we get the computed style from the first .colHead element
+          var cs = window.getComputedStyle(this._colHeads[0]);
+          var jobDelay = parseFloat(cs.transitionDuration) * 1000;
+
+          this.job('we delay until the animations have ended', function () {
+            [].forEach.call(this._colHeads, function (node, i) {
+              // get the refreshed bounding box
+              var bb = node.getBoundingClientRect();
+
+              // save the height of the maximum column box
+              if (bb.height > this._dimColMaxHeight) {
+                this._dimColMaxHeight = bb.height;
+              }
+            }, this);
+
+            // move to fit the heighest column
+            this.$.colHeadWrapper.style['margin-top'] = this._dimColMaxHeight + 'px';
+            this.$.colHeadWrapper.style['margin-bottom'] = this._dimColMaxHeight / 2 + 'px';
+          }, jobDelay);
+        },
+
+        _checkColumns: function() {
           if (this.preselectedColumn !== '') {
-            if (this.preselectedColumn > 0 && this.preselectedColumn < this._distributedNodes.cols.length) {
+            if (this.preselectedColumn > 0 && this.preselectedColumn <= this._columns.length) {
               this._checkColumn(this.preselectedColumn);
             } else {
               console.log('The preselected column is not > 0 nor <= the column count!');
@@ -116,58 +269,14 @@
           });
         },
 
-        _initState: function() {
-          this._distributedNodes.cols = this.$.helperComponent.getDistributedNodesArray(this.$.cols.getDistributedNodes());
-          this._distributedNodes.rows = this.$.helperComponent.getDistributedNodesArray(this.$.rows.getDistributedNodes());
-        },
+        _onResizeWindow: function(event) {
+          if (!this._isVisible()) {
+            return;
+          }
 
-        _updateDimensions: function() {
-          // get all the slider markers
-          this._sliderMarkers = this.shadowRoot.querySelectorAll('paper-slider /deep/ .slider-marker');
-
-          // save the dimensions
-          var sliderProgress  = this.shadowRoot.querySelector('paper-slider::shadow paper-progress::shadow #progressContainer');
-          var firstCol        = this.shadowRoot.querySelector('.firstCol');
-
-          //this._dimensions.component = this.$.helperComponent.getWidth(); // gets the width directly from the element
-          // all others are using the method provided by the helperComponent
-          this._dimensions.sliderProgress   = this.$.helperComponent.getWidthFromElement(sliderProgress);
-          this._dimensions.firstCol         = this.$.helperComponent.getWidthFromElement(firstCol);
-
-          // calculated
-          this._dimensions.colHead = this._dimensions.sliderProgress / (this._distributedNodes.cols.length - 1);
-        },
-
-        _updateColHeadDimensions: function() {
-          var colHeads = this.shadowRoot.querySelectorAll('.colHead');
-
-          var posFirstSliderMarker  = this._sliderMarkers[0].getBoundingClientRect().left;
-          var posFirstColHead       = colHeads[0].getBoundingClientRect().left;
-          var colOffset             = posFirstSliderMarker - posFirstColHead - this._dimensions.firstCol;
-
-          [].forEach.call(colHeads, function(node, i) {
-            // CSS3 transforms are considered in the getBoundingClientRet()
-            var bb = node.getBoundingClientRect();
-
-            var posShift = this._dimensions.colHead * i;  // we shift every column text i times to the slider marker ...
-            var centerOffset = bb.width / 2;              // ... and move them by 50% left, to adjust the position to
-                                                          // the center of the columns bounding rect.
-
-            // we also must respect the ::after part of the paper-slider, which is 3px so we add +3px for each node
-            // to the offset.
-            centerOffset += 3 * i;
-
-            node.style['margin-left'] =  (posShift - centerOffset) + 'px';
-
-            // save the height of the maximum column box
-            if (bb.height > this._dimensions.colMaxHeight) {
-              this._dimensions.colMaxHeight = bb.height;
-            }
-          }, this);
-
-          this.$.colHeadWrapper.style['margin-top']     = this._dimensions.colMaxHeight + 'px';
-          this.$.colHeadWrapper.style['margin-bottom']  = this._dimensions.colMaxHeight / 2 + 'px';
-          this.$.colHeadWrapper.style['margin-left']    = this._dimensions.firstCol + colOffset + 'px';
+          if (this.mode == 'slide') {
+            this._updateSlideView();
+          }
         }
       });
 

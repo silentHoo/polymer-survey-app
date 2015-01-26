@@ -8,8 +8,13 @@ paper-slider {
 
 .colHead {
   position: absolute;
-  transform: rotate(-45deg);
+  /*transform: rotate(-45deg);*/
   transform-origin: bottom left;
+  transition: transform 500ms ease 0s;
+}
+
+#colHeadWrapper {
+  transition: margin 500ms ease 0s;
 }
 
 #slideModeWrapper {
@@ -17,7 +22,11 @@ paper-slider {
 }
 
 .firstCol {
-  width: 30rem;
+  width: 33%;
+}
+
+.row {
+  padding: 0.5rem;
 }
 
 paper-slider::shadow #sliderKnobInner {
