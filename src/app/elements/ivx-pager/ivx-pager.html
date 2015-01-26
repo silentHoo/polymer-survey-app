@@ -28,11 +28,11 @@ Example:
 @homepage https://github.com/silentHoo
 -->
 
-<polymer-element name="ivx-pager" attributes="navigation showProgress">
+<polymer-element name="ivx-pager" attributes="navigation showProgress sort">
   <template>
     <link rel="stylesheet" href="ivx-pager.css">
 
-    <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
+    <!-- There is no possibility to prevent the rendering if we want to select the elements -->
     <div style="display: none;">
       <content id="distributedContent" select="page"></content>
     </div>
@@ -158,6 +158,30 @@ Example:
         element.style[prop] = val;
       };
 
+      var _sortArrayAsc = function(a, b) {
+        if (a.sortValue < b.sortValue) {
+          return -1;
+        }
+
+        if (a.sortValue > b.sortValue) {
+          return 1;
+        }
+
+        return 0;
+      };
+
+      var _sortArrayDesc = function(a, b) {
+        if (a.sortValue > b.sortValue) {
+          return -1;
+        }
+
+        if (a.sortValue < b.sortValue) {
+          return 1;
+        }
+
+        return 0;
+      };
+
       Polymer({
 
         /**
@@ -180,40 +204,46 @@ Example:
          */
         publish: {
           navigation: 'fab',
-          showProgress: true
+          showProgress: true,
+          sort: 'none'
         },
 
-        distributedNodes: null,     // all distributed nodes (potential pages).
-        insertedPages: [],          // stores all the page numbers of what pages are already appended to the dom.
-        currentPage: 0,             // holds the number of the current page.
-        pageCount: 0,               // count(pages) the user provided.
-        navigationVisible: true,    // indicates if the navigation should be visible or not.
-        optionalPages: [],          // array with numbers which indicates what pages are optional and can be skipped.
-        animateLostTouch: '',       // if the user stops dragging, this var will hold the name of the class for an
-                                    // css applied animation.
-        touchOffsetToSwitch: 80,    // how many pixels the user must drag, to switch the page if the user stops the
-                                    // drag. Value must be divided by touchSmoothness.
-        touchSmoothness: 4,         // the divider to make the touchOffset a bit slower and delay it x times.
-        dragging: false,            // true if the user is touching/dragging
-        touchOffset: 0,             // the current offset the user made between drag start position and current position
-        touchValid: false,          // flag that indicates if the touch action is valid. Only .trackable elements are
-                                    // valid elements to begin dragging a slide.
-        touchPositionReference: 0,  // holds the position the user starts to drag to calculate the offset.
-        touchDirection: '',         // stores 'left' or 'right' to hold the info in which direction the user swipes.
-        pageOriginLeft: 0,          // the origin left position of the #pageContent element to restore after drag.
-        pageOriginRight: 0,         // the origin right position of the #pageContent element to restore after drag.
+        sortStringParsed: {},
+        distributedNodesUnsorted: null,
+        distributedNodes: null,           // all distributed nodes (potential pages).
+        insertedPages: [],                // stores all the page numbers of what pages are already appended to the dom.
+        currentPage: 0,                   // holds the number of the current page.
+        pageCount: 0,                     // count(pages) the user provided.
+        navigationVisible: true,          // indicates if the navigation should be visible or not.
+        optionalPages: [],                // array with numbers which indicates what pages are optional and can be skipped.
+        animateLostTouch: '',             // if the user stops dragging, this var will hold the name of the class for an
+                                          // css applied animation.
+        touchOffsetToSwitch: 80,          // how many pixels the user must drag, to switch the page if the user stops the
+                                          // drag. Value must be divided by touchSmoothness.
+        touchSmoothness: 4,               // the divider to make the touchOffset a bit slower and delay it x times.
+        dragging: false,                  // true if the user is touching/dragging
+        touchOffset: 0,                   // the current offset the user made between drag start position and current position
+        touchValid: false,                // flag that indicates if the touch action is valid. Only .trackable elements are
+                                          // valid elements to begin dragging a slide.
+        touchPositionReference: 0,        // holds the position the user starts to drag to calculate the offset.
+        touchDirection: '',               // stores 'left' or 'right' to hold the info in which direction the user swipes.
+        pageOriginLeft: 0,                // the origin left position of the #pageContent element to restore after drag.
+        pageOriginRight: 0,               // the origin right position of the #pageContent element to restore after drag.
 
         // states
-        canMoveToNextPage: false,   // indicates if on drop at the current position will switch to the next page.
-        canMoveToPrevPage: false,   // indicates if on drop at the current position will switch to the previous page.
+        canMoveToNextPage: false,         // indicates if on drop at the current position will switch to the next page.
+        canMoveToPrevPage: false,         // indicates if on drop at the current position will switch to the previous page.
 
         // guarantees that the element is in the DOM tree
         attached: function() {
-          // insert content into sections
+          this.parseSortString();
           this.prepareDistributedNodes();
+          this.sortNodes();
 
           // we need to insert the first page
-          this.attachPage(0);
+          if (this.pageCount > 0) {
+            this.attachPage(0);
+          }
         },
 
         domReady: function() {
@@ -222,16 +252,45 @@ Example:
         },
 
         prepareDistributedNodes: function() {
-          this.distributedNodes = this.$.distributedContent.getDistributedNodes();
-          this.pageCount = this.distributedNodes.length;
+          this.distributedNodesUnsorted = this.$.distributedContent.getDistributedNodes();
+          this.pageCount = this.distributedNodesUnsorted.length;
 
-          [].forEach.call(this.distributedNodes, function(node, i) {
+          [].forEach.call(this.distributedNodesUnsorted, function(node, i) {
             var optional = node.getAttribute('optional') === '' || node.getAttribute('optional') == 'true';
+
+            // save a new attribute to sort later on
+            node.sortValue = node.querySelector(this.sortStringParsed.elementName).getAttribute(this.sortStringParsed.attributeName).toLowerCase();
 
             if (optional) {
               this.optionalPages.push(i);
             }
           }, this);
+        },
+
+        parseSortString: function() {
+          var match = this.sort.match(/([(a-zA-Z\-0-9)]+)\.([(a-zA-Z\-0-9)]+):([(a-zA-Z\-0-9)]+)/);
+          this.sortStringParsed = {
+            elementName: match[1],
+            attributeName: match[2],
+            sortOrder: match[3]
+          };
+        },
+
+        sortNodes: function() {
+          var dnArray = [].slice.call(this.distributedNodesUnsorted);
+
+          switch (this.sortStringParsed.sortOrder) {
+            case 'asc':
+              dnArray.sort(_sortArrayAsc);
+              break;
+            case 'desc':
+              dnArray.sort(_sortArrayDesc);
+              break;
+            default:
+              break;
+          }
+
+          this.distributedNodes = dnArray;
         },
 
         // filter which will be needed later to skip pages
@@ -291,18 +350,22 @@ Example:
 
         onAnimationStart: function() {
           this.navigationVisible = false;
-          console.log('animation start');
         },
 
         onAnimationEnd: function() {
           this.navigationVisible = true;
-          console.log('animation end');
+
+          // we insert now the next page (this callback is fired, when the animation finished
+          if (this.currentPage < this.pageCount - 2) {
+            //this.attachPage(this.currentPage + 1);
+          }
         },
 
         onNextPage: function() {
           if (this.currentPage < this.pageCount - 1) {
-            // first we need to insert the next page
-            this.attachPage(++this.currentPage);
+            ++this.currentPage
+
+            this.attachPage(this.currentPage);
           }
         },
 
