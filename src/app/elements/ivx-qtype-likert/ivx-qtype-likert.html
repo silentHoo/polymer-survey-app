@@ -124,7 +124,7 @@
         },
 
         detached: function() {
-          console.log(this.myInstance + ' detached');
+          this._removeResizeEvent();
         },
 
         _addResizeEvent: function() {
@@ -140,7 +140,7 @@
 
           this._columns = [];
           [].forEach.call(this.$.cols.getDistributedNodes(), function (node, i) {
-            this._columns.push(node.innerHTML); /*.cloneNode(true).innerHTML*/
+            this._columns.push(node.cloneNode(true).innerHTML);
           }, this);
         },
 
