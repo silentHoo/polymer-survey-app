@@ -9,11 +9,23 @@
     </style>
 
     <div>
-      <ivx-pager navigation="bar">
+      <ivx-pager navigation="fab" sort="ivx-question-layouter.question:asc">
+
+        <page>
+          <ivx-question-layouter question="ZAudio 1">
+            <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Audio 2">
+            <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
+          </ivx-question-layouter>
+        </page>
 
         <page optional="true">
-          <ivx-question-layouter question="Likert-Skala (Range)">
-            <ivx-qtype-likert mode="slide" preselectedColumn="3">
+          <ivx-question-layouter question="Likert-Skala 1">
+            <ivx-qtype-likert mode="slide" preselectedColumn="6">
               <col-item>trifft zu</col-item>
               <col-item>trifft eher zu</col-item>
               <col-item>unentschieden</col-item>
@@ -23,27 +35,26 @@
 
               <row-item>Meine Hochschule gehört zu den angesehensten in Deutschland</row-item>
               <row-item>Die Netzabdeckung meines Mobilfunkanbieters ist gut</row-item>
-              <row-item>Aussage 3</row-item>
-              <row-item>Aussage 4</row-item>
-              <row-item>Aussage 5</row-item>
-              <row-item>Aussage 6</row-item>
-              <row-item>Aussage 7</row-item>
-              <row-item>Aussage 8</row-item>
-              <row-item>Aussage 9</row-item>
-              <row-item>Aussage 10</row-item>
+              <row-item>Das Essen in der Mensa schmeckt gut</row-item>
+              <row-item>300 Menschen auf einem Fleck machen mir Angst</row-item>
+              <row-item>Der Film Titanic gefällt mir nicht</row-item>
+              <row-item>Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</row-item>
+              <row-item>Im Sommer ist das Wetter in Hamburg eher bescheiden</row-item>
+              <row-item>Im Winter gehe ich oft Ski fahren</row-item>
             </ivx-qtype-likert>
           </ivx-question-layouter>
         </page>
-<!--
+
+
         <page>
-          <ivx-question-layouter question="Likert-Skala (Matrix)">
-            <ivx-qtype-likert mode="matrix">
-              <col-item>--</col-item>
-              <col-item>-</col-item>
-              <col-item>o</col-item>
-              <col-item>+</col-item>
+          <ivx-question-layouter question="Likert-Skala 2">
+            <ivx-qtype-likert mode="slide" preselectedColumn="2">
               <col-item>++</col-item>
-              <col-item>k.A.</col-item>
+              <col-item>+</col-item>
+              <col-item>o</col-item>
+              <col-item>-</col-item>
+              <col-item>--</col-item>
+              <col-item>keine Angabe</col-item>
 
               <row-item>Aussage 1</row-item>
               <row-item>Aussage 2</row-item>
@@ -58,9 +69,31 @@
             </ivx-qtype-likert>
           </ivx-question-layouter>
         </page>
--->
+
+        <page optional="true">
+          <ivx-question-layouter question="Likert-Skala 3">
+            <ivx-qtype-likert mode="matrix" preselectedColumn="1">
+              <col-item>trifft zu</col-item>
+              <col-item>trifft eher zu</col-item>
+              <col-item>unentschieden</col-item>
+              <col-item>trifft eher nicht zu</col-item>
+              <col-item>trifft nicht zu</col-item>
+              <col-item>keine Angabe</col-item>
+
+              <row-item>Meine Hochschule gehört zu den angesehensten in Deutschland</row-item>
+              <row-item>Die Netzabdeckung meines Mobilfunkanbieters ist gut</row-item>
+              <row-item>Das Essen in der Mensa schmeckt gut</row-item>
+              <row-item>300 Menschen auf einem Fleck machen mir Angst</row-item>
+              <row-item>Der Film Titanic gefällt mir nicht</row-item>
+              <row-item>Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</row-item>
+              <row-item>Im Sommer ist das Wetter in Hamburg eher bescheiden</row-item>
+              <row-item>Im Winter gehe ich oft Ski fahren</row-item>
+            </ivx-qtype-likert>
+          </ivx-question-layouter>
+        </page>
+
         <page>
-          <ivx-question-layouter question="Bitte sortieren Sie die folgenden Aussagen">
+          <ivx-question-layouter question="drag & drop 1">
             <ivx-qtype-rank>
               <item>Antwort 1</item>
               <item>Antwort 2</item>
@@ -71,12 +104,26 @@
             </ivx-qtype-rank>
           </ivx-question-layouter>
         </page>
-<!--
+
+        <page>
+          <ivx-question-layouter question="drag & drop 2">
+            <ivx-qtype-rank>
+              <item>Antwort A</item>
+              <item>Antwort B</item>
+              <item>Antwort C</item>
+              <item>Antwort D</item>
+              <item>Antwort E</item>
+              <item>Antwort F</item>
+            </ivx-qtype-rank>
+          </ivx-question-layouter>
+        </page>
+
+
         <page>
           <ivx-question-layouter question="Auswahlmatrix">
             <ivx-qtype-selection-matrix mode="multi-answer" preselectedColumn="1">
               <!-- we cannot use `col` or `columns` here :( -->
-<!--              <col-item>Antwort 1</col-item>
+              <col-item>Antwort 1</col-item>
               <col-item>Antwort 2</col-item>
               <col-item>Antwort 3</col-item>
               <col-item>Antwort 4</col-item>
@@ -96,7 +143,7 @@
             </ivx-qtype-selection-matrix>
           </ivx-question-layouter>
         </page>
--->
+
         <page>
           <ivx-question-layouter question="Audio">
             <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
