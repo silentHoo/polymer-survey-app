@@ -81,8 +81,6 @@
           preselectedColumn: ''
         },
 
-        // dev
-        myInstance: -1,
         _firstRun: true,
 
         _posFirstColHead: 0,
@@ -98,29 +96,10 @@
         _dimReferencePoint: 0,
         _dimColHead: 0,
 
-        created: function() {
-          if (!instance) {
-            instance = 1;
-            this.myInstance = 1;
-          } else {
-            ++instance;
-            this.myInstance = instance;
-          }
-
-          console.log(this.myInstance + ' created');
-        },
-
-        ready: function() {
-          console.log(this.myInstance + ' ready');
-        },
-
+        // we need to use attached, because then we know where the DOM elements are located and can
+        // calculate the correct positions.
         attached: function() {
-          console.log(this.myInstance + ' attached');
           this._init();
-        },
-
-        domReady: function() {
-          console.log(this.myInstance + ' domReady');
         },
 
         detached: function() {
@@ -136,8 +115,6 @@
         },
 
         _setupColumns: function() {
-          console.log(this.myInstance + ' setupColumns()');
-
           this._columns = [];
           [].forEach.call(this.$.cols.getDistributedNodes(), function (node, i) {
             this._columns.push(node.cloneNode(true).innerHTML);
@@ -145,8 +122,6 @@
         },
 
         _setupRows: function() {
-          console.log(this.myInstance + ' setupRows()');
-
           this._rows = [];
           [].forEach.call(this.$.rows.getDistributedNodes(), function (node, i) {
             this._rows.push(node.cloneNode(true).innerHTML);
@@ -154,8 +129,6 @@
         },
 
         _getDOMNodeReferences: function(doneCallback) {
-          console.log(this.myInstance + ' getDOMNodeReferences()');
-
           this.job('waiting for data binding', function() {
             this._sliderProgress  = this.shadowRoot.querySelector('paper-slider::shadow paper-progress::shadow #progressContainer');
             this._firstCol        = this.shadowRoot.querySelector('.firstCol');
@@ -167,16 +140,12 @@
         },
 
         _init: function() {
-          console.log(this.myInstance + ' init()');
-
           this.job('waiting for data binding', function() {
             if (!this._isVisible()) {
-              console.log(this.myInstance + ' I do nothing!');
               return;
             }
 
             if (this._firstRun) {
-              console.log(this.myInstance + ' This is my first run!');
               this._firstRun = false;
 
               if (this.mode == 'slide') {
@@ -198,8 +167,6 @@
         },
 
         _updateSlideView: function() {
-          console.log(this.myInstance + ' updateSlideView()');
-
           this.job('waiting for inner elements to be prepared', function() {
             this._recalculateDimensions();
           }, 0);

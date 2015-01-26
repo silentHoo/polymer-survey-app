@@ -173,7 +173,6 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
         },
 
         _checkColumns: function() {
-          console.log(this._distributedNodes);
           if (this.preselectedColumn !== '') {
             if (this.preselectedColumn > 0 && this.preselectedColumn <= this._distributedNodes.cols.length) {
               this._checkColumn(this.preselectedColumn - 1);
