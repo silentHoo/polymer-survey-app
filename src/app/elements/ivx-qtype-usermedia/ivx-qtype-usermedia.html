@@ -108,7 +108,7 @@ Example:
             </template>
 
             <template if="[[ mode == 'video' || mode == 'audio' ]]">
-              <paper-radio-group selected="{{ _devices.selected.microphoneId }}" class="spaceToTop" layout vertical>
+              <paper-radio-group selected="{{ _selectedMicrophoneId }}" class="spaceToTop" layout vertical>
                 <template repeat="{{ device, index in _devices.microphones }}">
                   <paper-radio-button
                     name="{{ device.id }}"
@@ -383,7 +383,7 @@ Example:
                 this._devices.other.push(sources[i]);
               }
             }
-            console.log(this._devices.microphones);
+
             var me = this;
             var checkCameras = function() {
               if (me._devices.cameras.length == 0) {
@@ -419,7 +419,7 @@ Example:
 
             // default is first?
             this._devices.selected.cameraId = this._devices.cameras[0].id;
-            this._devices.selected.microphoneId = this._devices.microphones[0].id;
+            this._selectedMicrophoneId = this._devices.microphones[0].id;
           };
 
           MediaStreamTrack.getSources(sortDevices.bind(this)); // not implemented under Android 4.4.4 :(
@@ -815,7 +815,7 @@ Example:
               googNoiseSuppression: false,
               googHighpassFilter: false
             },
-            optional: [{ sourceId: this._devices.selected.microphoneId }]
+            optional: [{ sourceId: this._selectedMicrophoneId }]
           };
 
           // if the mode is image, we don't need any audio
