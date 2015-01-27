@@ -184,6 +184,12 @@ You should see the demo.html for more infos on that.
           dragTarget.classList.add('dropped-source');
           dropTarget.classList.add('dropped-target');
 
+          // @todo: improve the removal of css classes, because we assume that the animations last ~2s
+          this.job('remove css classes after 2 secs', function() {
+            dragTarget.classList.remove('dropped-source');
+            dropTarget.classList.remove('dropped-target');
+          }, 2000);
+
           // we let only drop items on items
           if (dropTarget.nodeName != 'ITEM') {
             return;
@@ -201,12 +207,6 @@ You should see the demo.html for more infos on that.
           this._lastDropTarget = dropTarget;
 
           this._draw();
-
-          // @todo: improve the removal of css classes
-          this.job('remove css classes after 2 secs', function() {
-            this._lastDragTarget.classList.remove('dropped-source');
-            this._lastDropTarget.classList.remove('dropped-target');
-          }, 2000);
         },
 
         // the avatar is a wrapper container to place something in so that the user have a visual feedback of what
