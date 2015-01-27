@@ -18,21 +18,11 @@ Use the attribute `mode` to switch between the types of recording (video (audio+
 
 == **Please Note** ==
 
-This component only work in the following browsers:
+This component only work on desktop browsers reliable:
 
-*** Mobile Browsers ***
-
-- Android Browser >= 37
-- Chrome for Android >= 39
-- iOS Safari >= 6.1 (Audio only)
-- Opera Mobile >= 24
-
-*** Desktop Browsers ***
-
-- Chrome >= 21
-- Firefox >= 25
-- Safari >= 6 (Audio only)
-- Opera >= 18
+- iOS 8+ on Safari only supports the Audio WebAPI, so there's no Video/Image access available
+- Android 4.4.4+ on Chrome 40+ supports Audio and Video, 5+ integrates the evergreen Chrome, so it works there too
+- Windows Internet Explorer does NOT support any of the used APIs
 
 == **Please Note** ==
 
@@ -105,12 +95,12 @@ Example:
         <!-- *** device list *** -->
         <div self-end> <!-- positioning on bottom -->
           <div id="deviceList" layout vertical>
-            <template if="[[ (mode == 'video' || mode == 'image') && _devices.cameras.length > 0 ]]">
+            <template if="{{ (mode == 'video' || mode == 'image') && _devices.cameras.length > 0 }}">
               <paper-radio-group selected="{{ _devices.selected.cameraId }}" class="spaceToTop" layout vertical>
                 <template repeat="{{ device, index in _devices.cameras }}">
                   <paper-radio-button
                     name="{{ device.id }}"
-                    label="Kamera {{ index + 1 }}"
+                    label="Kamera {{ index + 1 }} {{ device.facing != '' ? '(' + device.facing + ')' : '' }}"
                     on-tap="{{ onCameraTapped }}">
                   </paper-radio-button>
                 </template>
@@ -118,11 +108,11 @@ Example:
             </template>
 
             <template if="[[ mode == 'video' || mode == 'audio' ]]">
-              <paper-radio-group selected="{{ _devices.selected.microphoneId }}" class="spaceToTop" layout vertical>
+              <paper-radio-group selected="{{ _selectedMicrophoneId }}" class="spaceToTop" layout vertical>
                 <template repeat="{{ device, index in _devices.microphones }}">
                   <paper-radio-button
                     name="{{ device.id }}"
-                    label="Mikrofon {{ index + 1 }}"
+                    label="Mikrofon {{ index + 1 }} {{ device.facing != '' ? '(' + device.facing + ')' : '' }}"
                     on-tap="{{ onMicrophoneTapped }}">
                   </paper-radio-button>
                 </template>
@@ -300,8 +290,8 @@ Example:
 
         // video specific
         _videoDim: {
-          width: 640,
-          height: 480
+          width: 320,
+          height: 240
         },
         _videoCanvas: document.createElement('canvas'), // offscreen canvas
         _videoFrames: [],
@@ -320,7 +310,7 @@ Example:
         _volumeFullNode: null,
 
         // the stream object (getUserMedia)
-        _stream: {},
+        _stream: null,
 
         // startTime for the recording
         _startTime: null,
@@ -347,28 +337,36 @@ Example:
 
         // called when usermedia is ready
         ready: function() {
+          this._compatibilityCheck();
           this._detectDeviceSources();
 
           // setting the current UI state to waiting for access (earliest state)
           this._currentUIState = this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS;
 
           if (this.mode == 'video' || this.mode == 'image') {
-            // set the video dimension, based on the viewport size
-            if (this._viewport.width < this._videoDim.width + 100 || this._viewport.height < this._videoDim.height + 100) {
-              this._videoDim.width = 320;
-              this._videoDim.height = 240;
-            }
-
             // canvas is only the half of the size
             this._videoCanvas.width = this._videoDim.width * 2;
             this._videoCanvas.height = this._videoDim.height * 2;
           }
         },
 
+        _compatibilityCheck: function() {
+          if (!(window.AudioContext || window.webkitAudioContext)) {
+            console.log('AudioContext is not supported => No Audio functionality available :(');
+          }
+
+          if (!(navigator.getUserMedia ||
+                navigator.webkitGetUserMedia ||
+                navigator.mozGetUserMedia ||
+                navigator.msGetUserMedia)) {
+            console.log('getUserMedia is not supported => No Video functionality available :(');
+          }
+        },
+
         // detects the device sources available to the browser
         _detectDeviceSources: function() {
           if (typeof MediaStreamTrack === 'undefined') {
-            alert('Your browser does NOT support MediaStreamTrack, no device detection possible :(');
+            console.log('Your browser does NOT support MediaStreamTrack, no device detection possible :(');
             return;
           }
 
@@ -389,14 +387,14 @@ Example:
             var me = this;
             var checkCameras = function() {
               if (me._devices.cameras.length == 0) {
-                alert('You need at least one camera to use that component - could not find any :(');
+                console.log('You need at least one camera to use that component - could not find any :(');
                 return false;
               }
             };
 
             var checkMicrophones = function() {
               if (me._devices.microphones.length == 0) {
-                alert('You need at least one microphone to use that component - could not find any :(');
+                console.log('You need at least one microphone to use that component - could not find any :(');
                 return false;
               }
             };
@@ -421,10 +419,10 @@ Example:
 
             // default is first?
             this._devices.selected.cameraId = this._devices.cameras[0].id;
-            this._devices.selected.microphoneId = this._devices.microphones[0].id;
+            this._selectedMicrophoneId = this._devices.microphones[0].id;
           };
 
-          MediaStreamTrack.getSources(sortDevices.bind(this));
+          MediaStreamTrack.getSources(sortDevices.bind(this)); // not implemented under Android 4.4.4 :(
         },
 
         // short helper method to query the shadowRoot DOM
@@ -484,7 +482,7 @@ Example:
           this._resetCanvas();
 
           // draw the current video frame into the canvas 2D context to read them back as image.
-          function drawVideoFrame(time) {
+          function drawVideoFrame() {
             this._rafId = requestAnimationFrame((drawVideoFrame).bind(this)); // cross browser safe!
             this._videoCanvas.getContext('2d').drawImage(this._shortSelect('#liveVideo'), 0, 0, this._videoCanvas.width, this._videoCanvas.height);
 
@@ -540,7 +538,7 @@ Example:
           this._audioRecorder.exportWAV((function(audioBlob) {
             // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
             this._audioBlob = audioBlob;
-            this._audioObjectURL = window.URL.createObjectURL(this._audioBlob);;
+            this._audioObjectURL = window.URL.createObjectURL(this._audioBlob);
           }).bind(this));
         },
 
@@ -554,7 +552,7 @@ Example:
             playbackVideo.style.height = this._videoCanvas.height + 'px';
 
             // add blob to src of video element
-            playbackVideo.src = window.URL.createObjectURL(this._videoBlob);
+            playbackVideo.src = window.URL.createObjectURL(this._videoBlob);  // crossbrowser safe!
           });
         },
 
@@ -672,12 +670,14 @@ Example:
           window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
           if (!window.AudioContext) {
-            alert('AudioContext API is NOT supported in your browser :(');
+            console.log('AudioContext API is NOT supported in your browser :(');
             return;
           }
 
           // very good introduction into Web Audio API (AudioContext):
           // -> http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
+          // @todo: only construct a new audiocontext when we really need them, otherwise we could run out of
+          // the maximum reached hardware contexts allowed by the specific browser. It seems that Chrome allows 6.
           this._audioContext = new AudioContext();
 
           // The construction of the audio is based on audio nodes:
@@ -802,8 +802,8 @@ Example:
 
           var videoConfig = {
             mandatory: {
-              minWidth: this._videoDim.width,
-              minHeight: this._videoDim.height
+              maxWidth: this._videoDim.width,
+              maxHeight: this._videoDim.height
             },
             optional: [{ sourceId: this._devices.selected.cameraId }]
           };
@@ -815,7 +815,7 @@ Example:
               googNoiseSuppression: false,
               googHighpassFilter: false
             },
-            optional: [{ sourceId: this._devices.selected.microphoneId }]
+            optional: [{ sourceId: this._selectedMicrophoneId }]
           };
 
           // if the mode is image, we don't need any audio
@@ -847,11 +847,16 @@ Example:
 
               // errorCallback
               function(err) {
-                console.log("The following error occured: " + err);
+                switch(err.name) {
+                  case 'PermissionDeniedError':
+                    alert('It seems that you have not allowed your Browser to access any media device. Please remove that ' +
+                    'restriction and try again.');
+                    break;
+                }
               }
             );
           } else {
-            alert('getUserMedia API is NOT supported in your browser :(');
+            console.log('getUserMedia API is NOT supported in your browser :(');
           }
         }
       });
