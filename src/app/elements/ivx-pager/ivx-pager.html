@@ -236,7 +236,9 @@ Example:
 
         // guarantees that the element is in the DOM tree
         attached: function() {
-          this.parseSortString();
+          if (this.sort != 'none') {
+            this.parseSortString();
+          }
           this.prepareDistributedNodes();
           this.sortNodes();
 
@@ -258,8 +260,10 @@ Example:
           [].forEach.call(this.distributedNodesUnsorted, function(node, i) {
             var optional = node.getAttribute('optional') === '' || node.getAttribute('optional') == 'true';
 
-            // save a new attribute to sort later on
-            node.sortValue = node.querySelector(this.sortStringParsed.elementName).getAttribute(this.sortStringParsed.attributeName).toLowerCase();
+            if (this.sort != 'none') {
+              // save a new attribute to sort later on
+              node.sortValue = node.querySelector(this.sortStringParsed.elementName).getAttribute(this.sortStringParsed.attributeName).toLowerCase();
+            }
 
             if (optional) {
               this.optionalPages.push(i);
