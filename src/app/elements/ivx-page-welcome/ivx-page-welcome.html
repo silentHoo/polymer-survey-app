@@ -9,8 +9,12 @@
     </style>
 
     <div>
-      <ivx-pager navigation="fab" sort="ivx-question-layouter.question:asc">
+      <ivx-pager navigation="fab" <!--sort="ivx-question-layouter.question:asc"-->>
 
+        <page>
+          <ivx-ticker separator="♫" msgs="Armin van Buuren - Communication Part III, System of a Down - Chop Suey, Ella Henderson - Ghost"></ivx-ticker>
+        </page>
+<!--
         <page>
           <ivx-question-layouter question="ZAudio 1">
             <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
@@ -93,7 +97,7 @@
         </page>
 
         <page>
-          <ivx-question-layouter question="drag & drop 1">
+          <ivx-question-layouter question="AAA drag & drop 1">
             <ivx-qtype-rank>
               <item>Antwort 1</item>
               <item>Antwort 2</item>
@@ -117,12 +121,13 @@
             </ivx-qtype-rank>
           </ivx-question-layouter>
         </page>
-
-
+-->
+<!--
         <page>
           <ivx-question-layouter question="Auswahlmatrix">
             <ivx-qtype-selection-matrix mode="multi-answer" preselectedColumn="1">
               <!-- we cannot use `col` or `columns` here :( -->
+<!--
               <col-item>Antwort 1</col-item>
               <col-item>Antwort 2</col-item>
               <col-item>Antwort 3</col-item>
@@ -209,6 +214,7 @@
             <ivx-qtype-text mode="single"></ivx-qtype-text>
           </ivx-question-layouter>
         </page>
+-->
       </ivx-pager>
     </div>
   </template>

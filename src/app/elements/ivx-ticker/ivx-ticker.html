@@ -1,0 +1,181 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="ivx-ticker" attributes="msgs separator animationPause animationSpeed">
+  <template>
+    <style>
+      :host {
+        display: block;
+        overflow: hidden;
+      }
+
+      #wrapper {
+        white-space: nowrap;
+        overflow: hidden;
+        display: inline-block;
+        transition: transform;
+        transition-timing-function: linear;
+      }
+
+      .separator {
+        text-shadow: 1px 0px 0 rgb(202,202,202);
+        color: #0066bb;
+      }
+    </style>
+
+    <div id="wrapper">
+
+        <template repeat="{{ m, idx in _messages }}">
+          <span class="separator">[[ separator ]]</span> {{ m }} <template if="{{ idx == _messages.length - 1 }}"><span class="separator">[[ separator ]]</span></template>
+        </template>
+
+    </div>
+  </template>
+
+  <script>
+    (function () {
+
+      Polymer({
+        publish: {
+          msgs: '',
+          separator: '+++',
+          animationPause: 2000,
+          animationSpeed: 4000
+        },
+
+        _messages: [],
+        _animationDuration: 0,
+        _pixelToMove: '0px',
+        _stopAnimationJobs: false,
+        _resizeDelay: 500,
+        _resizeTimer: 0,
+
+        _animationEnum: {
+          NOT_STARTED: 0,
+          RUNNING: 1,
+          STOPPED: 2
+        },
+        _animationState: 0,
+
+        ready: function() {
+          this._prepareMessages();
+        },
+
+        domReady: function() {
+          this._init();
+          this._addResizeEvent();
+        },
+
+        detached: function() {
+          this._removeResizeEvent();
+          this._stopPendingJobs();
+        },
+
+        addMessage: function(msg) {
+          this._messages.push(msg);
+        },
+
+        removeMessage: function(msg) {
+          var id = msg.indexOf(this._messages);
+          if (id != -1) {
+            this._messages.splice(id, 1);
+          }
+        },
+
+        // ===== private methods =====
+        _init: function() {
+          var slideMode = this.$.wrapper.clientWidth > this.clientWidth;
+
+          if (slideMode) {
+            if (this._animationState != this._animationEnum.RUNNING) {
+              this._startAnimation();
+              console.log('start animation');
+            }
+          } else {
+            this._stopAnimationJobs = true;
+            console.log('soft abort');
+          }
+        },
+
+        _addResizeEvent: function() {
+          window.addEventListener('resize', this._onResizeWindow.bind(this));
+        },
+
+        _removeResizeEvent: function() {
+          window.removeEventListener('resize', this._onResizeWindow.bind(this));
+        },
+
+        _onResizeWindow: function() {
+          /*if (Date.now() - this._resizeTimer > this._resizeDelay) {
+            this._init();
+          }
+
+          this._resizeTimer = Date.now();*/
+          this._init();
+        },
+
+        _stopPendingJobs: function() {
+          this._stopJobs = true;
+        },
+
+        // prepares the given messages through the published attribute `msgs`, removed whitespace too.
+        _prepareMessages: function() {
+          var strings = this.msgs.split(',');
+          strings.map(function(el) {
+            return el.trim();
+          });
+
+          this._messages = strings;
+        },
+
+        _animationStateChanged: function() {
+          if (this._animationState == this._animationEnum.STOPPED) {
+            console.log('animation state: stopped');
+          }
+
+          if (this._animationState == this._animationEnum.RUNNING) {
+            console.log('animation state: running');
+          }
+        },
+
+        _startAnimation: function() {
+          this._animationState = this._animationEnum.RUNNING
+
+          // wrapper width is always bigger than width of this component at this line
+          this._animationDuration = (this.animationSpeed / 1000) * (this.$.wrapper.clientWidth / this.clientWidth);
+          this._pixelToMove       = this.$.wrapper.clientWidth - this.clientWidth;
+
+          this.$.wrapper.style.transitionDuration = this._animationDuration + 's';
+          this.job('delay', this._moveLeft, this.animationPause);
+        },
+
+        _moveLeft: function() {
+          console.log('moveLeft');
+          if (this._stopAnimationJobs) {
+            this._moveRight();
+            return;
+          }
+
+          this.$.wrapper.style.transform = 'translateX(-' + this._pixelToMove + 'px)';
+          this.job('delay', this._moveRight, this._animationDuration * 1000 + this.animationPause);
+        },
+
+        _moveRight: function() {
+          console.log('moveRight');
+          this.$.wrapper.style.transform = 'translateX(0px)';
+
+          if (this._stopAnimationJobs) {
+            this.job('delay', function() {
+              this._animationState = this._animationEnum.STOPPED;
+              this._stopAnimationJobs = false;
+              console.log(parseInt(Math.ceil(this._animationDuration)));
+            }, parseInt(Math.ceil(this._animationDuration)) * 1000);
+            return;
+          }
+
+          this.job('delay', this._moveLeft, this._animationDuration * 1000 + this.animationPause);
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>
