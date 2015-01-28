@@ -40,6 +40,7 @@ Example:
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-icons/av-icons.html">
 <link rel="import" href="../../bower_components/core-icons/image-icons.html">
+<link rel="import" href="../ivx-core-audio/ivx-core-audio.html">
 
 <polymer-element name="ivx-qtype-usermedia" attributes="mode visualizeAudio">
   <template>
@@ -47,7 +48,7 @@ Example:
     <script src="../../bower_components/whammy/whammy.js"></script>
 
     <!-- Audio Recorder -->
-    <script src="../../bower_components/Recorderjs/recorder.js"></script>
+    <!--<script src="../../bower_components/Recorderjs/recorder.js"></script>-->
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="ivx-qtype-usermedia.css">
@@ -67,7 +68,12 @@ Example:
 
             <!-- visualizer -->
             <template if="[[ mode == 'audio' || mode == 'video' ]]">
-              <div id="audioVisualizer"></div>
+              <ivx-core-audio
+                id="audioComponent"
+                visualizeAudio="{{ visualizeAudio }}"
+                gain="{{ _gainValue }}"
+                >
+              </ivx-core-audio>
             </template>
           </template>
 
@@ -300,13 +306,14 @@ Example:
         _videoBlob: null,
 
         // audio specific
-        _audioRecorder: null,
-        _audioContext: null,
+//        _audioRecorder: null,
+//        _audioContext: null,
         // stores the audio recorded from the stream as blob
-        _audioBlob: null,
-        _audioObjectURL: null,
-        _analyserNode: null,
+//        _audioBlob: null,
+//        _audioObjectURL: null,
+//        _analyserNode: null,
         _microphoneGainLevelInit: 0.8,
+        _gainValue: 0.8,
         _volumeFullNode: null,
 
         // the stream object (getUserMedia)
@@ -337,11 +344,11 @@ Example:
 
         // called when usermedia is ready
         ready: function() {
-          this._compatibilityCheck();
-          this._detectDeviceSources();
-
           // setting the current UI state to waiting for access (earliest state)
           this._currentUIState = this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS;
+
+          this._compatibilityCheck();
+          this._detectDeviceSources();
 
           if (this.mode == 'video' || this.mode == 'image') {
             // canvas is only the half of the size
@@ -417,12 +424,35 @@ Example:
               }
             }
 
-            // default is first?
+            // default is first? *assumption*
             this._devices.selected.cameraId = this._devices.cameras[0].id;
             this._selectedMicrophoneId = this._devices.microphones[0].id;
           };
 
           MediaStreamTrack.getSources(sortDevices.bind(this)); // not implemented under Android 4.4.4 :(
+        },
+
+        _currentUIStateChanged: function() {
+          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED) {
+            // we must short delay to catch the DOM changes ...
+            // see https://www.polymer-project.org/docs/polymer/polymer.html#asyncmethod
+            this.async(function () {
+              // init video
+              if (this.mode != 'audio') {
+                this._initVideo();
+              }
+
+              if (this.mode != 'image') {
+                // init audio
+                this._initAudioContext();
+              }
+
+              // init audio visualizer
+              if (this.visualizeAudio && this.mode != 'image') {
+                this._initAudioVisualizer();
+              }
+            });
+          }
         },
 
         // short helper method to query the shadowRoot DOM
@@ -497,10 +527,13 @@ Example:
 
         // starts the audio recording
         _startRecordAudio: function() {
+          this._shortSelect('#audioComponent').startRecord();
+/*
           this._audioBlob = null; // reset blob
 
           this._audioRecorder.clear();
           this._audioRecorder.record();
+*/
         },
 
         // stops the record for the current mode
@@ -531,15 +564,23 @@ Example:
 
         // stops the record of the audio stream
         _stopRecordAudio: function() {
+          this._shortSelect('#audioComponent').stopRecord();
+/*
           this._audioRecorder.stop();
+*/
         },
 
         _embedAudioPreview: function() {
+          this.$.audioComponent.getRecordedBlob(function(audioBlob) {
+            this._audioObjectURL = window.URL.createObjectURL(audioBlob);
+          });
+/*
           this._audioRecorder.exportWAV((function(audioBlob) {
             // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
             this._audioBlob = audioBlob;
             this._audioObjectURL = window.URL.createObjectURL(this._audioBlob);
           }).bind(this));
+*/
         },
 
         // sets the video config
@@ -580,7 +621,8 @@ Example:
 
         onMicrophoneVolumeChange: function(event, detail, sender) {
           if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED) {
-            this._volumeFullNode.gain.value = sender.immediateValue / 100;
+//            this._volumeFullNode.gain.value = sender.immediateValue / 100;
+            this._gainValue = sender.immediateValue / 100;
           }
         },
 
@@ -667,6 +709,8 @@ Example:
 
         // initializes the audio context. See source code below for more comments and details.
         _initAudioContext: function() {
+          this._shortSelect('#audioComponent')._initContext(this._stream);
+/*
           window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
           if (!window.AudioContext) {
@@ -723,12 +767,15 @@ Example:
           this._analyserNode.connect(volumeZeroNode);
           // Connect [4] with output device
           volumeZeroNode.connect(this._audioContext.destination);
+*/
         },
 
         // This code initializes the bar graphs overlay for the live video stream. The code is taken from
         // http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
         // Thanks to Ian Reah.
         _initAudioVisualizer: function() {
+          this._shortSelect('#audioComponent')._initVisualizer();
+/*
           this.async(function() {
             var frequCount = this._analyserNode.frequencyBinCount;
             var frequencyData = new Uint8Array(frequCount);
@@ -764,6 +811,7 @@ Example:
 
             update();
           });
+*/
         },
 
         // Resets the UI State to the second state available (after the user granted access to the mic + webcam).
@@ -771,24 +819,6 @@ Example:
         // state AFTER a recording was made.
         _initVideoAudio: function() {
           this._currentUIState = this._uiStateEnum.DEVICE_ACCESS_GRANTED;
-
-          // we must short delay to catch the DOM changes ...
-          this.job('waitForDOM', function() {
-            // init video
-            if (this.mode != 'audio') {
-              this._initVideo();
-            }
-          });
-
-          if (this.mode != 'image') {
-            // init audio
-            this._initAudioContext();
-          }
-
-          // init audio visualizer
-          if (this.visualizeAudio && this.mode != 'image') {
-            this._initAudioVisualizer();
-          }
         },
 
         // Initializes the MediaCapture API

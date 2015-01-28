@@ -1,0 +1,181 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../shared-mixins.html">
+
+<!-- Audio Recorder -->
+<script src="../../bower_components/Recorderjs/recorder.js"></script>
+
+<polymer-element name="ivx-core-audio" attributes="visualizeAudio gain">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div id="audioVisualizer"></div>
+  </template>
+  <script>
+    (function () {
+
+      Polymer(Polymer.mixin({
+
+        publish: {
+          visualizeAudio: true
+        },
+
+        _audioContext: null,
+        _userMediaStream: null,
+        _audioRecorder: null,
+        _audioBlob: null,
+
+        _microphoneGainLevelInit: 0.8,
+        _volumeFullNode: null,
+        _analyserNode: null,
+
+
+        startRecord: function() {
+          this._audioBlob = null; // reset blob
+          this._audioRecorder.clear();
+          this._audioRecorder.record();
+        },
+
+        stopRecord: function() {
+          this._audioRecorder.stop();
+        },
+
+        getRecordedBlob: function(callback) {
+          this._audioRecorder.exportWAV((function(audioBlob) {
+            // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
+            this._audioBlob = audioBlob;
+            callback(this._audioBlob);
+          }).bind(this));
+        },
+
+        ready: function() {
+          if (this.preventInit === true) {
+            return;
+          }
+          //this._initContext();
+        },
+
+        // user must call this method when he prevents the init process
+        init: function() {
+          this._initContext();
+        },
+
+        gainChanged: function(event, detail, sender) {
+          if (this._volumeFullNode) {
+            this._volumeFullNode.gain.value = detail;
+          }
+        },
+
+        // ===== private methods =====
+
+        // initializes the audio context. See source code below for more comments and details.
+        _initContext: function(userMediaStream) {
+          console.log('initContext');
+          this._userMediaStream = userMediaStream;
+
+          window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+          if (!window.AudioContext) {
+            console.log('AudioContext API is NOT supported in your browser :(');
+            return;
+          }
+
+          // very good introduction into Web Audio API (AudioContext):
+          // -> http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
+          // @todo: only construct a new audiocontext when we really need them, otherwise we could run out of
+          // the maximum reached hardware contexts allowed by the specific browser. It seems that Chrome allows 6.
+          this._audioContext = new AudioContext();
+
+          // The construction of the audio is based on audio nodes:
+
+          // [1] audioSourceNode: This is the live signal of the webcam + microphone
+          // [2] volumeFullNode: This is the first node connected to [1], gain level at 1.0
+          // [3] analyserNode: This is the node to visualize the audio stream.
+          // [4] volumeZeroNode: This is the next node connected to [2], gain level at 0.0
+
+          // audioSourceNode -> volumeFullNode -> analyserNode -> volumeZeroNode -> destination (loud speakers)
+          //                          ^
+          //                   RecorderJS records
+          //               with volume level 1.0 here
+
+          // [1]: Create an AudioNode from the stream.
+          var audioSourceNode = this._audioContext.createMediaStreamSource(this._userMediaStream);
+
+          // [2]: Create a control node to set the gain level to a high value.
+          this._volumeFullNode = this._audioContext.createGain();
+          this._volumeFullNode.gain.value = this._microphoneGainLevelInit;
+
+          // [3]: Create an AnalyserNode to visualize the live stream audio data.
+          //      See more at https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
+          this._analyserNode = this._audioContext.createAnalyser();
+          this._analyserNode.fftSize = 64; // size of the Fast Fourier Transformation
+
+          // [4]: Create a control node to mute the gain level to not loop the
+          //      microphone input back to the speakers.
+          var volumeZeroNode = this._audioContext.createGain();
+          volumeZeroNode.gain.value = 0.0;
+
+          // *** Recording ***
+          this._audioRecorder = new Recorder(this._volumeFullNode, {
+            workerPath: '/bower_components/Recorderjs/recorderWorker.js'
+          });
+
+          // *** Wiring all together ***
+          // Connect [1] with [2]
+          audioSourceNode.connect(this._volumeFullNode);
+          // Connect [2] with [3]
+          this._volumeFullNode.connect(this._analyserNode);
+          // Connect [3] with [4]
+          this._analyserNode.connect(volumeZeroNode);
+          // Connect [4] with output device
+          volumeZeroNode.connect(this._audioContext.destination);
+        },
+
+        // This code initializes the bar graphs overlay for the live video stream. The code is taken from
+        // http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
+        // Thanks to Ian Reah.
+        _initVisualizer: function() {
+          this.async(function () {
+            var frequCount = this._analyserNode.frequencyBinCount;
+            var frequencyData = new Uint8Array(frequCount);
+
+            var barSpacingPercent = 100 / frequCount;
+
+            var visualBars = '';
+            for (var i = 0; i < frequCount; i++) {
+              visualBars += '<div style="left:' + i * barSpacingPercent + '%"></div>';
+            }
+            this._shortSelect("#audioVisualizer").innerHTML = visualBars;
+
+            // Get the frequency data and update the visualisation
+            var analyser = this._analyserNode;
+            var bars = Array.prototype.slice.call(this.shadowRoot.querySelectorAll("#audioVisualizer > div"));
+
+            var lastTime = Date.now();
+
+            function update() {
+              requestAnimationFrame(update);
+
+              // every 25ms
+              var currentTime = Date.now();
+              if (currentTime - lastTime > 25) {
+                lastTime = currentTime;
+                analyser.getByteFrequencyData(frequencyData);
+
+                bars.forEach(function (bar, index) {
+                  bar.style.height = frequencyData[index] + 'px';
+                });
+              }
+            };
+
+            update();
+          });
+        }
+      }, mixin));
+
+    })();
+  </script>
+</polymer-element>
