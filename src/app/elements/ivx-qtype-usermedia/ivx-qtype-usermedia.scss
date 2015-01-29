@@ -24,14 +24,6 @@
   width: 640px;
   height: 480px;
   border: 1px grey dashed;
-
-  & #audioVisualizer {
-    height: 100px;
-    position: relative;
-    margin-top: -125px;
-    padding: 10px;
-    opacity: 0.2;
-  }
 }
 
 #videoContainer.audio {
@@ -39,12 +31,8 @@
   height: 240px;
   border: 1px grey dashed;
 
-  & #audioVisualizer {
-    height: 100px;
-    position: relative;
-    margin-top: 120px;
-    padding: 10px;
-    opacity: 0.2;
+  & ivx-core-audio {
+    height: inherit;
   }
 }
 
@@ -110,12 +98,4 @@ paper-button > div {
   height: 5px;
   background-color: #03a9f4;
   transition: width 250ms linear 0ms; /* 250ms is the redraw interval, so the progress is smooth */
-}
-
-#audioVisualizer > div {
-  width: 2.5%;
-  background-color: #03a9f4;
-  display: inline-block;
-  position: absolute;
-  bottom: 0px;
 }

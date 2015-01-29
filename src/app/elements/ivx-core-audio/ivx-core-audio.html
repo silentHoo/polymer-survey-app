@@ -6,11 +6,7 @@
 
 <polymer-element name="ivx-core-audio" attributes="visualizeAudio gain">
   <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-core-audio.css">
 
     <div id="audioVisualizer"></div>
   </template>
@@ -23,6 +19,10 @@
           visualizeAudio: true
         },
 
+        _visualizerConfig: {
+          barSpacing: 2
+        },
+
         _audioContext: null,
         _userMediaStream: null,
         _audioRecorder: null,
@@ -31,7 +31,6 @@
         _microphoneGainLevelInit: 0.8,
         _volumeFullNode: null,
         _analyserNode: null,
-
 
         startRecord: function() {
           this._audioBlob = null; // reset blob
@@ -51,16 +50,14 @@
           }).bind(this));
         },
 
-        ready: function() {
-          if (this.preventInit === true) {
-            return;
-          }
-          //this._initContext();
-        },
-
         // user must call this method when he prevents the init process
-        init: function() {
+        init: function(userMediaStream) {
+          this._userMediaStream = userMediaStream;
           this._initContext();
+
+          if (this.visualizeAudio) {
+            this._initVisualizer();
+          }
         },
 
         gainChanged: function(event, detail, sender) {
@@ -70,12 +67,8 @@
         },
 
         // ===== private methods =====
-
         // initializes the audio context. See source code below for more comments and details.
-        _initContext: function(userMediaStream) {
-          console.log('initContext');
-          this._userMediaStream = userMediaStream;
-
+        _initContext: function() {
           window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
           if (!window.AudioContext) {
@@ -86,10 +79,10 @@
           // very good introduction into Web Audio API (AudioContext):
           // -> http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
           // @todo: only construct a new audiocontext when we really need them, otherwise we could run out of
-          // the maximum reached hardware contexts allowed by the specific browser. It seems that Chrome allows 6.
+          // the maximum reached hardware contexts allowed by the specific browser. It seems that Chrome (40) allows 6.
           this._audioContext = new AudioContext();
 
-          // The construction of the audio is based on audio nodes:
+          // The construction of the audio pipe is based on audio nodes:
 
           // [1] audioSourceNode: This is the live signal of the webcam + microphone
           // [2] volumeFullNode: This is the first node connected to [1], gain level at 1.0
@@ -142,36 +135,42 @@
             var frequCount = this._analyserNode.frequencyBinCount;
             var frequencyData = new Uint8Array(frequCount);
 
-            var barSpacingPercent = 100 / frequCount;
+            var containerWidth = this._widthOf(this.$.audioVisualizer);
+            var totalSpacingSize = this._visualizerConfig.barSpacing * frequCount;
+            var barWidth = (containerWidth - totalSpacingSize) / frequCount;
 
             var visualBars = '';
             for (var i = 0; i < frequCount; i++) {
-              visualBars += '<div style="left:' + i * barSpacingPercent + '%"></div>';
+              var marginLeft = i == 0 ? this._visualizerConfig.barSpacing / 2 : this._visualizerConfig.barSpacing;
+              visualBars += '<div style="margin-left:' + marginLeft + 'px; width: ' + barWidth + 'px"></div>';
             }
-            this._shortSelect("#audioVisualizer").innerHTML = visualBars;
 
-            // Get the frequency data and update the visualisation
-            var analyser = this._analyserNode;
-            var bars = Array.prototype.slice.call(this.shadowRoot.querySelectorAll("#audioVisualizer > div"));
+            this.$.audioVisualizer.innerHTML = visualBars;
 
-            var lastTime = Date.now();
+            this.async(function () {
+              // Get the frequency data and update the visualisation
+              var analyser = this._analyserNode;
+              var bars = [].slice.call(this._shortSelect("#audioVisualizer > div"));
 
-            function update() {
-              requestAnimationFrame(update);
+              var lastTime = Date.now();
 
-              // every 25ms
-              var currentTime = Date.now();
-              if (currentTime - lastTime > 25) {
-                lastTime = currentTime;
-                analyser.getByteFrequencyData(frequencyData);
+              function update() {
+                requestAnimationFrame(update);
 
-                bars.forEach(function (bar, index) {
-                  bar.style.height = frequencyData[index] + 'px';
-                });
-              }
-            };
+                // update only every 50ms
+                var currentTime = Date.now();
+                if (currentTime - lastTime > 50) {
+                  lastTime = currentTime;
+                  analyser.getByteFrequencyData(frequencyData);
 
-            update();
+                  bars.forEach(function (bar, index) {
+                    bar.style.height = frequencyData[index] + 'px';
+                  });
+                }
+              };
+
+              update();
+            });
           });
         }
       }, mixin));

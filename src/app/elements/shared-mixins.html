@@ -1,8 +1,17 @@
 <script>
   var mixin = {
-    // short helper method to query the shadowRoot DOM
+    // short helper method to query the shadowRoot DOM, this is necessary to do if you want to grab an element
+    // which is inside of multiple <template> elements. Only the outer elements with ids are grabbable with
+    // polymers automatic node finding mechanism. For all others use this short function.
     _shortSelect: function(selector) {
-      return this.shadowRoot.querySelector(selector);
+      return this.shadowRoot.querySelectorAll(selector);
+    },
+
+    _widthOf: function(selectorOrElement) {
+      if (typeof selectorOrElement == 'String') {
+        return this._shortSelect(selectorOrElement).clientWidth;
+      }
+      return selectorOrElement.clientWidth;
     }
   };
 </script>
