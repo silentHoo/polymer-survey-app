@@ -1,0 +1,61 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../mixins-core.html">
+
+<polymer-element name="ivx-core-usermedia" attributes="">
+  <script>
+    (function () {
+      Polymer(Polymer.mixin({
+
+        _stream: null,
+        _config: {
+          enabled: {
+            audio: true,
+            video: true
+          },
+          audio: {},
+          video: {}
+        },
+
+        isSupported: function() {
+          return (navigator.getUserMedia || navigator.webkitGetUserMedia ||
+                    navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        },
+
+        init: function(config, successCallback, errorCallback) {
+          if (!this.isSupported()) {
+            console.error('Sorry, your current browser does not support the MediaStreamTrack API :(');
+          }
+
+          this._config = config;
+
+          navigator.getUserMedia = (
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia
+          );
+
+          if (!navigator.getUserMedia) {
+            console.log('getUserMedia API is NOT supported in your browser :(');
+          }
+
+          // see https://developer.mozilla.org/en-US/docs/NavigatorUserMedia.getUserMedia
+          navigator.getUserMedia (
+
+            // constraints
+            {
+              audio: this._config.enabled.audio ? this._config.audio : false,
+              video: this._config.enabled.video ? this._config.video : false
+            },
+
+            // successCallback
+            successCallback,
+
+            // errorCallback
+            errorCallback
+          );
+        }
+      }, mixinsCore));
+    })();
+  </script>
+</polymer-element>

@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../mixins-core.html">
 
-<polymer-element name="ivx-core-image" attributes="">
+<polymer-element name="ivx-core-image" constructor="IvxCoreImage" attributes="">
   <template>
     <style>
       :host {
@@ -10,10 +11,31 @@
   </template>
   <script>
     (function () {
+      Polymer(Polymer.mixin({
+        _width: 0,
+        _height: 0,
 
-      Polymer({
-        // define element prototype here
-      });
+        _videoEl: null,
+        _canvas: document.createElement('canvas'),
+
+        init: function(videoEl, width, height) {
+          this._videoEl = videoEl;
+          this._canvas.width = width * 2;
+          this._canvas.height = height * 2;
+        },
+
+        getPictureDataURL: function() {
+          this._canvas.getContext('2d').drawImage(
+            this._videoEl,
+            0,
+            0,
+            this._canvas.width,
+            this._canvas.height
+          );
+
+          return this._canvas.toDataURL('image/jpeg', 0.92);
+        }
+      }, mixinsCore));
 
     })();
   </script>

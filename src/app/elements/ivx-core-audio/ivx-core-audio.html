@@ -1,10 +1,11 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../shared-mixins.html">
+<link rel="import" href="../mixins-helper.html">
+<link rel="import" href="../mixins-core.html">
 
 <!-- Audio Recorder -->
 <script src="../../bower_components/Recorderjs/recorder.js"></script>
 
-<polymer-element name="ivx-core-audio" attributes="visualizeAudio gain">
+<polymer-element name="ivx-core-audio" constructor="IvxCoreAudio" attributes="visualizeAudio gain">
   <template>
     <link rel="stylesheet" href="ivx-core-audio.css">
 
@@ -16,7 +17,8 @@
       Polymer(Polymer.mixin({
 
         publish: {
-          visualizeAudio: true
+          visualizeAudio: true,
+          gain: 1.0
         },
 
         _visualizerConfig: {
@@ -31,6 +33,15 @@
         _microphoneGainLevelInit: 0.8,
         _volumeFullNode: null,
         _analyserNode: null,
+
+        /**
+         * Returns `true` if the `MediaStreamTrack API` is supported by the current used browser. False otherwise.
+         *
+         * @return {Boolean} true if the browser is supported, false otherwise.
+         */
+        isSupported: function() {
+          return (window.AudioContext || window.webkitAudioContext);
+        },
 
         startRecord: function() {
           this._audioBlob = null; // reset blob
@@ -150,7 +161,7 @@
             this.async(function () {
               // Get the frequency data and update the visualisation
               var analyser = this._analyserNode;
-              var bars = [].slice.call(this._shortSelect("#audioVisualizer > div"));
+              var bars = [].slice.call(this._select("#audioVisualizer > div"));
 
               var lastTime = Date.now();
 
@@ -173,7 +184,7 @@
             });
           });
         }
-      }, mixin));
+      }, mixinsCore, mixinsHelper));
 
     })();
   </script>
