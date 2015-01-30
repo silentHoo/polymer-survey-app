@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../mixins-helper.html">
 <link rel="import" href="../mixins-core.html">
+<link rel="import" href="../mixins-audiovideo.html">
 
 <!-- Audio Recorder -->
 <script src="../../bower_components/Recorderjs/recorder.js"></script>
@@ -43,24 +44,6 @@
           return (window.AudioContext || window.webkitAudioContext);
         },
 
-        startRecord: function() {
-          this._audioBlob = null; // reset blob
-          this._audioRecorder.clear();
-          this._audioRecorder.record();
-        },
-
-        stopRecord: function() {
-          this._audioRecorder.stop();
-        },
-
-        getRecordedBlob: function(callback) {
-          this._audioRecorder.exportWAV((function(audioBlob) {
-            // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
-            this._audioBlob = audioBlob;
-            callback(this._audioBlob);
-          }).bind(this));
-        },
-
         // user must call this method when he prevents the init process
         init: function(userMediaStream) {
           this._userMediaStream = userMediaStream;
@@ -71,6 +54,18 @@
           }
         },
 
+        getRecordedBlob: function(callback) {
+          if (this._state != this._stateEnum.STOPPED) {
+            return false;
+          }
+
+          this._audioRecorder.exportWAV((function(audioBlob) {
+            // Recorder.forceDownload(audioBlob, 'myRecordedAudio.wav');
+            this._audioBlob = audioBlob;
+            callback(this._audioBlob);
+          }).bind(this));
+        },
+
         gainChanged: function(event, detail, sender) {
           if (this._volumeFullNode) {
             this._volumeFullNode.gain.value = detail;
@@ -78,6 +73,21 @@
         },
 
         // ===== private methods =====
+        _stateChanged: function() {
+          switch (this._state) {
+            case this._stateEnum.RECORDING:
+              this._audioBlob = null; // reset blob
+              this._audioRecorder.clear();
+              this._audioRecorder.record();
+              break;
+            case this._stateEnum.STOPPED:
+              this._audioRecorder.stop();
+              break;
+            default:
+              break;
+          }
+        },
+
         // initializes the audio context. See source code below for more comments and details.
         _initContext: function() {
           window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -184,7 +194,7 @@
             });
           });
         }
-      }, mixinsCore, mixinsHelper));
+      }, mixinsCore, mixinsHelper, mixinsAudioVideo));
 
     })();
   </script>

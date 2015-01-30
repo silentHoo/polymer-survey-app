@@ -42,37 +42,34 @@ Example:
 <link rel="import" href="../../bower_components/core-icons/image-icons.html">
 
 <link rel="import" href="../ivx-core-audio/ivx-core-audio.html">
-<link rel="import" href="../ivx-core-usermedia/ivx-core-usermedia.html">
 <link rel="import" href="../ivx-core-image/ivx-core-image.html">
 <link rel="import" href="../ivx-core-video/ivx-core-video.html">
+<link rel="import" href="../ivx-core-usermedia/ivx-core-usermedia.html">
 <link rel="import" href="../ivx-core-mediastreamtrack/ivx-core-mediastreamtrack.html">
 
 <link rel="import" href="../mixins-helper.html">
 
 <polymer-element name="ivx-qtype-usermedia" attributes="mode visualizeAudio">
   <template>
-    <!-- Media Encoder WebM -->
-    <script src="../../bower_components/whammy/whammy.js"></script>
-
     <!-- Stylesheet -->
     <link rel="stylesheet" href="ivx-qtype-usermedia.css">
-
-    <ivx-core-usermedia id="usermediaComponent"></ivx-core-usermedia>
 
     <div vertical layout center>
 
       <!-- START video / device container -->
       <div horizontal layout center>
 
-        <!-- *** video container *** -->
+        <!-- START video container -->
         <div id="videoContainer" class="[[ mode ]]" flex>
+
+          <!-- START UI State: ACCESS GRANTED -->
           <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
             <template if="[[ mode == 'video' || mode == 'image' ]]">
               <!-- live camera -->
               <video flex id="liveVideo" class="{{ _filterSelected }}" muted></video>
             </template>
 
-            <!-- visualizer -->
+            <!-- audio visualizer overlay -->
             <template if="[[ mode == 'audio' || mode == 'video' ]]">
               <ivx-core-audio
                 id="audioComponent"
@@ -82,37 +79,40 @@ Example:
               </ivx-core-audio>
             </template>
           </template>
+          <!-- END UI State: ACCESS GRANTED -->
 
-          <template if="{{ _currentUIState == 'mediaRecorded' && (mode == 'video' || mode == 'audio') }}">
+          <!-- START UI State: MEDIA RECORDED -->
+          <template if="{{ _currentUIState == 'mediaRecorded' }}">
             <!-- playback from existing video -->
             <template if="[[ mode == 'video' ]]">
-              <video id="playbackVideo" style="width:{{ _videoCanvas.width }}px; height: {{ _videoCanvas.height }}px;"
+              <video id="playbackVideo"
                      class="{{ _filterSelected }}" on-ended="{{ onPlaybackEnded }}"
                      on-timeupdate="{{ onPlaybackTimeupdate }}"></video>
               <audio id="playbackAudio" src="{{ _audioObjectURL }}" volume="1.0" type="audio/wave"></audio>
+              <div id="progressLine"></div>
             </template>
 
             <template if="[[ mode == 'audio' ]]">
               <audio id="playbackAudio" src="{{ _audioObjectURL }}" volume="1.0" type="audio/wave"
                      on-ended="{{ onPlaybackEnded }}" on-timeupdate="{{ onPlaybackTimeupdate }}"></audio>
+              <div id="progressLine"></div>
             </template>
 
-            <!-- progress line -->
-            <div id="progressLine"></div>
+            <template if="[[ mode == 'image' ]]">
+              <!-- picture from camera -->
+              <img src="{{ _imageDataURL }}" class="{{ _filterSelected }}">
+            </template>
           </template>
-
-          <template if="{{ _currentUIState == 'mediaRecorded' && mode == 'image' }}">
-            <!-- picture from camera -->
-            <img src="{{ _imageDataURL }}" class="{{ _filterSelected }}">
-          </template>
+          <!-- END UI State: MEDIA RECORDED -->
         </div>
+        <!-- END video container -->
 
-        <!-- *** device list *** -->
+        <!-- START device list -->
         <div self-end> <!-- positioning on bottom -->
           <div id="deviceList" layout vertical>
-            <template if="{{ (mode == 'video' || mode == 'image') && _devices.cameras.length > 0 }}">
-              <paper-radio-group selected="{{ _devices.selected.cameraId }}" class="spaceToTop" layout vertical>
-                <template repeat="{{ device, index in _devices.cameras }}">
+            <template if="{{ (mode == 'video' || mode == 'image') && _cameras.length > 0 }}">
+              <paper-radio-group selected="{{ _selectedCameraId }}" class="spaceToTop" layout vertical>
+                <template repeat="{{ device, index in _cameras }}">
                   <paper-radio-button
                     name="{{ device.id }}"
                     label="Kamera {{ index + 1 }} {{ device.facing != '' ? '(' + device.facing + ')' : '' }}"
@@ -124,7 +124,7 @@ Example:
 
             <template if="[[ mode == 'video' || mode == 'audio' ]]">
               <paper-radio-group selected="{{ _selectedMicrophoneId }}" class="spaceToTop" layout vertical>
-                <template repeat="{{ device, index in _devices.microphones }}">
+                <template repeat="{{ device, index in _microphones }}">
                   <paper-radio-button
                     name="{{ device.id }}"
                     label="Mikrofon {{ index + 1 }} {{ device.facing != '' ? '(' + device.facing + ')' : '' }}"
@@ -133,33 +133,30 @@ Example:
                 </template>
               </paper-radio-group>
 
-              <paper-slider min="0" max="100" value="[[ _microphoneGainLevelInit * 100 ]]"
+              <paper-slider min="0" max="100" value="[[ _gainValueInit * 100 ]]"
                             on-immediate-value-change="{{ onMicrophoneVolumeChange }}"></paper-slider>
             </template>
           </div>
         </div>
+        <!-- END device list -->
       </div>
       <!-- END video / device container -->
 
-      <!-- *** button container *** -->
+      <!-- START button container -->
       <div id="buttonContainer" class="spaceToTop">
         <!-- First enable camera/mic to record anything -->
         <template if="{{ _currentUIState == 'waitingForDeviceAccess' }}">
-
           <!-- activate button -->
           <paper-button raised on-tap="{{ onEnableTapped }}" class="spaceToTop">
             <core-icon icon="av:videocam"></core-icon>
             <div>Zugriff aktivieren</div>
           </paper-button>
-
         </template>
 
         <template if="{{ _currentUIState == 'deviceAccessGranted' }}">
           <div center layout horizontal>
             <div center layout vertical>
-
               <template bind ref="audioVideoImageButtons"></template>
-
               <!-- filters -->
               <template if="[[ mode == 'video' || mode == 'image' ]]">
                 <paper-radio-group selected="{{ _filterSelected }}" class="spaceToTop">
@@ -210,7 +207,9 @@ Example:
           </div>
         </template>
       </div>
+      <!-- END button container -->
 
+      <!-- START console container -->
       <div id="consoleContainer" class="spaceToTop">
         <template if="{{ (mode == 'audio' || mode == 'video') && _recordingNow }}">
           Recording ... {{ _recordingTime }}s
@@ -221,9 +220,11 @@ Example:
         </template>
 
         <template if="{{ mode == 'video' && !_recordingNow && _currentUIState == 'mediaRecorded' }}">
-          Frames captured: {{ _videoFrames.length }}, {{ _totalDuration }}s Video (~{{ _fps }} fps)
+          Frames captured: {{ _videoFramesCaptured }}, {{ _totalDuration }}s Video (~{{ _videoFps }} fps)
         </template>
       </div>
+      <!-- END console container -->
+
     </div>
 
     <!-- START bound templates -->
@@ -281,12 +282,6 @@ Example:
           visualizeAudio: true
         },
 
-        // internal resource for storing the width and height of space available
-        _viewport: {
-          width: 0,
-          height: 0
-        },
-
         // filters to apply on the video via CSS3
         _filters: ['Kein Filter', 'grayscale', 'sepia', 'invert', 'brightness', 'blur'],
         _filterSelected: 'Kein Filter',
@@ -297,7 +292,7 @@ Example:
           DEVICE_ACCESS_GRANTED: 'deviceAccessGranted',
           MEDIA_RECORDED: 'mediaRecorded'
         },
-        _currentUIState: 'waitingForDeviceAccess',
+        _currentUIState: '',
 
         _playerStateEnum: {
           STOPPED: 'stopped',
@@ -306,59 +301,143 @@ Example:
         },
         //_currentPlayerState: '',
         _currentPlayerState: 'mediaStopped',
-        _recordingNow: false,
+
+        // getUserMedia stream for all modes
+        _stream: null,
+        _microphones: [],
+        _cameras: [],
+        _selectedCameraId: '',
+        _selectedMicrophoneId: '',
 
         // image specific
         _imageDataURL: null,
 
         // video specific
+        _videoFramesCaptured: 0,
+        _videoFps: 0,
+        _videoBlob: null,
         _videoDim: {
           width: 320,
           height: 240
         },
-        _videoCanvas: document.createElement('canvas'), // offscreen canvas
-        _videoFrames: [],
-        _fps: 0,
-        // stores the video recorded from the stream as blob
-        _videoBlob: null,
 
-        _microphoneGainLevelInit: 0.8,
+        // audio specific
+        _audioBlob: null,
+        _gainValueInit: 0.8,
         _gainValue: 0.8,
-        _volumeFullNode: null,
 
-        // the stream object (getUserMedia)
-        _stream: null,
-
-        // startTime for the recording
-        _startTime: null,
-        // endTime for the recording
-        _endTime: null,
-        // duration for the recording
+        _recordingNow: false,
         _totalDuration: null,
-        // will run up when in recording mode
         _recordingTime: 0,
-
-        // requestAnimationFrame ID
-        _rafId: null,
-
-        // device sources
-        _devices: {
-          microphones: [],
-          cameras: [],
-          other: [],
-          selected: {
-            cameraId: '',
-            microphoneId: ''
-          }
-        },
 
         // components
         _audioComponent: null,
         _imageComponent: null,
+        _videoComponent: null,
 
-        domReady: function () {
+        ready: function () {
           this._currentUIState = this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS;
         },
+
+        // ===== UI triggered methods =====
+
+        // all: event handler to initialize the UserMedia API
+        onEnableTapped: function (event, detail, sender) {
+          this._initGetUserMedia();
+        },
+
+        // all: event handler to dismiss the current recording to start a new one
+        onRedoTapped: function (event, detail, sender) {
+          this._initVideoAudio();
+        },
+
+        // audio: event handler to reinit the UserMedia stream, when the microphone source changes
+        onMicrophoneTapped: function (event, detail, sender) {
+          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED && !this._recordingNow) {
+            this._initGetUserMedia();
+          }
+        },
+
+        // audio
+        onMicrophoneVolumeChange: function (event, detail, sender) {
+          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED) {
+            this._gainValue = sender.immediateValue / 100;
+          }
+        },
+
+        // image: event handler to grap a picture of the current stream frame
+        onSnapTapped: function (event, detail, sender) {
+          this._takePicture();
+          this._currentUIState = this._uiStateEnum.MEDIA_RECORDED;
+        },
+
+        // image, video: event handler to reinit the UserMedia stream, when the camera source changes
+        onCameraTapped: function (event, detail, sender) {
+          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED && !this._recordingNow) {
+            this._initGetUserMedia();
+          }
+        },
+
+        // audio, video: event handler to start and stop recording
+        onRecordingTapped: function (event, detail, sender) {
+          this._recordingNow = !this._recordingNow;
+
+          // recording
+          if (this._recordingNow) {
+            this._startRecord();
+          } else {
+            this._stopRecord();
+          }
+        },
+
+        // audio, video: event handler to sync the current playback time with the visual progress bar
+        onPlaybackTimeupdate: function (event, detail, sender) {
+          var percentPlayed = (sender.currentTime / this._totalDuration) * 100;
+          this._id('#progressLine').style.width = percentPlayed + '%';
+        },
+
+        // audio, video: event handler to start playing the recorded stream(s) (based on the current mode)
+        onPlayTapped: function (event, detail, sender) {
+          this._currentPlayerState = this._playerStateEnum.PLAYING;
+
+          if (this.mode == 'video') {
+            this._id('#playbackVideo').play();
+          }
+          this._id('#playbackAudio').play();
+        },
+
+        // audio, video: event handler to pause the playing audio/video (based on the current mode)
+        onPauseTapped: function (event, detail, sender) {
+          this._currentPlayerState = this._playerStateEnum.PAUSED;
+
+          if (this.mode == 'video') {
+            this._id('#playbackVideo').pause();
+          }
+          this._id('#playbackAudio').pause();
+        },
+
+        // audio, video: event handler to stop the playing audio/video (based on the current mode)
+        onStopTapped: function (event, detail, sender) {
+          this._currentPlayerState = this._playerStateEnum.STOPPED;
+
+          if (this.mode == 'video') {
+            this._id('#playbackVideo').load();
+          }
+          this._id('#playbackAudio').load();
+        },
+
+        // image, video: event handler to apply the selected filter
+        onFilterTapped: function (event, detail, sender) {
+          this._filterSelected = sender.getAttribute('name');
+        },
+
+        // video
+        onPlaybackEnded: function (event, detail, sender) {
+          this._currentPlayerState = this._playerStateEnum.STOPPED;
+          this._id('#progressLine').style.width = '100%';
+        },
+
+        // ===== private methods =====
 
         _currentUIStateChanged: function () {
           switch (this._currentUIState) {
@@ -373,285 +452,57 @@ Example:
           }
         },
 
-        _currentPlayerStateChanged: function() {
-          switch (this._currentPlayerState) {
-            case this._playerStateEnum.STOPPED:
-
-              break;
-            case this._playerStateEnum.PLAYING:
-
-              break;
-            case this._playerStateEnum.PAUSED:
-
-              break;
-            default:
-              break;
-          }
-        },
-
         _onDeviceAccessGranted: function () {
-          // we must short delay to catch the DOM changes. This is a common Polymer pattern,
+          // we must short delay to catch the DOM changes. This is a common Polymer pattern.
           this.async(function () {
-            // init video
+            // init live videostream
             if (this.mode == 'image' || this.mode == 'video') {
               var liveVideo = this._id('#liveVideo');
               liveVideo.src = window.URL.createObjectURL(this._stream);
               liveVideo.play();
             }
 
+            // init image component
             if (this.mode == 'image') {
               this._imageComponent = new IvxCoreImage();
               this._imageComponent.init(this._id('#liveVideo'), this._videoDim.width, this._videoDim.height);
             }
 
+            // init audio component
             if (this.mode == 'audio' || this.mode == 'video') {
               this._audioComponent = this._id('#audioComponent');
               this._audioComponent.init(this._stream);
+            }
+
+            // init video component
+            if (this.mode == 'video') {
+              this._videoComponent = new IvxCoreVideo();
+              this._videoComponent.init(this._id('#liveVideo'), this._videoDim.width, this._videoDim.height);
             }
           });
         },
 
         _onWaitingForDeviceAccess: function () {
-          // we must short delay to catch the DOM changes. This is a common Polymer pattern,
+          // we must short delay to catch the DOM changes. This is a common Polymer pattern.
           this.async(function () {
             // get device sources
             try {
               var mst = new IvxCoreMediaStreamTrack();
-              mst.getDevices((function (devices) {
-                this._devices.microphones = devices.microphones;
-                this._devices.cameras = devices.cameras;
-
-                // default is first? *assumption*
-                this._devices.selected.cameraId = this._devices.cameras[0].id;
-                this._selectedMicrophoneId = this._devices.microphones[0].id;
-              }).bind(this));
+              mst.getDevices(this._onDevicesReady.bind(this));
             } catch (e) {
               console.error(e);
             }
-
-            if (this.mode == 'video' /*|| this.mode == 'image'*/) {
-              // canvas is only the half of the size
-              this._videoCanvas.width = this._videoDim.width * 2;
-              this._videoCanvas.height = this._videoDim.height * 2;
-            }
           });
         },
 
-        _takePicture: function () {
-          this._imageDataURL = this._imageComponent.getPictureDataURL();
+        _onDevicesReady: function(devices) {
+          this._microphones = devices.microphones;
+          this._cameras = devices.cameras;
+
+          // default is first? *assumption*
+          this._selectedCameraId = this._cameras[0].id;
+          this._selectedMicrophoneId = this._microphones[0].id;
         },
-
-        _updateRecordingDuration: function () {
-          var update = function () {
-            this._recordingTime = Math.round((Date.now() - this._startTime) / 1000);
-
-            if (this._recordingNow == true) {
-              this._updateRecordingDuration();
-            }
-          };
-
-          update();
-          this.async(update, null, 1000);
-        },
-
-        // starts the record for the current mode
-        _startRecord: function () {
-          this._startTime = Date.now();
-
-          if (this.mode == 'video') {
-            this._startRecordVideo();
-          }
-          this._startRecordAudio();
-
-          this._updateRecordingDuration();
-        },
-
-        // resets the canvas context
-        _resetCanvas: function () {
-          this._videoCanvas.getContext('2d').clearRect(0, 0, this._videoCanvas.width, this._videoCanvas.height);
-        },
-
-        // starts the record of the video stream
-        _startRecordVideo: function() {
-          this._videoBlob = null; // reset blob
-          this._videoFrames = [];
-          this._resetCanvas();
-
-          // draw the current video frame into the canvas 2D context to read them back as image.
-          function drawVideoFrame() {
-            this._rafId = requestAnimationFrame((drawVideoFrame).bind(this)); // cross browser safe!
-            this._videoCanvas.getContext('2d').drawImage(this._id('#liveVideo'), 0, 0, this._videoCanvas.width, this._videoCanvas.height);
-
-            // Read back canvas as webp.
-            var url = this._videoCanvas.toDataURL('image/webp', 0.80); // image/jpeg is a way faster :(
-            this._videoFrames.push(url);
-          };
-
-          // request the first frame
-          this._rafId = requestAnimationFrame((drawVideoFrame).bind(this));
-        },
-
-        // starts the audio recording
-        _startRecordAudio: function () {
-          this._audioComponent.startRecord();
-        },
-
-        // stops the record for the current mode
-        _stopRecord: function () {
-          this._endTime = Date.now();
-          this._totalDuration = ((this._endTime - this._startTime) / 1000);
-
-          // switch from live to recorded video
-          this._currentUIState = this._uiStateEnum.MEDIA_RECORDED;
-          this._currentPlayerState = this._playerStateEnum.STOPPED;
-
-          if (this.mode == 'video') {
-            this._stopRecordVideo();
-            this._embedVideoPreview();
-          }
-
-          this._stopRecordAudio();
-          this._embedAudioPreview();
-        },
-
-        // stops the record for the video stream
-        _stopRecordVideo: function () {
-          cancelAnimationFrame(this._rafId);
-          // adjust the recorded frames to the duration, so we get the real speed!
-          this._fps = Math.floor(this._videoFrames.length / this._totalDuration);
-          this._videoBlob = Whammy.fromImageArray(this._videoFrames, this._fps);
-        },
-
-        // stops the record of the audio stream
-        _stopRecordAudio: function () {
-          this._audioComponent.stopRecord();
-        },
-
-        _embedAudioPreview: function () {
-          this._audioComponent.getRecordedBlob((function (audioBlob) {
-            this._audioObjectURL = window.URL.createObjectURL(audioBlob);
-          }).bind(this));
-        },
-
-        // sets the video config
-        _embedVideoPreview: function () {
-          // adjust size of player to video size
-          this.job('waitForDOMChanges', function () {
-            var playbackVideo = this._id('#playbackVideo');
-
-            playbackVideo.style.width = this._videoCanvas.width + 'px';
-            playbackVideo.style.height = this._videoCanvas.height + 'px';
-
-            // add blob to src of video element
-            playbackVideo.src = window.URL.createObjectURL(this._videoBlob);  // crossbrowser safe!
-          });
-        },
-
-        // attached callback, called when the template elements are attached to the DOM
-        attached: function () {
-          this.job('delayAbit', function () {
-            this._viewport.width = this.offsetWidth;
-            this._viewport.height = this.offsetHeight;
-          });
-        },
-
-        // event handler to reinit the UserMedia stream, when the camera source changes
-        onCameraTapped: function (event, detail, sender) {
-          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED && !this._recordingNow) {
-            this._initGetUserMedia();
-          }
-        },
-
-        // event handler to reinit the UserMedia stream, when the microphone source changes
-        onMicrophoneTapped: function (event, detail, sender) {
-          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED && !this._recordingNow) {
-            this._initGetUserMedia();
-          }
-        },
-
-        onMicrophoneVolumeChange: function (event, detail, sender) {
-          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED) {
-//            this._volumeFullNode.gain.value = sender.immediateValue / 100;
-            this._gainValue = sender.immediateValue / 100;
-          }
-        },
-
-        // event handler to initialize the UserMedia API
-        onEnableTapped: function (event, detail, sender) {
-          this._initGetUserMedia();
-        },
-
-        // event handler to grap a picture of the current stream frame
-        onSnapTapped: function (event, detail, sender) {
-          this._takePicture();
-          this._currentUIState = this._uiStateEnum.MEDIA_RECORDED;
-        },
-
-        // event handler to start and stop recording
-        onRecordingTapped: function (event, detail, sender) {
-          this._recordingNow = !this._recordingNow;
-
-          // recording
-          if (this._recordingNow) {
-            this._startRecord();
-          } else {
-            this._stopRecord();
-          }
-        },
-
-        // event handler to apply the selected filter
-        onFilterTapped: function (event, detail, sender) {
-          this._filterSelected = sender.getAttribute('name');
-        },
-
-        // event handler to hack the width of the
-        onPlaybackEnded: function (event, detail, sender) {
-          this._currentPlayerState = this._playerStateEnum.STOPPED;
-          this._id('#progressLine').style.width = '100%';
-        },
-
-        // event handler to sync the current playback time with the visual progress bar
-        onPlaybackTimeupdate: function (event, detail, sender) {
-          var percentPlayed = (sender.currentTime / this._totalDuration) * 100;
-          this._id('#progressLine').style.width = percentPlayed + '%';
-        },
-
-        // event handler to start playing the recorded stream(s) (based on the current mode)
-        onPlayTapped: function (event, detail, sender) {
-          this._currentPlayerState = this._playerStateEnum.PLAYING;
-
-          if (this.mode == 'video') {
-            this._id('#playbackVideo').play();
-          }
-          this._id('#playbackAudio').play();
-        },
-
-        // event handler to pause the playing audio/video (based on the current mode)
-        onPauseTapped: function (event, detail, sender) {
-          this._currentPlayerState = this._playerStateEnum.PAUSED;
-
-          if (this.mode == 'video') {
-            this._id('#playbackVideo').pause();
-          }
-          this._id('#playbackAudio').pause();
-        },
-
-        // event handler to stop the playing audio/video (based on the current mode)
-        onStopTapped: function (event, detail, sender) {
-          this._currentPlayerState = this._playerStateEnum.STOPPED;
-
-          if (this.mode == 'video') {
-            this._id('#playbackVideo').load();
-          }
-          this._id('#playbackAudio').load();
-        },
-
-        // event handler to dismiss the current recording to start a new one
-        onRedoTapped: function (event, detail, sender) {
-          this._initVideoAudio();
-        },
-
-        // ===== private methods =====
 
         // Resets the UI State to the second state available (after the user granted access to the mic + webcam).
         // This method is used to do the first initializing (BEFORE the very first recording) and to reset the
@@ -681,11 +532,12 @@ Example:
                 maxWidth: this._videoDim.width,
                 maxHeight: this._videoDim.height
               },
-              optional: [{sourceId: this._devices.selected.cameraId}]
+              optional: [{sourceId: this._selectedCameraId}]
             }
           };
 
-          this.$.usermediaComponent.init(usermediaConfig, this._onUserMediaSuccess.bind(this), this._onUserMediaError.bind(this));
+          var umc = new IvxCoreUserMedia();
+          umc.init(usermediaConfig, this._onUserMediaSuccess.bind(this), this._onUserMediaError.bind(this));
         },
 
         _onUserMediaSuccess: function (stream) {
@@ -701,6 +553,71 @@ Example:
               'restriction and try again.');
               break;
           }
+        },
+
+        // retrieves the data url from the image component
+        _takePicture: function () {
+          this._imageDataURL = this._imageComponent.getPictureDataURL('image/jpeg', 0.92);
+        },
+
+        // updates the length of the current recording every second
+        _updateRecordingDuration: function () {
+          var audioComponent = this._audioComponent;
+          var update = function () {
+            // @todo as long as this component is just a prototype we ignore the fact, that audio and video is not
+            // correctly synced. We just play them both at the same time. The audio component ist the component wich
+            // is used in video and audio mode, so we just use it to get the duration of the recording.
+            this._recordingTime = Math.round(audioComponent.getDuration() / 1000);
+
+            if (this._recordingNow == true) {
+              this._updateRecordingDuration();
+            }
+          };
+
+          update();
+          this.async(update, null, 1000);
+        },
+
+        // starts the record for the current mode
+        _startRecord: function () {
+          if (this.mode == 'video') {
+            this._videoComponent.startRecord();
+          }
+          this._audioComponent.startRecord();
+          this._updateRecordingDuration();
+        },
+
+        // stops the record for the current mode
+        _stopRecord: function () {
+          if (this.mode == 'video' || this.mode == 'audio') {
+            this._totalDuration = (this._audioComponent.getDuration() / 1000);
+          }
+
+          // switch from live to recorded video
+          this._currentUIState = this._uiStateEnum.MEDIA_RECORDED;
+          this._currentPlayerState = this._playerStateEnum.STOPPED;
+
+          // video
+          if (this.mode == 'video') {
+            this._videoComponent.stopRecord();
+            this._videoComponent.getRecordedBlob((function(videoInfo) {
+              this._videoBlob = videoInfo.blob;
+              this._videoFramesCaptured = videoInfo.frames;
+              this._videoFps = videoInfo.fps;
+
+              var playbackVideo = this._id('#playbackVideo');
+              this._id('#playbackVideo').src = window.URL.createObjectURL(this._videoBlob);  // crossbrowser safe!
+              playbackVideo.style.width = this._videoDim.width * 2 + 'px';
+              playbackVideo.style.height = this._videoDim.height * 2 + 'px';
+            }).bind(this));
+          }
+
+          // audio
+          this._audioComponent.stopRecord();
+          this._audioComponent.getRecordedBlob((function (audioBlob) {
+            this._audioBlob = audioBlob;
+            this._audioObjectURL = window.URL.createObjectURL(this._audioBlob);
+          }).bind(this));
         }
       }, mixinsHelper));
     })();

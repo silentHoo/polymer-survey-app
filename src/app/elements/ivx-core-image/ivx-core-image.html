@@ -2,13 +2,6 @@
 <link rel="import" href="../mixins-core.html">
 
 <polymer-element name="ivx-core-image" constructor="IvxCoreImage" attributes="">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-  </template>
   <script>
     (function () {
       Polymer(Polymer.mixin({
@@ -24,7 +17,20 @@
           this._canvas.height = height * 2;
         },
 
-        getPictureDataURL: function() {
+        getPictureDataURL: function(type, quality) {
+          var typeCheck = (type == 'image/jpeg' || type == 'image/webp');
+          var qualityCheck = (quality >= 0.0 && quality <= 1.0);
+
+          if (!typeCheck || !qualityCheck) {
+            return false;
+          }
+
+          this._drawImage();
+          return this._canvas.toDataURL(type, quality);
+        },
+
+        // ===== private methods =====
+        _drawImage: function() {
           this._canvas.getContext('2d').drawImage(
             this._videoEl,
             0,
@@ -32,8 +38,6 @@
             this._canvas.width,
             this._canvas.height
           );
-
-          return this._canvas.toDataURL('image/jpeg', 0.92);
         }
       }, mixinsCore));
 
