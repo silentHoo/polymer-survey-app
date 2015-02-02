@@ -1,24 +1,23 @@
 <!--
-`ivx-qtype-usermedia` can be used to record audio and video from the devices microphone and camera. It uses only the
+`ivx-qtype-usermedia` can be used to record audio and video from the devices microphones and cameras. It uses only the
 standard APIs **Web Audio API** and **UserMedia API**. It also overlays the live video output with a audio visualization.
 
 Please note that this component is a fancy wrapper around those APIs and provides you with the essential functionality
 for recording video and audio. There are also some filters added, which the user can apply on the video. These filters
 are merged into the video stream. They're only applied via the CSS3 selector `filter`.
-The APIs are currently (January 2015) only available in the Blink engine. Trident and Gecko doesn't provide those API
-and because there's no fallback mechanism implemented in this component, you should implement those by yourself or
-use another implementation to fix this.
+The APIs are at this time (January 2015) not well supported by the majority of the browsers available. Please use with
+caution and don't use it in production :)
 
-Please note too that the audio and video stream can not be recorded as one blob record. This is because of the API
-limitation. As a result of that a video exists of a recorded video stream and a recorded audio stream. The recorded
-audio and video will be started at the same time, when the user plays a recorded video. There could be some asynchronity
-by playing the video
+Please note that the audio and video stream can not be recorded as one blob record containing audio and video in one
+blob. This is caused by the API limitation. As a result of that a video exists of a recorded video stream and a
+separate recorded audio stream. The recorded audio and video will be started at the same time, when the user starts to
+play a recorded video. So it's possible that the video and audio will run out of sync.
 
 Use the attribute `mode` to switch between the types of recording (video (audio+video), audio (only audio), image).
 
 == **Please Note** ==
 
-This component only work on desktop browsers reliable:
+This component only works on those browsers:
 
 - iOS 8+ on Safari only supports the Audio WebAPI, so there's no Video/Image access available
 - Android 4.4.4+ on Chrome 40+ supports Audio and Video, 5+ integrates the evergreen Chrome, so it works there too
@@ -28,25 +27,36 @@ This component only work on desktop browsers reliable:
 
 You can use the `ivx-qtype-usermedia` element like the following.
 
-Example:
+Example 1:
 
-    <ivx-qtype-usermedia mode="video"></ivx-qtype-usermedia>
+    <ivx-qtype-usermedia mode="image"></ivx-qtype-usermedia>
+
+Example 2:
+
+    <ivx-qtype-usermedia mode="video" visualizeAudio="true"></ivx-qtype-usermedia>
+
+Example 3:
+
+    <ivx-qtype-usermedia mode="audio" visualizeAudio="true"></ivx-qtype-usermedia>
 
 @group Inovex Survey Elements
 @element ivx-qtype-usermedia
 @homepage inovex.de
 -->
 
+<!-- 3rd party dependecies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-icons/av-icons.html">
 <link rel="import" href="../../bower_components/core-icons/image-icons.html">
 
+<!-- self-defined elements -->
 <link rel="import" href="../ivx-core-audio/ivx-core-audio.html">
 <link rel="import" href="../ivx-core-image/ivx-core-image.html">
 <link rel="import" href="../ivx-core-video/ivx-core-video.html">
 <link rel="import" href="../ivx-core-usermedia/ivx-core-usermedia.html">
 <link rel="import" href="../ivx-core-mediastreamtrack/ivx-core-mediastreamtrack.html">
 
+<!-- mixins for shared functionality -->
 <link rel="import" href="../mixins-helper.html">
 
 <polymer-element name="ivx-qtype-usermedia" attributes="mode visualizeAudio">
@@ -262,80 +272,97 @@ Example:
   <script>
     (function () {
       Polymer(Polymer.mixin({
-        /**
-         * The usermedia mode to record from. Valid modes are `video`, `audio` and `image`.
-         *
-         * @attribute mode
-         * @type String
-         * @default 'video'
-         */
-
-        /**
-         * Enables or disables the audio visualizer.
-         *
-         * @attribute visualizeAudio
-         * @type Boolean
-         * @default true
-         */
         publish: {
+
+          /**
+           * The usermedia mode to record from. Valid modes are `video`, `audio` and `image`.
+           *
+           * @attribute mode
+           * @type String
+           * @default 'video'
+           */
           mode: 'video',
+
+          /**
+           * Enables or disables the audio visualizer.
+           *
+           * @attribute visualizeAudio
+           * @type Boolean
+           * @default true
+           */
           visualizeAudio: true
         },
 
-        // filters to apply on the video via CSS3
-        _filters: ['Kein Filter', 'grayscale', 'sepia', 'invert', 'brightness', 'blur'],
-        _filterSelected: 'Kein Filter',
+        _filters: [                         // CSS 3 filters
+          'Kein Filter',
+          'grayscale',
+          'sepia',
+          'invert',
+          'brightness',
+          'blur'
+        ],
+        _filterSelected: 'Kein Filter',     // Selected filter
 
         // the UI states
         _uiStateEnum: {
-          WAITING_FOR_DEVICE_ACCESS: 'waitingForDeviceAccess',
-          DEVICE_ACCESS_GRANTED: 'deviceAccessGranted',
-          MEDIA_RECORDED: 'mediaRecorded'
+          WAITING_FOR_DEVICE_ACCESS:  'waitingForDeviceAccess',
+          DEVICE_ACCESS_GRANTED:      'deviceAccessGranted',
+          MEDIA_RECORDED:             'mediaRecorded'
         },
         _currentUIState: '',
 
+        // substates (for the player)
         _playerStateEnum: {
           STOPPED: 'stopped',
           PLAYING: 'playing',
           PAUSED: 'paused'
         },
-        //_currentPlayerState: '',
         _currentPlayerState: 'mediaStopped',
 
-        // getUserMedia stream for all modes
-        _stream: null,
-        _microphones: [],
-        _cameras: [],
-        _selectedCameraId: '',
-        _selectedMicrophoneId: '',
+        _stream: null,                      // GetUserMedia stream object
+        _microphones: [],                   // list of provided microphones
+        _cameras: [],                       // list of provided cameras
+        _selectedMicrophoneId: '',          // id of selected microphone
+        _selectedCameraId: '',              // id of selected camera
 
         // image specific
-        _imageDataURL: null,
+        _imageDataURL: null,                // image data URL (stores the image)
 
         // video specific
-        _videoFramesCaptured: 0,
-        _videoFps: 0,
-        _videoBlob: null,
-        _videoDim: {
+        _videoBlob: null,                   // video data URL (stores the video)
+        _videoFramesCaptured: 0,            // captured video frames in blob
+        _videoFps: 0,                       // fps of the video
+        _videoDim: {                        // video resolution
           width: 320,
           height: 240
         },
 
         // audio specific
-        _audioBlob: null,
-        _gainValueInit: 0.8,
-        _gainValue: 0.8,
+        _audioBlob: null,                   // audio data URL (stores the audio)
+        _gainValueInit: 0.8,                // intial gain value
+        _gainValue: 0.8,                    // current gain value
 
-        _recordingNow: false,
-        _totalDuration: null,
-        _recordingTime: 0,
+        _recordingNow: false,               // flag that indicates if the recording is running (video/audio only)
+        _totalDuration: null,               // audio/video duration in seconds
+        _recordingTime: 0,                  // elapsed time of the recording
 
         // components
-        _audioComponent: null,
-        _imageComponent: null,
-        _videoComponent: null,
+        _audioComponent: null,              // reference to the audio component
+        _imageComponent: null,              // reference to the image component
+        _videoComponent: null,              // reference to the video component
 
+        // entry point
         ready: function () {
+          if (!this._validParameters()) {
+            console.log('One of your parameter is not valid, please check.');
+            return;
+          }
+
+          if (!this._browserSupported()) {
+            console.log('Your browser does not support the current mode, sorry :(');
+            return;
+          }
+
           this._currentUIState = this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS;
         },
 
@@ -439,6 +466,35 @@ Example:
 
         // ===== private methods =====
 
+        // @todo write mixin helper to check parameter array against regexes + data types
+        _validParameters: function() {
+          var param = [];
+          param['mode'] = this.mode == 'image' || this.mode == 'video' || this.mode == 'audio';
+          param['visualizeAudio'] = this.visualizeAudio === true || this.visualizeAudio === false;
+          return param['mode'] && param['visualizeAudio'];
+        },
+
+        // checks the browser support of each component
+        _browserSupported: function() {
+          switch (this.mode) {
+            case 'image':
+              var c = new IvxCoreImage();
+              return c.isSupported();
+              break;
+            case 'video':
+              var c = new IvxCoreVideo();
+              return c.isSupported();
+              break;
+            case 'audio':
+              var c = new IvxCoreAudio();
+              return c.isSupported();
+              break;
+            default:
+              break;
+          }
+        },
+
+        // called when the ui state changes
         _currentUIStateChanged: function () {
           switch (this._currentUIState) {
             case this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS:
@@ -452,6 +508,7 @@ Example:
           }
         },
 
+        // called when the user gives access to the requested sources
         _onDeviceAccessGranted: function () {
           // we must short delay to catch the DOM changes. This is a common Polymer pattern.
           this.async(function () {
@@ -482,6 +539,7 @@ Example:
           });
         },
 
+        // called when the component is initialized
         _onWaitingForDeviceAccess: function () {
           // we must short delay to catch the DOM changes. This is a common Polymer pattern.
           this.async(function () {
@@ -495,6 +553,7 @@ Example:
           });
         },
 
+        // called when the devices are received from the MediaStreamTrack API
         _onDevicesReady: function(devices) {
           this._microphones = devices.microphones;
           this._cameras = devices.cameras;
@@ -508,6 +567,12 @@ Example:
         // This method is used to do the first initializing (BEFORE the very first recording) and to reset the
         // state AFTER a recording was made.
         _initVideoAudio: function () {
+          // if we only change the source, we must manually trigger the method, because the changed watcher only
+          // watches on state changes and will never trigger the method in such a case.
+          if (this._currentUIState == this._uiStateEnum.DEVICE_ACCESS_GRANTED) {
+            this._onDeviceAccessGranted();
+          }
+
           this._currentUIState = this._uiStateEnum.DEVICE_ACCESS_GRANTED;
         },
 
@@ -540,12 +605,14 @@ Example:
           umc.init(usermediaConfig, this._onUserMediaSuccess.bind(this), this._onUserMediaError.bind(this));
         },
 
+        // success callback of UserMedia API
         _onUserMediaSuccess: function (stream) {
           // save the stream in this object to access it everywhere
           this._stream = stream;
           this._initVideoAudio();
         },
 
+        // error callback of UserMedia API
         _onUserMediaError: function (error) {
           switch (error.name) {
             case 'PermissionDeniedError':

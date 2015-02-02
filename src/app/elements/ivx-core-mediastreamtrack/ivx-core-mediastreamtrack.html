@@ -1,14 +1,23 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!-- mixins for shared functionality -->
 <link rel="import" href="../mixins-core.html">
 
+<!--
+This component is a wrapper around the MediaStreamTrack API.
+
+@group Core Elements
+@element ivx-core-usermedia
+@homepage inovex.de
+-->
 <polymer-element name="ivx-core-mediastreamtrack" constructor="IvxCoreMediaStreamTrack" attributes="">
   <script>
     (function () {
       Polymer(Polymer.mixin({
         _devices: {
-          microphones: [],
-          cameras: [],
-          other: []
+          microphones: [],  // list of all available microphones
+          cameras: [],      // list of all available cameras
+          other: []         // list of all other available mediastream devices
         },
         _deviceCallback: function() {},
 
