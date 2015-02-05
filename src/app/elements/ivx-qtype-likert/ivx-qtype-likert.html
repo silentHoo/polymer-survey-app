@@ -1,0 +1,270 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../ivx-qtype-helper/ivx-qtype-helper.html">
+
+<polymer-element name="ivx-qtype-likert" attributes="mode preselectedColumn">
+  <template>
+    <link rel="stylesheet" href="ivx-qtype-likert.css">
+
+    <ivx-qtype-helper id="helperComponent"></ivx-qtype-helper>
+
+    <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
+    <!--  -> related: https://www.w3.org/Bugs/Public/show_bug.cgi?id=18429 -->
+    <div style="display: none;">
+      <content id="cols" select="col-item"></content>
+      <content id="rows" select="row-item"></content>
+    </div>
+
+    <template if="[[ mode == 'matrix' ]]" bind ref="matrixModeTemplate"></template>
+    <template if="[[ mode == 'slide' ]]" bind ref="slideModeTemplate"></template>
+
+    <!-- template for mode="matrix" -->
+    <template id="matrixModeTemplate">
+      <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="{{ preselectedColumn }}">
+
+        <!-- repeat for every column -->
+        <template repeat="{{ col, colIndex in _columns }}">
+          <col-item>{{ col }}</col-item>
+        </template>
+
+        <!-- repeat for every row -->
+        <template repeat="{{ row, rowIndex in _rows }}">
+          <row-item>{{ row }}</row-item>
+        </template>
+
+      </ivx-qtype-selection-matrix>
+    </template>
+
+    <!-- template for mode="slide" -->
+    <template id="slideModeTemplate">
+      <div vertical layout id="slideModeWrapper">
+        <div horizontal layout id="colHeadWrapper">
+
+          <!-- repeat for every column -->
+          <template repeat="{{ col in _columns }}">
+            <div class="colHead">{{ col }}</div>
+          </template>
+
+        </div>
+
+        <!-- repeat for every row -->
+        <template repeat="{{ row in _rows }}">
+          <div class="row" horizontal layout>
+            <div class="firstCol">{{ row }}</div>
+            <div flex three>
+              <paper-slider
+                class="noprogress"
+                snaps
+                min="1"
+                max="{{ _columns.length }}"
+                step="1"
+                on-change="{{ onPaperSliderValueChange }}"
+              >
+              </paper-slider>
+            </div>
+          </div>
+        </template>
+
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var instance;
+
+      Polymer({
+        publish: {
+          mode: 'slide',
+          preselectedColumn: ''
+        },
+
+        _firstRun: true,
+
+        _posFirstColHead: 0,
+        _sliderMarkers: null,
+        _colHeads: null,
+        _columns: [],
+        _rows: [],
+
+        _dimSliderProgress: 0,
+        _dimComponent: 0,
+        _dimFirstCol: 0,
+        _dimColMaxHeight: 0,
+        _dimReferencePoint: 0,
+        _dimColHead: 0,
+        _userChangedValue: false,
+
+        // we need to use attached, because then we know where the DOM elements are located and can
+        // calculate the correct positions.
+        attached: function() {
+          this._init();
+        },
+
+        detached: function() {
+          this._removeResizeEvent();
+        },
+
+        onPaperSliderValueChange: function() {
+          this._userChangedValue = true;
+        },
+
+        _addResizeEvent: function() {
+          window.addEventListener('resize', this._onResizeWindow.bind(this));
+        },
+
+        _removeResizeEvent: function() {
+          window.removeEventListener('resize', this._onResizeWindow.bind(this));
+        },
+
+        _setupColumns: function() {
+          this._columns = [];
+          [].forEach.call(this.$.cols.getDistributedNodes(), function (node, i) {
+            this._columns.push(node.cloneNode(true).innerHTML);
+          }, this);
+        },
+
+        _setupRows: function() {
+          this._rows = [];
+          [].forEach.call(this.$.rows.getDistributedNodes(), function (node, i) {
+            this._rows.push(node.cloneNode(true).innerHTML);
+          }, this);
+        },
+
+        _getDOMNodeReferences: function(doneCallback) {
+          this.job('waiting for data binding', function() {
+            this._sliderProgress  = this.shadowRoot.querySelector('paper-slider::shadow paper-progress::shadow #progressContainer');
+            this._firstCol        = this.shadowRoot.querySelector('.firstCol');
+            this._sliderMarkers   = this.shadowRoot.querySelectorAll('paper-slider /deep/ .slider-marker');
+            this._colHeads        = this.shadowRoot.querySelectorAll('.colHead');
+
+            doneCallback();
+          });
+        },
+
+        _init: function() {
+          this.job('waiting for data binding', function() {
+            if (!this._isVisible()) {
+              return;
+            }
+
+            if (this._firstRun) {
+              this._firstRun = false;
+
+              if (this.mode == 'slide') {
+                this._getDOMNodeReferences((function() {
+                  this._posFirstColHead = this._colHeads[0].getBoundingClientRect().left;
+                  this._updateSlideView();
+                }).bind(this));
+              }
+
+              this._setupColumns();
+              this._setupRows();
+              this._addResizeEvent();
+            }
+          });
+        },
+
+        _isVisible: function() {
+          return this.offsetParent !== null;
+        },
+
+        _updateSlideView: function() {
+          this.job('waiting for inner elements to be prepared', function() {
+            this._recalculateDimensions();
+          }, 0);
+
+          this._checkColumns();
+        },
+
+        _recalculateDimensions: function() {
+          // grab the elements first
+          this._dimSliderProgress = this.$.helperComponent.getWidthFromElement(this._sliderProgress);
+          this._dimFirstCol = this.$.helperComponent.getWidthFromElement(this._firstCol);
+          this._dimColHead = this._dimSliderProgress / (this._columns.length - 1);
+
+          // move the .colHeadWrapper to the right by the given dimensions
+          this.$.colHeadWrapper.style['margin-left'] = (this._dimFirstCol + 30) + 'px';
+
+          // for all .colHead nodes move them to the correct column position
+          [].forEach.call(this._colHeads, function (node, i) {
+            var bb = node.getBoundingClientRect();
+
+            var posShift = this._dimColHead * i;   // we shift every column text i times to the slider marker ...
+
+            var centerOffset = 0;
+            var rotateBy;
+            if (this._dimColHead < 40) {          // ... and move them by 50% left, to adjust the position to
+                                                  // the center of the columns bounding rect.
+              rotateBy = -90;
+            } else {
+              //centerOffset = bb.width / 2;
+              // we also must respect the ::after part of the paper-slider, which is 3px so we add +3px for each node
+              // to the offset.
+              //centerOffset -= 3 * i;
+
+              rotateBy = -45;
+            }
+
+            node.style['transform'] = 'translateX(' + (posShift - centerOffset) + 'px) rotate(' + rotateBy + 'deg)';
+          }, this);
+
+          // we get the computed style from the first .colHead element
+          var cs = window.getComputedStyle(this._colHeads[0]);
+          var jobDelay = parseFloat(cs.transitionDuration) * 1000;
+
+          this.job('we delay until the animations have ended', function () {
+            [].forEach.call(this._colHeads, function (node, i) {
+              // get the refreshed bounding box
+              var bb = node.getBoundingClientRect();
+
+              // save the height of the maximum column box
+              if (bb.height > this._dimColMaxHeight) {
+                this._dimColMaxHeight = bb.height;
+              }
+            }, this);
+
+            // move to fit the heighest column
+            this.$.colHeadWrapper.style['margin-top'] = this._dimColMaxHeight + 'px';
+            this.$.colHeadWrapper.style['margin-bottom'] = this._dimColMaxHeight / 2 + 'px';
+          }, jobDelay);
+        },
+
+        _checkColumns: function() {
+          if (this._userChangedValue) {
+            return;
+          }
+
+          if (this.preselectedColumn !== '') {
+            if (this.preselectedColumn > 0 && this.preselectedColumn <= this._columns.length) {
+              this._checkColumn(this.preselectedColumn);
+            } else {
+              console.log('The preselected column is not > 0 nor <= the column count!');
+            }
+          }
+        },
+
+        _checkColumn: function(columnNumber) {
+          var paperSlider = Array.prototype.slice.call(this.shadowRoot.querySelectorAll('paper-slider'));
+          [].forEach.call(paperSlider, function(node, i) {
+            node.immediateValue = columnNumber;
+          });
+        },
+
+        _onResizeWindow: function(event) {
+          if (!this._isVisible()) {
+            return;
+          }
+
+          if (this.mode == 'slide') {
+            this._updateSlideView();
+          }
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

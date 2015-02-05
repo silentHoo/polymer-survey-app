@@ -2,17 +2,83 @@
   display: block;
 }
 
-#navContainer {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  position: absolute;
+paper-progress {
+  position: fixed;
+  height: 0.2rem;
+  width: 100%;
+
+  &::shadow #activeProgress {
+    transition: transform 500ms ease 0ms;
+  }
+}
+
+#paperFabWrapper {
+  z-index: 2;
+  position: fixed;
   bottom: 1rem;
+  right: 1rem;
+
+  paper-fab:first-child  {
+    background-color: lightgrey;
+    left: -1rem;
+  }
+
+  paper-fab:last-child  {
+    background-color: #456b8b;
+  }
+
+  paper-fab.highlight {
+    color: red;
+  }
+}
+
+page {
   width: 100%;
 }
 
-#buttonWrapper {
-  padding: 10px;
-  flex: 1;
+core-animated-pages {
+  margin: 3rem;
+}
+
+#pageContent {
+  &.lostTouch {
+    transition:left 1s ease 0ms, right 1s ease 0ms;
+  }
+}
+
+#btWrapper {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+
+  #btPrev,
+  #btNext {
+    height: 100%;
+
+    .icon-wrapper {
+      height: 100%;
+      width: 100%;
+
+      core-icon {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  }
+
+  #btPrev {
+    background: linear-gradient(to left, transparent, rgba(240, 240, 240, 1.00));
+
+    &.highlight {
+      background: linear-gradient(to left, transparent, rgba(228, 228, 228, 1.00));
+    }
+  }
+
+  #btNext {
+    background: linear-gradient(to right, transparent, rgba(240, 240, 240, 1.00));
+
+    &.highlight {
+      background: linear-gradient(to right, transparent, rgba(228, 228, 228, 1.00));
+    }
+  }
 }

@@ -1,3 +1,7 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+
 <!--
 This component allows you to easily setup an interactive **n x m matrix**. You can use the matrix in two
 different modes:
@@ -51,11 +55,7 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
 @group Question Type Survey Elements
 @element ivx-qtype-selection-matrix
 @homepage https://github.com/silentHoo
-@demo
 -->
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
 
 <polymer-element name="ivx-qtype-selection-matrix" attributes="mode preselectedColumn">
   <template>
@@ -68,45 +68,44 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
       <content id="rows" select="row-item"></content>
     </div>
 
-    <!-- we will put them all in one table -->
-    <table border="0">
-      <thead>
-        <tr>
-          <th>&nbsp;</th>
+    <div id="contentWrapper" layout horizontal justified="">
+      <!-- erste spalte -->
+      <div id="firstColumn" layout vertical>
+        <div class="rowHead">&nbsp;</div>
+        <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
+          <div class="rowHead"><div>{{ row }}</div></div>
+        </template>
+      </div>
 
-          <!-- repeat for every column -->
-          <template repeat="{{ col in _distributedNodes.cols }}">
-            <!-- the column's name -->
-            <th>{{ col }}</th>
+
+      <!-- zweite spalte -->
+      <div id="secondColumn" layout vertical>
+        <div id="scrollWrapper">
+          <div layout horizontal>
+            <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
+              <div class="colHead"><div>{{ col }}</div></div>
+            </template>
+          </div>
+
+          <!-- rows -->
+          <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
+            <div class="row" layout horizontal>
+
+              <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
+                <div class="cell">
+                  <!-- depending on the mode we use either a checkbox ... -->
+                  <template if="[[ mode == 'multi-answer' ]]" bind ref="multiAnswerTemplate"></template>
+
+                  <!-- ... or a radio button -->
+                  <template if="[[ mode == 'single-answer' ]]" bind ref="singleAnswerTemplate"></template>
+                </div>
+              </template>
+
+            </div>
           </template>
-
-        </tr>
-      </thead>
-
-      <tbody>
-
-      <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
-        <tr class="row">
-          <!-- the row's name -->
-          <td class="first-column">{{ row }}</td>
-
-          <!-- repeat for every column -->
-          <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
-            <td class="other-column">
-
-              <!-- depending on the mode we use either a checkbox ... -->
-              <template if="[[ mode == 'multi-answer' ]]" bind ref="multiAnswerTemplate"></template>
-
-              <!-- ... or a radio button -->
-              <template if="[[ mode == 'single-answer' ]]" bind ref="singleAnswerTemplate"></template>
-            </td>
-          </template>
-
-        </tr>
-      </template>
-
-      </tbody>
-    </table>
+        </div>
+      </div>
+    </div>
 
     <!-- START bound templates -->
     <template id="multiAnswerTemplate">
@@ -132,6 +131,7 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
 
   <script>
     (function () {
+      'use strict';
 
       Polymer({
         /**
@@ -158,22 +158,36 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
           preselectedColumn: ''
         },
 
-        _distributedNodes: {
+        _distributedNodes: {/*
           cols: [],
           rows: []
-        },
+        */},
 
         _matrixState: [],
 
-        ready: function() {
-          this._initMatrixState();
+        // Important: For properties that are objects or arrays, you should always initialize the properties in the
+        // created callback. If you set the default value directly on the prototype (or on the publish object), you
+        // may run into unexpected “shared state” across different instances of the same element.
+        created: function() {
+          this._distributedNodes = {
+            cols: [],
+            rows: []
+          };
         },
 
         domReady: function() {
-          if (this.preselectedColumn > 0 && this.preselectedColumn < this._distributedNodes.cols.length && this.preselectedColumn !== '') {
-            this._checkColumn(this.preselectedColumn - 1);
-          } else {
-            console.log('The preselected column is not > 0 nor <= the column count!');
+          // we must init here, not in ready(), because data bindings can do some work to prepare our
+          // <col-item> and <row-item> elements.
+          this._init();
+        },
+
+        _checkColumns: function() {
+          if (this.preselectedColumn !== '') {
+            if (this.preselectedColumn > 0 && this.preselectedColumn <= this._distributedNodes.cols.length) {
+              this._checkColumn(this.preselectedColumn - 1);
+            } else {
+              console.log('The preselected column is not > 0 nor <= the column count!');
+            }
           }
         },
 
@@ -185,25 +199,32 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
           }, this);
         },
 
-        _restoreMatrixState: function() {
+        _restoreState: function() {
           this._iterateMatrix((function(rowId, colId) {
             this._getItem(rowId, colId).checked = this._matrixState[rowId][colId];
           }).bind(this));
         },
 
-        _initMatrixState: function() {
-          // read in the content nodes
-          this._prepareDistributedNodes('cols', this.$.cols.getDistributedNodes());
-          this._prepareDistributedNodes('rows', this.$.rows.getDistributedNodes());
+        _init: function() {
+          this.job('waitong for the DOM', function() {
+            // read in the content nodes
+            this._prepareDistributedNodes('cols', this.$.cols.getDistributedNodes());
+            this._prepareDistributedNodes('rows', this.$.rows.getDistributedNodes());
 
-          // set the state array, based on the distributed content nodes
-          this._iterateMatrix((function(rowId, colId) {
-            if (!this._matrixState[rowId]) {
-              this._matrixState[rowId] = [];
-            }
-            // everything is initially unchecked
-            this._matrixState[rowId][colId] = false;
-          }).bind(this));
+            // set the state array, based on the distributed content nodes
+            this._iterateMatrix((function(rowId, colId) {
+              if (!this._matrixState[rowId]) {
+                this._matrixState[rowId] = [];
+              }
+              // everything is initially unchecked
+              this._matrixState[rowId][colId] = false;
+            }).bind(this));
+
+
+            this.job('', function() {
+              this._checkColumns();
+            });
+          });
         },
 
         _iterateMatrix: function(cellProcessingCallback) {

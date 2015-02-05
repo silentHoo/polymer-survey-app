@@ -1,22 +1,22 @@
 {
   "author": "Patrick Hillert",
-  "name": "ivx-qtype-selection-matrix",
-  "description": "A selection m x n matrix which allows interactive usage.",
+  "name": "ivx-qtype-rank",
+  "description": "A ranking element for individual styled elements.",
   "version": "0.1.0",
   "license": "BSD",
   "keywords": [
-    "selection matrix",
+    "rank",
+    "ranking",
     "polymer",
-    "matrix",
+    "drag and drop",
     "survey element",
     "survey",
     "web-components"
   ],
-  "main": "ivx-qtype-selection-matrix.html",
+  "main": "ivx-qtype-rank.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^0.5.2",
-    "paper-checkbox": "Polymer/paper-checkbox#^0.5.2",
-    "paper-radio-button": "Polymer/paper-radio-button#^0.5.2"
+    "core-drag-drop": "Polymer/core-drag-drop#^0.5.2"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^2.0.0"

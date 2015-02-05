@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+#audioVisualizer {
+  height: 100%;
+  opacity: 0.2;
+  transform: scaleY(-1);
+
+  & > div {
+    float: left;
+    background-color: #03a9f4;
+    bottom: 0px;
+  }
+}
