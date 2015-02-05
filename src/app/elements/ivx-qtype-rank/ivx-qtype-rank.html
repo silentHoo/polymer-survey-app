@@ -71,6 +71,8 @@ You should see the demo.html for more infos on that.
     (function () {
       'use strict';
 
+      var instanceCount = -1;
+
       Polymer({
         _items: null,
 
@@ -89,6 +91,16 @@ You should see the demo.html for more infos on that.
         _dragTarget: null,        // stores the element the user has dragged previously
         _lastDragTarget: null,    // stores the last dragged element
         _lastDropTarget: null,    // stores the last element where the user has dropped the dragged element
+        _instance: 0,
+
+        created: function() {
+          if (instanceCount == -1) {
+            this._instance = 1;
+            instanceCount = 1;
+          } else {
+            this._instance = ++instanceCount;
+          }
+        },
 
         ready: function() {
           this._init();
@@ -104,6 +116,9 @@ You should see the demo.html for more infos on that.
           [].forEach.call(this.$.items.getDistributedNodes(), function (node, i) {
             var cNode = node.cloneNode(true);
             cNode.setAttribute('draggable', false);
+
+            // workaround for the global `core-drag-drop`
+            cNode.setAttribute('instance', this._instance);
 
             // we must save the mouse/finger down position to adjust the element accordingly
             // when the user is tapping on an element
@@ -182,9 +197,13 @@ You should see the demo.html for more infos on that.
 
           dragTarget.classList.remove('dragging');
           dragTarget.classList.add('dropped-source');
-          dropTarget.classList.add('dropped-target');
 
-          // @todo: improve the removal of css classes, because we assume that the animations last ~2s
+          // workaround for `core-drag-drop` global
+          if (dropTarget.getAttribute('instance') == this._instance) {
+            dropTarget.classList.add('dropped-target');
+          }
+
+          // @todo: improve the removal of css classes, because we assume that the animations lasts ~2s
           this.job('remove css classes after 2 secs', function() {
             dragTarget.classList.remove('dropped-source');
             dropTarget.classList.remove('dropped-target');
@@ -195,16 +214,19 @@ You should see the demo.html for more infos on that.
             return;
           }
 
-          // change order
-          var dragTargetItemId = parseInt(dragTarget.getAttribute('item-index'));
-          var dropTargetItemId = parseInt(dropTarget.getAttribute('item-index'));
+          // workaround for `core-drag-drop` global
+          if (dropTarget.getAttribute('instance') == this._instance) {
+            // change order
+            var dragTargetItemId = parseInt(dragTarget.getAttribute('item-index'));
+            var dropTargetItemId = parseInt(dropTarget.getAttribute('item-index'));
 
-          var temp = this._items[dragTargetItemId];
-          this._items[dragTargetItemId] = this._items[dropTargetItemId];
-          this._items[dropTargetItemId] = temp;
+            var temp = this._items[dragTargetItemId];
+            this._items[dragTargetItemId] = this._items[dropTargetItemId];
+            this._items[dropTargetItemId] = temp;
 
-          this._lastDragTarget = dragTarget;
-          this._lastDropTarget = dropTarget;
+            this._lastDragTarget = dragTarget;
+            this._lastDropTarget = dropTarget;
+          }
 
           this._draw();
         },
