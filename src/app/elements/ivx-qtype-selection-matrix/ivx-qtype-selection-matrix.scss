@@ -15,14 +15,14 @@ $cellPadding: 0.1rem;
 #contentWrapper {
 
   #firstColumn {
-    .rowHead {
-      &:nth-child(even) {
-        background-color: #ededed;
-      }
+    width: 100%;
 
+    .rowHead {
       height: $colHeadHeight;
       padding: $cellPadding;
       text-align: center;
+      border-bottom: 1px #0d3580 solid;
+      border-right: 1px #f6f6f6 solid;
 
       div {
         @include vertical-align;
@@ -31,7 +31,6 @@ $cellPadding: 0.1rem;
   }
 
   #secondColumn {
-    width: 70%;
 
     #scrollWrapper {
       overflow-x: scroll;
@@ -46,14 +45,11 @@ $cellPadding: 0.1rem;
       height: $colHeadHeight;
       text-align: center;
       padding: $cellPadding;
+      border-bottom: 1px #0d3580 solid;
 
       div {
         @include vertical-align;
       }
-    }
-
-    .row:nth-child(even) {
-      background-color: #ededed;
     }
 
     .cell {
@@ -61,6 +57,7 @@ $cellPadding: 0.1rem;
       height: $colHeadHeight;
       padding: $cellPadding;
       text-align: center;
+      border-bottom: 1px #0d3580 solid;
 
       paper-checkbox, paper-radio-button {
         @include vertical-align;
