@@ -1,25 +1,70 @@
+$colHeadWidth: 6rem;
+$colHeadHeight: 5rem;
+$cellPadding: 0.1rem;
+
+@mixin vertical-align {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 :host {
   display: block;
 }
 
-table {
+#contentWrapper {
 
-  tr th {
-    padding: 1rem;
+  #firstColumn {
+    .rowHead {
+      &:nth-child(even) {
+        background-color: #ededed;
+      }
+
+      height: $colHeadHeight;
+      padding: $cellPadding;
+      text-align: center;
+
+      div {
+        @include vertical-align;
+      }
+    }
   }
 
-  td {
-    padding: 1rem;
-    border-bottom: 1px grey solid;
-    border-right: 1px grey solid;
-  }
+  #secondColumn {
+    width: 70%;
 
-  .first-column {
-    min-width: 10rem !important;
-  }
+    #scrollWrapper {
+      overflow-x: scroll;
 
-  .other-column {
-    min-width: 6rem;
-    text-align: center;
+      div {
+        flex: none;
+      }
+    }
+
+    .colHead {
+      width: $colHeadWidth;
+      height: $colHeadHeight;
+      text-align: center;
+      padding: $cellPadding;
+
+      div {
+        @include vertical-align;
+      }
+    }
+
+    .row:nth-child(even) {
+      background-color: #ededed;
+    }
+
+    .cell {
+      width: $colHeadWidth;
+      height: $colHeadHeight;
+      padding: $cellPadding;
+      text-align: center;
+
+      paper-checkbox, paper-radio-button {
+        @include vertical-align;
+      }
+    }
   }
 }
