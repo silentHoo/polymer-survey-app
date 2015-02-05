@@ -48,7 +48,7 @@
 
         surveylist: [],
 
-        viewModel: {
+        viewModel: {/*
           surveylist: [],
 
           dialog: {
@@ -62,6 +62,27 @@
           }, {
             name: 'Umfrage löschen'
           }]
+        */},
+
+        // Important: For properties that are objects or arrays, you should always initialize the properties in the
+        // created callback. If you set the default value directly on the prototype (or on the publish object), you
+        // may run into unexpected “shared state” across different instances of the same element.
+        created: function() {
+          this.viewModel = {
+            surveylist: [],
+
+            dialog: {
+              title: 'No title'
+            },
+
+            contextList: [{
+              name: 'Ergebnisse anzeigen'
+            }, {
+              name: 'Umfrage bearbeiten'
+            }, {
+              name: 'Umfrage löschen'
+            }]
+          };
         },
 
         updateSurveyList: function() {

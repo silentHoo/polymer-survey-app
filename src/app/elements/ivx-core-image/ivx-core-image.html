@@ -21,7 +21,14 @@ produced image could be inserted into a `<img>` element or further proceeded.
         _width: 0,                                  // the width of the resulting image
         _height: 0,                                 // the height of the resulting image
         _videoEl: null,                             // HTMLImageElement, HTMLVideoElement or HTMLCanvasElement
-        _canvas: document.createElement('canvas'),  // the canvas object
+        _canvas: null,                              // the canvas object
+
+        // Important: For properties that are objects or arrays, you should always initialize the properties in the
+        // created callback. If you set the default value directly on the prototype (or on the publish object), you
+        // may run into unexpected “shared state” across different instances of the same element.
+        created: function() {
+          this._canvas = document.createElement('canvas');
+        },
 
         /**
          * Returns `true` if this components used Web APIs are supported by the current used browser. False otherwise.

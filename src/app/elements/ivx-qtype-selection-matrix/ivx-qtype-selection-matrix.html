@@ -159,12 +159,22 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
           preselectedColumn: ''
         },
 
-        _distributedNodes: {
+        _distributedNodes: {/*
           cols: [],
           rows: []
-        },
+        */},
 
         _matrixState: [],
+
+        // Important: For properties that are objects or arrays, you should always initialize the properties in the
+        // created callback. If you set the default value directly on the prototype (or on the publish object), you
+        // may run into unexpected “shared state” across different instances of the same element.
+        created: function() {
+          this._distributedNodes = {
+            cols: [],
+            rows: []
+          };
+        },
 
         domReady: function() {
           // we must init here, not in ready(), because data bindings can do some work to prepare our

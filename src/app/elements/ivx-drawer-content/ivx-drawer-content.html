@@ -95,7 +95,7 @@ Example:
            * @type Array
            * @default 'see below'
            */
-          items: [{
+          items: [/*{
             name: 'Home',
             href: '/home',
             closeDrawer: false,
@@ -105,7 +105,24 @@ Example:
             href: '/about',
             closeDrawer: true,
             coreIconName: 'help'
-          }]
+          }*/]
+        },
+
+        // Important: For properties that are objects or arrays, you should always initialize the properties in the
+        // created callback. If you set the default value directly on the prototype (or on the publish object), you
+        // may run into unexpected “shared state” across different instances of the same element.
+        created: function() {
+          this.items = [{
+            name: 'Home',
+            href: '/home',
+            closeDrawer: false,
+            coreIconName: 'assignment'
+          }, {
+            name: 'About',
+            href: '/about',
+            closeDrawer: true,
+            coreIconName: 'help'
+          }];
         },
 
         // will be invoked, when an item in the core-menu is tapped and will

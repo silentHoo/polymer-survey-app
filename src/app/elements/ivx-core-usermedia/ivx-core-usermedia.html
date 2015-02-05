@@ -19,13 +19,27 @@ This component is a wrapper around the GetUserMedia/Stream API.
 
         // the GetUserMedia configuration object
         _config: {
-          enabled: {
-            // bool flags if enabled
-            audio: true,
-            video: true
-          },
-          audio: {},      // the audio config
-          video: {}       // the video config
+          //enabled: {
+          //  // bool flags if enabled
+          //  audio: true,
+          //  video: true
+          //},
+          //audio: {},      // the audio config
+          //video: {}       // the video config
+        },
+
+        // Important: For properties that are objects or arrays, you should always initialize the properties in the
+        // created callback. If you set the default value directly on the prototype (or on the publish object), you
+        // may run into unexpected “shared state” across different instances of the same element.
+        created: function() {
+          this._config = {
+            enabled: {
+              audio: true,
+              video: true
+            },
+            audio: {},
+            video: {}
+          };
         },
 
         /**
