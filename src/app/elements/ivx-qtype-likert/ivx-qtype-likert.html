@@ -57,6 +57,7 @@
                 min="1"
                 max="{{ _columns.length }}"
                 step="1"
+                on-change="{{ onPaperSliderValueChange }}"
               >
               </paper-slider>
             </div>
@@ -95,6 +96,7 @@
         _dimColMaxHeight: 0,
         _dimReferencePoint: 0,
         _dimColHead: 0,
+        _userChangedValue: false,
 
         // we need to use attached, because then we know where the DOM elements are located and can
         // calculate the correct positions.
@@ -104,6 +106,10 @@
 
         detached: function() {
           this._removeResizeEvent();
+        },
+
+        onPaperSliderValueChange: function() {
+          this._userChangedValue = true;
         },
 
         _addResizeEvent: function() {
@@ -188,14 +194,22 @@
             var bb = node.getBoundingClientRect();
 
             var posShift = this._dimColHead * i;   // we shift every column text i times to the slider marker ...
-            var centerOffset = bb.width / 2;       // ... and move them by 50% left, to adjust the position to
-                                                   // the center of the columns bounding rect.
 
-            // we also must respect the ::after part of the paper-slider, which is 3px so we add +3px for each node
-            // to the offset.
-            centerOffset -= 3 * i;
+            var centerOffset = 0;
+            var rotateBy;
+            if (this._dimColHead < 40) {          // ... and move them by 50% left, to adjust the position to
+                                                  // the center of the columns bounding rect.
+              rotateBy = -90;
+            } else {
+              //centerOffset = bb.width / 2;
+              // we also must respect the ::after part of the paper-slider, which is 3px so we add +3px for each node
+              // to the offset.
+              //centerOffset -= 3 * i;
 
-            node.style['transform'] = 'translateX(' + (posShift - centerOffset) + 'px) rotate(-45deg)';
+              rotateBy = -45;
+            }
+
+            node.style['transform'] = 'translateX(' + (posShift - centerOffset) + 'px) rotate(' + rotateBy + 'deg)';
           }, this);
 
           // we get the computed style from the first .colHead element
@@ -220,6 +234,10 @@
         },
 
         _checkColumns: function() {
+          if (this._userChangedValue) {
+            return;
+          }
+
           if (this.preselectedColumn !== '') {
             if (this.preselectedColumn > 0 && this.preselectedColumn <= this._columns.length) {
               this._checkColumn(this.preselectedColumn);
