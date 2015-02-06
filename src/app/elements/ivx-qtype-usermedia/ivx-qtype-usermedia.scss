@@ -19,26 +19,43 @@
   margin-top: 1rem;
 }
 
-#videoContainer.video,
-#videoContainer.image {
-  width: 640px;
-  height: 480px;
-  border: 1px grey dashed;
+#videoContainer {
+  &.video,
+  &.image {
+    position: relative;
+    border: 1px grey dashed;
+  }
+
+  &.audio {
+    width: 100%;
+    height: 100%;
+    border: 1px grey dashed;
+
+    & ivx-core-audio {
+      height: inherit;
+    }
+  }
+
+  img,
+  video {
+    width: 100%;
+  }
 }
 
-#videoContainer.audio {
-  width: 640px;
-  height: 240px;
-  border: 1px grey dashed;
-
-  & ivx-core-audio {
-    height: inherit;
+#actionButtonsWrapper {
+  paper-button {
+    margin: 0.5rem;
   }
 }
 
 #liveVideo {
-  width: 640px;
-  height: 480px;
+  width: 100%;
+  height: 100%;
+  background-color: #004444;
+}
+
+.filterRadioButton {
+  width: 30%;
 }
 
 // https://dvcs.w3.org/hg/FXTF/raw-file/tip/filters/index.html

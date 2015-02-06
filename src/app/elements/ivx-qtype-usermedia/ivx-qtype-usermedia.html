@@ -123,41 +123,17 @@ Example 3:
 
         <!-- START device list -->
         <div self-end> <!-- positioning on bottom -->
-          <div id="deviceList" layout vertical>
-            <template if="{{ (mode == 'video' || mode == 'image') && _cameras.length > 0 }}">
-              <paper-radio-group selected="{{ _selectedCameraId }}" class="spaceToTop" layout vertical>
-                <template repeat="{{ device, index in _cameras }}">
-                  <paper-radio-button
-                    name="{{ device.id }}"
-                    label="Kamera {{ index + 1 }} {{ device.facing != '' ? '(' + device.facing + ')' : '' }}"
-                    on-tap="{{ onCameraTapped }}">
-                  </paper-radio-button>
-                </template>
-              </paper-radio-group>
-            </template>
-
-            <template if="[[ mode == 'video' || mode == 'audio' ]]">
-              <paper-radio-group selected="{{ _selectedMicrophoneId }}" class="spaceToTop" layout vertical>
-                <template repeat="{{ device, index in _microphones }}">
-                  <paper-radio-button
-                    name="{{ device.id }}"
-                    label="Mikrofon {{ index + 1 }} {{ device.facing != '' ? '(' + device.facing + ')' : '' }}"
-                    on-tap="{{ onMicrophoneTapped }}">
-                  </paper-radio-button>
-                </template>
-              </paper-radio-group>
-
-              <paper-slider min="0" max="100" value="[[ _gainValueInit * 100 ]]"
-                            on-immediate-value-change="{{ onMicrophoneVolumeChange }}"></paper-slider>
-            </template>
-          </div>
+          <template if="{{ clientWidth >= 320 }}" bind ref="deviceListTemplate"></template>
         </div>
         <!-- END device list -->
       </div>
       <!-- END video / device container -->
 
       <!-- START button container -->
-      <div id="buttonContainer" class="spaceToTop">
+      <div id="buttonContainer" class="spaceToTop" layout vertical center>
+
+        <template if="{{ clientWidth < 320 }}" bind ref="deviceListTemplate"></template>
+
         <!-- First enable camera/mic to record anything -->
         <template if="{{ _currentUIState == 'waitingForDeviceAccess' }}">
           <!-- activate button -->
@@ -173,9 +149,10 @@ Example 3:
               <template bind ref="audioVideoImageButtons"></template>
               <!-- filters -->
               <template if="[[ mode == 'video' || mode == 'image' ]]">
-                <paper-radio-group selected="{{ _filterSelected }}" class="spaceToTop">
+                <paper-radio-group selected="{{ _filterSelected }}" class="spaceToTop" layout horizontal wrap justified="">
                   <template repeat="{{ filter, index in _filters }}">
                     <paper-radio-button
+                      class="filterRadioButton"
                       name="{{ filter }}"
                       label="{{ filter }}"
                       on-tap="{{ onFilterTapped }}">
@@ -188,35 +165,39 @@ Example 3:
         </template>
 
         <template if="{{ _currentUIState == 'mediaRecorded' }}">
-          <div center layout horizontal>
+          <div center-justified layout horizontal wrap id="actionButtonsWrapper">
 
             <template if="[[ mode == 'audio' || mode == 'video' ]]">
-              <!-- play button -->
-              <template if="{{ _currentPlayerState == 'stopped' || _currentPlayerState == 'paused' }}">
-                <paper-button id="playButton" raised on-tap="{{ onPlayTapped }}">
-                  <core-icon icon="av:play-arrow"></core-icon>
-                </paper-button>
-              </template>
+              <div>
+                <!-- play button -->
+                <template if="{{ _currentPlayerState == 'stopped' || _currentPlayerState == 'paused' }}">
+                  <paper-button id="playButton" raised on-tap="{{ onPlayTapped }}">
+                    <core-icon icon="av:play-arrow"></core-icon>
+                  </paper-button>
+                </template>
 
-              <!-- pause button -->
-              <template if="{{ _currentPlayerState == 'playing' }}">
-                <paper-button id="pauseButton" raised on-tap="{{ onPauseTapped }}">
-                  <core-icon icon="av:pause"></core-icon>
-                </paper-button>
-              </template>
+                <!-- pause button -->
+                <template if="{{ _currentPlayerState == 'playing' }}">
+                  <paper-button id="pauseButton" raised on-tap="{{ onPauseTapped }}">
+                    <core-icon icon="av:pause"></core-icon>
+                  </paper-button>
+                </template>
 
-              <!-- stop button -->
-              <paper-button id="stopButton" raised on-tap="{{ onStopTapped }}">
-                <core-icon icon="av:stop"></core-icon>
-              </paper-button>
+                <!-- stop button -->
+                <paper-button id="stopButton" raised on-tap="{{ onStopTapped }}">
+                  <core-icon icon="av:stop"></core-icon>
+                </paper-button>
+              </div>
             </template>
 
             <template if="[[ mode == 'audio' || mode == 'video' || mode == 'image' ]]">
-              <!-- redo button -->
-              <paper-button raised on-tap="{{ onRedoTapped }}">
-                <core-icon icon="av:replay"></core-icon>
-                <div>Aufnahme wiederholen</div>
-              </paper-button>
+              <div>
+                <!-- redo button -->
+                <paper-button raised on-tap="{{ onRedoTapped }}">
+                  <core-icon icon="av:replay"></core-icon>
+                  <div>Aufnahme wiederholen</div>
+                </paper-button>
+              </div>
             </template>
           </div>
         </template>
@@ -268,6 +249,43 @@ Example 3:
           <div>Bild aufnehmen</div>
         </paper-button>
       </template>
+    </template>
+
+
+    <template id="deviceListTemplate">
+      <div id="deviceList" layout vertical>
+        <template if="{{ (mode == 'video' || mode == 'image') && _cameras.length > 0 }}">
+          <div layout vertical center>
+          <paper-radio-group selected="{{ _selectedCameraId }}" class="spaceToTop" layout vertical>
+              <template repeat="{{ device, index in _cameras }}">
+                <paper-radio-button
+                  name="{{ device.id }}"
+                  label="Kamera {{ index + 1 }} {{ device.facing != '' ? '(' + device.facing + ')' : '' }}"
+                  on-tap="{{ onCameraTapped }}">
+                </paper-radio-button>
+              </template>
+          </paper-radio-group>
+          </div>
+        </template>
+
+        <template if="[[ mode == 'video' || mode == 'audio' ]]">
+          <div layout vertical center>
+            <paper-radio-group selected="{{ _selectedMicrophoneId }}" class="spaceToTop" layout vertical>
+              <template repeat="{{ device, index in _microphones }}">
+                <paper-radio-button
+                  name="{{ device.id }}"
+                  label="Mikrofon {{ index + 1 }} {{ device.facing != '' ? '(' + device.facing + ')' : '' }}"
+                  on-tap="{{ onMicrophoneTapped }}">
+                </paper-radio-button>
+              </template>
+            </paper-radio-group>
+
+            <paper-slider min="0" max="100" value="[[ _gainValueInit * 100 ]]"
+                          on-immediate-value-change="{{ onMicrophoneVolumeChange }}"></paper-slider>
+          </div>
+
+        </template>
+      </div>
     </template>
     <!-- END bound templates -->
 
@@ -368,6 +386,12 @@ Example 3:
           }
 
           this._currentUIState = this._uiStateEnum.WAITING_FOR_DEVICE_ACCESS;
+        },
+
+        domReady: function() {
+          // @todo: refactor to use mixins
+          console.log(this.clientWidth);
+          console.log(this.clientHeight);
         },
 
         // ===== UI triggered methods =====
@@ -678,8 +702,8 @@ Example 3:
 
               var playbackVideo = this._id('#playbackVideo');
               this._id('#playbackVideo').src = window.URL.createObjectURL(this._videoBlob);  // crossbrowser safe!
-              playbackVideo.style.width = this._videoDim.width * 2 + 'px';
-              playbackVideo.style.height = this._videoDim.height * 2 + 'px';
+              //playbackVideo.style.width = this._videoDim.width * 2 + 'px';
+              //playbackVideo.style.height = this._videoDim.height * 2 + 'px';
             }).bind(this));
           }
 
