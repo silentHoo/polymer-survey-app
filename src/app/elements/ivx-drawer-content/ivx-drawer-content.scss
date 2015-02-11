@@ -11,6 +11,16 @@ core-toolbar {
   text-rendering: optimizeLegibility;
 }
 
+#imageContainer {
+  padding: 10px;
+
+  core-image {
+    transform: skew(0deg,10deg);
+    width: 256px;
+    height: 170px;
+  }
+}
+
 core-menu {
   margin: 0px;
   margin-top: -4px;
