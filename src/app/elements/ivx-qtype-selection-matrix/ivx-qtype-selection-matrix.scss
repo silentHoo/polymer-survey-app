@@ -1,6 +1,6 @@
 $colHeadWidth: 6rem;
 $colHeadHeight: 5rem;
-$cellPadding: 0.1rem;
+$cellPadding: 0.2rem;
 
 @mixin vertical-align {
   position: relative;
@@ -15,14 +15,14 @@ $cellPadding: 0.1rem;
 #contentWrapper {
 
   #firstColumn {
-    width: 100%;
+    width: 25rem;
 
     .rowHead {
       height: $colHeadHeight;
       padding: $cellPadding;
       text-align: center;
       border-bottom: 1px #0d3580 solid;
-      border-right: 1px #f6f6f6 solid;
+      border-right: 1px #e3e3e3 solid;
 
       div {
         @include vertical-align;
@@ -41,11 +41,13 @@ $cellPadding: 0.1rem;
     }
 
     .colHead {
+      position: relative;
       width: $colHeadWidth;
       height: $colHeadHeight;
       text-align: center;
       padding: $cellPadding;
       border-bottom: 1px #0d3580 solid;
+      border-right: 1px #e3e3e3 solid;
 
       div {
         @include vertical-align;
@@ -58,6 +60,7 @@ $cellPadding: 0.1rem;
       padding: $cellPadding;
       text-align: center;
       border-bottom: 1px #0d3580 solid;
+      border-right: 1px #f0f0f0 solid;
 
       paper-checkbox, paper-radio-button {
         @include vertical-align;

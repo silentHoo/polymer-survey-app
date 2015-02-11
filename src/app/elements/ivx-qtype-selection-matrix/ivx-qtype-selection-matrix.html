@@ -1,6 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../ivx-ticker/ivx-ticker.html">
+<link rel="import" href="../ivx-qtype-helper/ivx-qtype-helper.html">
 
 <!--
 This component allows you to easily setup an interactive **n x m matrix**. You can use the matrix in two
@@ -68,19 +71,35 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
       <content id="rows" select="row-item"></content>
     </div>
 
-    <div id="contentWrapper" layout horizontal justified="">
+    <div id="contentWrapper" layout horizontal center-justified>
       <!-- erste spalte -->
       <div id="firstColumn" layout vertical>
         <div class="rowHead">&nbsp;</div>
         <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
-          <div class="rowHead"><div>{{ row }}</div></div>
+          <div class="rowHead">
+            <div>
+              <!-- we add a ticker component, if the space for the text is too small -->
+
+              <template if="{{ rowIndex == 0 }}">
+                <!-- we only need one firstColumn helper -->
+                <ivx-qtype-helper width="{{ firstColWidth }}" updateOnResize="true"></ivx-qtype-helper>
+              </template>
+
+              <template if="{{ firstColWidth < 200 }}">
+                <ivx-ticker msg="[[ row ]]"></ivx-ticker>
+              </template>
+
+              <template if="{{ firstColWidth >= 200 }}">
+                [[ row ]]
+              </template>
+            </div>
+          </div>
         </template>
       </div>
 
-
       <!-- zweite spalte -->
       <div id="secondColumn" layout vertical>
-        <div id="scrollWrapper">
+        <div id="scrollWrapper" layout vertical>
           <div layout horizontal>
             <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
               <div class="colHead"><div>{{ col }}</div></div>
@@ -89,18 +108,20 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
 
           <!-- rows -->
           <template repeat="{{ row, rowIndex in _distributedNodes.rows }}">
-            <div class="row" layout horizontal>
+            <!-- @todo: this may be a bug. A polyfill leaks shadow boundary elements?
+                 Do not name this class to .row because ivx-qtype-likert will override the style
+                 of .row with their defined style rules.
+            -->
+            <div class="row2" layout horizontal>
 
               <template repeat="{{ col, colIndex in _distributedNodes.cols }}">
                 <div class="cell">
                   <!-- depending on the mode we use either a checkbox ... -->
                   <template if="[[ mode == 'multi-answer' ]]" bind ref="multiAnswerTemplate"></template>
-
                   <!-- ... or a radio button -->
                   <template if="[[ mode == 'single-answer' ]]" bind ref="singleAnswerTemplate"></template>
                 </div>
               </template>
-
             </div>
           </template>
         </div>
@@ -175,7 +196,7 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
           };
         },
 
-        domReady: function() {
+        attached: function() {
           // we must init here, not in ready(), because data bindings can do some work to prepare our
           // <col-item> and <row-item> elements.
           this._init();
@@ -206,7 +227,7 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
         },
 
         _init: function() {
-          this.job('waitong for the DOM', function() {
+          this.job('waiting for the DOM', function() {
             // read in the content nodes
             this._prepareDistributedNodes('cols', this.$.cols.getDistributedNodes());
             this._prepareDistributedNodes('rows', this.$.rows.getDistributedNodes());
@@ -220,8 +241,7 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
               this._matrixState[rowId][colId] = false;
             }).bind(this));
 
-
-            this.job('', function() {
+            this.job('waiting for the DOM', function() {
               this._checkColumns();
             });
           });
@@ -277,7 +297,7 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
         },
 
         _getItemsInRow: function(rowId) {
-          var rows = this.shadowRoot.querySelectorAll('.row');
+          var rows = this.shadowRoot.querySelectorAll('.row2');
           var row = rows[rowId];
           var items = row.querySelectorAll('.item');
 
