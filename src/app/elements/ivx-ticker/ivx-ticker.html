@@ -48,7 +48,7 @@ Example (imperative):
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="ivx-ticker" attributes="msgs separator animationPause animationSpeed">
+<polymer-element name="ivx-ticker" attributes="msg msgs separator animationPause animationSpeed">
   <template>
     <style>
       :host {
@@ -72,8 +72,13 @@ Example (imperative):
 
     <div id="wrapper">
       <!-- for all messages, we create a text string with some separators -->
-      <template repeat="{{ m, idx in _messages }}">
+      <template repeat="{{ m, idx in _messages }}" if="{{ msgs != '' }}">
         <span class="separator">[[ separator ]]</span> {{ m }} <template if="{{ idx == _messages.length - 1 }}"><span class="separator">[[ separator ]]</span></template>
+      </template>
+
+      <!-- if only one message should slide, we use this -->
+      <template if="{{ msg != '' }}">
+        {{ msg }}
       </template>
     </div>
   </template>
@@ -96,6 +101,17 @@ Example (imperative):
          */
 
         publish: {
+
+          /**
+           * One message which should slide around when there isn't enough space. Valid strings are all sorts of strings
+           * without any markup (HTML, script). Using this attribute will prevent you from using a separator. Just this
+           * string is slide around.
+           *
+           * @attribute msg
+           * @type String
+           * @default ''
+           */
+          msg: '',
 
           /**
            * The messages used to slide around when there isn't enough space. Valid strings are all sorts of strings
@@ -252,7 +268,8 @@ Example (imperative):
           this._animationDuration = (this.animationSpeed / 1000) * (this.$.wrapper.clientWidth / this.clientWidth);
           this._pixelToMove       = this.$.wrapper.clientWidth - this.clientWidth;
 
-          this.$.wrapper.style.transitionDuration = this._animationDuration + 's';
+          this.$.wrapper.style['transitionDuration'] = this._animationDuration + 's';
+          this.$.wrapper.style['-webkit-transitionDuration'] = this._animationDuration + 's';
           this.job('delay', this._moveLeft, this.animationPause);
         },
 
@@ -262,12 +279,19 @@ Example (imperative):
             return;
           }
 
-          this.$.wrapper.style.transform = 'translateX(-' + this._pixelToMove + 'px)';
+          this.$.wrapper.style['transform'] = 'translateX(-' + this._pixelToMove + 'px)';
+          this.$.wrapper.style['-webkit-transform'] = 'translateX(-' + this._pixelToMove + 'px)'; // dont't forget to
+                                                                                                  // support other
+                                                                                                  // browsers when not
+                                                                                                  // using SASS as
+                                                                                                  // precompiler ...
           this.job('delay', this._moveRight, this._animationDuration * 1000 + this.animationPause);
         },
 
         _moveRight: function() {
-          this.$.wrapper.style.transform = 'translateX(0px)';
+          this.$.wrapper.style['transform'] = 'translateX(0px)';
+          this.$.wrapper.style['-webkit-transform'] = 'translateX(0px)'; // dont't forget to support other browsers
+                                                                         // when not using SASS as precompiler ...
 
           if (this._stopAnimationJobs) {
             this.job('delay the state update to the animation end we started with CSS', function() {
