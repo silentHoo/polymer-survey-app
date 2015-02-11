@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../../bower_components/core-icons/image-icons.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
 <!--
 This component divides the provided content into pages and acts as a `<core-animated-pages>` wrapper. All configuration
@@ -63,7 +64,7 @@ Example:
           tabindex="0"
           aria-label="arrow-forward"
           on-tap="{{ onNextPage }}"
-          class="{{ {highlight: canMoveToNextPage} | tokenList}}"
+          class="{{ {highlight: canMoveToNextPage, isOptional: optionalPages[currentPage]} | tokenList}}"
           >
         </paper-fab>
       </div>
@@ -81,10 +82,8 @@ Example:
               </div>
             </template>
           </div>
-        </template>
 
-        <template if="{{ navigationVisible }}">
-          <div id="btNext" class="{{ {highlight: canMoveToNextPage } | tokenList}}">
+          <div id="btNext" class="{{ {highlight: canMoveToNextPage} | tokenList}}">
             <template if="{{ currentPage < pageCount - 1 }}">
               <div class="icon-wrapper" on-tap="{{ onNextPage }}" vertical layout center-center>
                 <core-icon icon="image:navigate-next"></core-icon>
@@ -122,6 +121,8 @@ Example:
         -->
 
     </core-animated-pages>
+
+    <paper-toast id="toastMessage" text="Diese Frage ist optional und kann übersprungen werden."></paper-toast>
 
   </template>
 
@@ -246,6 +247,11 @@ Example:
           if (this.pageCount > 0) {
             this.attachPage(0);
           }
+
+          // show toast if this (the first) page is optional
+          if (this.optionalPages[this.currentPage]) {
+            this.$.toastMessage.show();
+          }
         },
 
         domReady: function() {
@@ -258,16 +264,12 @@ Example:
           this.pageCount = this.distributedNodesUnsorted.length;
 
           [].forEach.call(this.distributedNodesUnsorted, function(node, i) {
-            var optional = node.getAttribute('optional') === '' || node.getAttribute('optional') == 'true';
-
             if (this.sort != 'none') {
               // save a new attribute to sort later on
               node.sortValue = node.querySelector(this.sortStringParsed.elementName).getAttribute(this.sortStringParsed.attributeName).toLowerCase();
             }
 
-            if (optional) {
-              this.optionalPages.push(i);
-            }
+            this.optionalPages[i] = node.getAttribute('optional') === 'true';
           }, this);
         },
 
@@ -367,7 +369,7 @@ Example:
 
         onNextPage: function() {
           if (this.currentPage < this.pageCount - 1) {
-            ++this.currentPage
+            ++this.currentPage;
 
             this.attachPage(this.currentPage);
           }
@@ -376,6 +378,13 @@ Example:
         onPrevPage: function() {
           if (this.currentPage > 0) {
             --this.currentPage;
+          }
+        },
+
+        currentPageChanged: function() {
+          // show toast if current page is optional
+          if (this.optionalPages[this.currentPage]) {
+            this.$.toastMessage.show();
           }
         },
 

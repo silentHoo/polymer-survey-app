@@ -18,17 +18,25 @@ paper-progress {
   bottom: 1rem;
   right: 1rem;
 
-  paper-fab:first-child  {
-    background-color: lightgrey;
-    left: -1rem;
-  }
+  paper-fab {
+    color: white;
 
-  paper-fab:last-child  {
-    background-color: #456b8b;
-  }
+    &:first-child  {
+      background-color: lightgrey;
+      left: -1rem;
+    }
 
-  paper-fab.highlight {
-    color: red;
+    &:last-child  {
+      background-color: #456b8b;
+    }
+
+    &.highlight {
+      color: red;
+    }
+
+    &.isOptional {
+      background-color: #298b24;
+    }
   }
 }
 
@@ -81,4 +89,9 @@ core-animated-pages {
       background: linear-gradient(to right, transparent, rgba(228, 228, 228, 1.00));
     }
   }
+}
+
+paper-toast {
+  right: 10px;
+  left: auto;
 }
