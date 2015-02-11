@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../ivx-qtype-helper/ivx-qtype-helper.html">
+<link rel="import" href="../ivx-ticker/ivx-ticker.html">
 
 <polymer-element name="ivx-qtype-likert" attributes="mode preselectedColumn">
   <template>
@@ -9,10 +10,12 @@
 
     <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
     <!--  -> related: https://www.w3.org/Bugs/Public/show_bug.cgi?id=18429 -->
-    <div style="display: none;">
-      <content id="cols" select="col-item"></content>
-      <content id="rows" select="row-item"></content>
-    </div>
+    <template if="[[ mode == 'slide' ]]">
+      <div style="display: none;">
+        <content id="cols" select="col-item"></content>
+        <content id="rows" select="row-item"></content>
+      </div>
+    </template>
 
     <template if="[[ mode == 'matrix' ]]" bind ref="matrixModeTemplate"></template>
     <template if="[[ mode == 'slide' ]]" bind ref="slideModeTemplate"></template>
@@ -20,17 +23,9 @@
     <!-- template for mode="matrix" -->
     <template id="matrixModeTemplate">
       <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="{{ preselectedColumn }}">
-
-        <!-- repeat for every column -->
-        <template repeat="{{ col, colIndex in _columns }}">
-          <col-item>{{ col }}</col-item>
-        </template>
-
-        <!-- repeat for every row -->
-        <template repeat="{{ row, rowIndex in _rows }}">
-          <row-item>{{ row }}</row-item>
-        </template>
-
+        <!-- beware when modify something: <content> is greedy, so don't use a selector twice! -->
+        <content select="col-item"></content>
+        <content select="row-item"></content>
       </ivx-qtype-selection-matrix>
     </template>
 
@@ -47,12 +42,25 @@
         </div>
 
         <!-- repeat for every row -->
-        <template repeat="{{ row in _rows }}">
+        <template repeat="{{ row, index in _rows }}">
           <div class="row" horizontal layout>
-            <div class="firstCol">{{ row }}</div>
+            <div class="firstCol">
+              <template if="{{ index == 0 }}">
+                <!-- we only need one firstColumn helper -->
+                <ivx-qtype-helper width="{{ firstColWidth }}" updateOnResize="true"></ivx-qtype-helper>
+              </template>
+
+              <template if="{{ firstColWidth < 200 }}">
+                <ivx-ticker msg="[[ row ]]"></ivx-ticker>
+              </template>
+
+              <template if="{{ firstColWidth >= 200 }}">
+                [[ row ]]
+              </template>
+            </div>
             <div flex three>
               <paper-slider
-                class="noprogress"
+                class="noprogress workaround-selector"
                 snaps
                 min="1"
                 max="{{ _columns.length }}"
@@ -98,9 +106,7 @@
         _dimColHead: 0,
         _userChangedValue: false,
 
-        // we need to use attached, because then we know where the DOM elements are located and can
-        // calculate the correct positions.
-        attached: function() {
+        domReady: function() {
           this._init();
         },
 
@@ -135,9 +141,14 @@
         },
 
         _getDOMNodeReferences: function(doneCallback) {
-          this.job('waiting for data binding', function() {
-            this._sliderProgress  = this.shadowRoot.querySelector('paper-slider::shadow paper-progress::shadow #progressContainer');
-            this._firstCol        = this.shadowRoot.querySelector('.firstCol');
+          this.job('waiting for DOM', function() {
+            // @todo: just a workaround for the polyfill ::shadow selector, fix when possible!
+            // related issue: https://github.com/webcomponents/webcomponentsjs/issues/193
+            this._sliderProgress = document.querySelector('* /deep/ paper-slider.workaround-selector /deep/ #progressContainer');
+            // when polyfills can emulate this or all browsers support native ShadowCSS, we should use that:
+            // this._sliderProgress = this.shadowRoot.querySelectorAll('paper-slider::shadow paper-progress::shadow #progressContainer'));
+
+            this._firstCol        = this.shadowRoot.querySelectorAll('.firstCol')[0];
             this._sliderMarkers   = this.shadowRoot.querySelectorAll('paper-slider /deep/ .slider-marker');
             this._colHeads        = this.shadowRoot.querySelectorAll('.colHead');
 
@@ -157,12 +168,16 @@
               if (this.mode == 'slide') {
                 this._getDOMNodeReferences((function() {
                   this._posFirstColHead = this._colHeads[0].getBoundingClientRect().left;
+
                   this._updateSlideView();
                 }).bind(this));
+
+                // as we use greedy <content> elements, we don't need to setup the rows and columns manually
+                // for mode == matrix ;)
+                this._setupColumns();
+                this._setupRows();
               }
 
-              this._setupColumns();
-              this._setupRows();
               this._addResizeEvent();
             }
           });
@@ -175,7 +190,7 @@
         _updateSlideView: function() {
           this.job('waiting for inner elements to be prepared', function() {
             this._recalculateDimensions();
-          }, 0);
+          });
 
           this._checkColumns();
         },
@@ -209,23 +224,26 @@
               rotateBy = -45;
             }
 
-            node.style['transform'] = 'translateX(' + (posShift - centerOffset) + 'px) rotate(' + rotateBy + 'deg)';
+            var transformation = 'translateX(' + (posShift - centerOffset) + 'px) rotate(' + rotateBy + 'deg)';
+            node.style['transform'] = transformation;
+            node.style['-webkit-transform'] = transformation;
           }, this);
 
           // we get the computed style from the first .colHead element
           var cs = window.getComputedStyle(this._colHeads[0]);
-          var jobDelay = parseFloat(cs.transitionDuration) * 1000;
+          var jobDelay = parseFloat(cs.transitionDuration) * 1000 + 10;
 
+          // @todo this should be improved
           this.job('we delay until the animations have ended', function () {
-            [].forEach.call(this._colHeads, function (node, i) {
+            for (var i = 0; i < this._colHeads.length; i++) {
               // get the refreshed bounding box
-              var bb = node.getBoundingClientRect();
+              var bb = this._colHeads[i].getBoundingClientRect();
 
               // save the height of the maximum column box
               if (bb.height > this._dimColMaxHeight) {
                 this._dimColMaxHeight = bb.height;
               }
-            }, this);
+            };
 
             // move to fit the heighest column
             this.$.colHeadWrapper.style['margin-top'] = this._dimColMaxHeight + 'px';
