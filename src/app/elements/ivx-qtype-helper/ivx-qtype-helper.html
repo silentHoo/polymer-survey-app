@@ -1,6 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="ivx-qtype-helper" attributes="" constructor="IvxQTypeHelper">
+<polymer-element name="ivx-qtype-helper" attributes="width updateOnResize" constructor="IvxQTypeHelper">
   <template>
     <div id="widthElement" style="width:100%; height:0px;"></div>
   </template>
@@ -20,6 +20,29 @@
       };
 
       Polymer({
+
+        publish: {
+          width: -1,
+          updateOnResize: false
+        },
+
+        domReady: function() {
+          if (this.updateOnResize) {
+            this._onResize(); // first run!
+            window.addEventListener('resize', this._onResize.bind(this));
+          }
+        },
+
+        detached: function() {
+          if (this.updateOnResize) {
+            window.removeEventListener('resize', this._onResize.bind(this));
+          }
+        },
+
+        _onResize: function() {
+          this.width = this.getWidth();
+        },
+
         getDistributedNodesArray: function(distributedNodes) {
           return _getDistributedNodes(distributedNodes);
         },
