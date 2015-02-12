@@ -127,14 +127,8 @@ You can listen to it by using
           this.load();
         },
 
-        /**
-         * Calls read() on the persistence adapter and adds the returned models to the collection.
-         * The supplied callback is then passed an array of the newly added models.
-         *
-         * @method load()
-         */
-        load: function() {
-          return this.model.load();
+        add: function(keyValueFields) {
+          this.model.add(new models[this.storageType][this.name](keyValueFields));
         },
 
         /**
@@ -158,6 +152,22 @@ You can listen to it by using
           });
         },
 
+        count: function() {
+          return this.model.count();
+        },
+
+        detect: function(matchFunc) {
+          return this.model.detect(matchFunc);
+        },
+
+        each: function(mapFunc) {
+          return this.model.each(mapFunc);
+        },
+
+        extend: function(methodToAddToClass) {
+          this.model.extend(methodToAddToClass);
+        },
+
         /**
          * Returns the model with the corresponding id.
          *
@@ -174,6 +184,60 @@ You can listen to it by using
          */
         find: function (id) {
           return this.model.find(id).attributes;
+        },
+
+        first: function() {
+          return this.model.first();
+        },
+
+        include: function(methodToAddToPrototype) {
+          this.model.include(methodToAddToPrototype);
+        },
+
+        last: function() {
+          return this.model.last();
+        },
+
+        /**
+         * Calls read() on the persistence adapter and adds the returned models to the collection.
+         * The supplied callback is then passed an array of the newly added models.
+         *
+         * @method load()
+         */
+        load: function() {
+          return this.model.load();
+        },
+
+        map: function(func) {
+          return this.model.map(func);
+        },
+
+        new: function(attributes) {
+          return new this.model(attributes);
+        },
+
+        remove: function(model) {
+          this.model.remove(model);
+        },
+
+        reverse: function() {
+          return this.model.reverse();
+        },
+
+        select: function(func) {
+          return this.model.select(func);
+        },
+
+        sort: function(func) {
+          return this.model.sort(func);
+        },
+
+        sortBy: function(attrNameOrFunc) {
+          return this.model.sortBy(attrNameOrFunc);
+        },
+
+        attr: function() {
+          return this.model.attr(arguments);
         },
 
         // @todo remove in production
