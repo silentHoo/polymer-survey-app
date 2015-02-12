@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+#outerWrapper {
+  width: 50%;
+
+  #fabWrapper {
+    padding-top: 1rem;
+    padding-left: 1rem;
+
+    #fab {
+      background-color: grey;
+    }
+
+    #fab.incorrect-pin {
+      background-color: red;
+    }
+
+    #fab.correct-pin {
+      background-color: green;
+    }
+  }
+}
