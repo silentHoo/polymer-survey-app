@@ -9,27 +9,109 @@
     </style>
 
     <div>
-      <ivx-pager navigation="bar" <!--sort="ivx-question-layouter.question:asc"-->>
+      <ivx-pager navigation="fab" <!--sort="ivx-question-layouter.question:asc"-->>
 <!--
         <page>
-          <ivx-ticker separator="♫" msgs="Armin van Buuren - Communication Part III, System of a Down - Chop Suey, Ella Henderson - Ghost"></ivx-ticker>
+          <ivx-ticker separator="♫" msgs="Armin van Buuren - Communication Part III, System of a Down - Chop Suey, Ella Henderson - Ghost, asdasdasdasdasdasd, asdasdasdwiwouowieriqwero"></ivx-ticker>
         </page>
--->
-        <page>
-          <ivx-question-layouter question="Video">
-            <ivx-qtype-usermedia visualizeAudio="false" mode="video"></ivx-qtype-usermedia>
-          </ivx-question-layouter>
-        </page>
-<!--
-        <page>
-          <ivx-question-layouter question="Audio 2">
-            <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
+
+      <page>
+        <ivx-question-layouter question="Likert-Skala (Matrix)">
+          <ivx-qtype-likert mode="matrix" preselectedColumn="3">
+            <col-item>trifft zu</col-item>
+            <col-item>trifft eher zu</col-item>
+            <col-item>unentschieden</col-item>
+            <col-item>trifft eher nicht zu</col-item>
+            <col-item>trifft nicht zu</col-item>
+            <col-item>keine Angabe</col-item>
+
+            <row-item>Meine Hochschule gehört zu den angesehensten in Deutschland</row-item>
+            <row-item>Die Netzabdeckung meines Mobilfunkanbieters ist gut</row-item>
+            <row-item>Das Essen in der Mensa schmeckt gut</row-item>
+            <row-item>300 Menschen auf einem Fleck machen mir Angst</row-item>
+            <row-item>Der Film Titanic gefällt mir nicht</row-item>
+            <row-item>Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</row-item>
+            <row-item>Im Sommer ist das Wetter in Hamburg eher bescheiden</row-item>
+            <row-item>Im Winter gehe ich oft Ski fahren</row-item>
+          </ivx-qtype-likert>
+        </ivx-question-layouter>
+      </page>
+
+        <page optional="true">
+          <ivx-question-layouter question="Geben Sie einen Text ein:">
+            <ivx-qtype-text mode="single" label="Der Text wird nicht validiert, das Feld kann leer bleiben."></ivx-qtype-text>
           </ivx-question-layouter>
         </page>
 
         <page optional="true">
-          <ivx-question-layouter question="Likert-Skala 1">
-            <ivx-qtype-likert mode="slide" preselectedColumn="6">
+          <ivx-question-layouter question="Geben Sie einen Text ein:">
+            <ivx-qtype-text mode="multiple" label="Mehrzeiliger Text ist möglich."></ivx-qtype-text>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Geben Sie einen Text ein:">
+            <ivx-qtype-text mode="single" required label="Text wird validiert."></ivx-qtype-text>
+          </ivx-question-layouter>
+        </page>
+
+        <page>
+          <ivx-question-layouter question="Geben Sie einen Text ein:">
+            <ivx-qtype-text mode="single" validationType="text" min="3" max="5" label="Text zwischen 3 und 5 Zeichen"></ivx-qtype-text>
+          </ivx-question-layouter>
+        </page>
+
+      <page>
+        <ivx-question-layouter question="Wann sind Sie geboren?:">
+          <ivx-qtype-text mode="single" validationType="date" label="Datum (z.B. 31.03.2015)"></ivx-qtype-text>
+        </ivx-question-layouter>
+      </page>
+
+      <page>
+        <ivx-question-layouter question="Bitte geben Sie Ihre PLZ an:">
+          <ivx-qtype-text mode="single" validationType="postcode" label="Ihre Postleitzahl (z.B. 76131)"></ivx-qtype-text>
+        </ivx-question-layouter>
+      </page>
+
+        <page>
+          <ivx-question-layouter question="Wählen Sie EINE Antwort aus:">
+            <ivx-qtype-multiple-choice mode="single-answer">
+              <answer>Antwort A</answer>
+              <answer>Antwort B</answer>
+              <answer>Antwort C</answer>
+              <answer>Antwort D</answer>
+              <answer>Antwort E</answer>
+            </ivx-qtype-multiple-choice>
+          </ivx-question-layouter>
+        </page>
+-->
+        <page optional="true">
+          <ivx-question-layouter question="Wählen Sie MEHRERE Antworten aus:">
+            <ivx-qtype-multiple-choice mode="multi-answer">
+              <answer>Antwort 1</answer>
+              <answer>Antwort 2</answer>
+              <answer>Antwort 3</answer>
+              <answer>Antwort 4</answer>
+              <answer>Antwort 5</answer>
+            </ivx-qtype-multiple-choice>
+          </ivx-question-layouter>
+        </page>
+
+      <page>
+        <ivx-question-layouter question="Wählen Sie MEHRERE Antworten aus:">
+          <ivx-qtype-multiple-choice mode="multi-answer">
+            <answer>Antwort 1</answer>
+            <answer>Antwort 2</answer>
+            <answer>Antwort 3</answer>
+            <answer>Antwort 4</answer>
+            <answer>Antwort 5</answer>
+          </ivx-qtype-multiple-choice>
+        </ivx-question-layouter>
+      </page>
+<!--
+        <page optional="true">
+          <ivx-question-layouter question="Likert-Skala (Slide)">
+            <ivx-qtype-likert mode="slide" preselectedColumn="3">
               <col-item>trifft zu</col-item>
               <col-item>trifft eher zu</col-item>
               <col-item>unentschieden</col-item>
@@ -48,11 +130,10 @@
             </ivx-qtype-likert>
           </ivx-question-layouter>
         </page>
-
-
+-->
         <page>
-          <ivx-question-layouter question="Likert-Skala 2">
-            <ivx-qtype-likert mode="slide" preselectedColumn="2">
+          <ivx-question-layouter question="Likert-Skala (Slide)">
+            <ivx-qtype-likert mode="slide" preselectedColumn="3">
               <col-item>++</col-item>
               <col-item>+</col-item>
               <col-item>o</col-item>
@@ -74,30 +155,8 @@
           </ivx-question-layouter>
         </page>
 
-        <page optional="true">
-          <ivx-question-layouter question="Likert-Skala 3">
-            <ivx-qtype-likert mode="matrix" preselectedColumn="1">
-              <col-item>trifft zu</col-item>
-              <col-item>trifft eher zu</col-item>
-              <col-item>unentschieden</col-item>
-              <col-item>trifft eher nicht zu</col-item>
-              <col-item>trifft nicht zu</col-item>
-              <col-item>keine Angabe</col-item>
-
-              <row-item>Meine Hochschule gehört zu den angesehensten in Deutschland</row-item>
-              <row-item>Die Netzabdeckung meines Mobilfunkanbieters ist gut</row-item>
-              <row-item>Das Essen in der Mensa schmeckt gut</row-item>
-              <row-item>300 Menschen auf einem Fleck machen mir Angst</row-item>
-              <row-item>Der Film Titanic gefällt mir nicht</row-item>
-              <row-item>Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</row-item>
-              <row-item>Im Sommer ist das Wetter in Hamburg eher bescheiden</row-item>
-              <row-item>Im Winter gehe ich oft Ski fahren</row-item>
-            </ivx-qtype-likert>
-          </ivx-question-layouter>
-        </page>
-
         <page>
-          <ivx-question-layouter question="AAA drag & drop 1">
+          <ivx-question-layouter question="drag & drop 1">
             <ivx-qtype-rank>
               <item>Antwort 1</item>
               <item>Antwort 2</item>
@@ -121,12 +180,11 @@
             </ivx-qtype-rank>
           </ivx-question-layouter>
         </page>
--->
-<!--
-        <page>
-          <ivx-question-layouter question="Auswahlmatrix">
-            <ivx-qtype-selection-matrix mode="multi-answer" preselectedColumn="1">
-              <!-- we cannot use `col` or `columns` here :( -->
+      <!--
+              <page>
+                <ivx-question-layouter question="Auswahlmatrix">
+                  <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="1">
+                    <!-- we cannot use `col` or `columns` here :( -->
 <!--
               <col-item>Antwort 1</col-item>
               <col-item>Antwort 2</col-item>
@@ -172,30 +230,10 @@
             <ivx-qtype-usermedia mode="image"></ivx-qtype-usermedia>
           </ivx-question-layouter>
         </page>
+-->
 
-        <page>
-          <ivx-question-layouter question="Wählen Sie MEHRERE Antworten aus den nachfolgenden Antworten aus.">
-            <ivx-qtype-multiple-choice mode="multi-answer">
-              <answer>Antwort 1</answer>
-              <answer>Antwort 2</answer>
-              <answer>Antwort 3</answer>
-              <answer>Antwort 4</answer>
-              <answer>Antwort 5</answer>
-            </ivx-qtype-multiple-choice>
-          </ivx-question-layouter>
-        </page>
 
-        <page>
-          <ivx-question-layouter question="Wählen Sie EINE Antwort aus den nachfolgenden Antworten aus.">
-            <ivx-qtype-multiple-choice mode="single-answer">
-              <answer>Antwort A</answer>
-              <answer>Antwort B</answer>
-              <answer>Antwort C</answer>
-              <answer>Antwort D</answer>
-              <answer>Antwort E</answer>
-            </ivx-qtype-multiple-choice>
-          </ivx-question-layouter>
-        </page>
+
 
         <page>
           <ivx-question-layouter question="Mögen Sie ...?">
@@ -208,13 +246,6 @@
             <ivx-qtype-text mode="single" required validationType="email" min="3" max="5"></ivx-qtype-text>
           </ivx-question-layouter>
         </page>
-
-        <page>
-          <ivx-question-layouter question="Geben Sie Text ein:">
-            <ivx-qtype-text mode="single"></ivx-qtype-text>
-          </ivx-question-layouter>
-        </page>
--->
       </ivx-pager>
     </div>
   </template>
