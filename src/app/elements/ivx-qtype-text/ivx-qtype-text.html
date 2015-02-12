@@ -3,7 +3,7 @@
 <link rel="import" href="../../bower_components/paper-input/paper-autogrow-textarea.html">
 
 <polymer-element name="ivx-qtype-text" extends="ivx-qtype-base"
-                 attributes="mode maxRows required validationType min max pattern customError label">
+                 attributes="mode maxRows required validationType min max pattern customError label type value">
   <template>
     <style>
       :host {
@@ -21,7 +21,8 @@
           <input
             id="input"
             is="core-input"
-            value="{{ _inputValue }}"
+            value="{{ value }}"
+            type="{{ type }}"
           >
 
         </paper-input-decorator>
@@ -60,7 +61,8 @@
           max: 1000,
           pattern: '',
           customError: '',
-          label: '...'
+          label: '...',
+          value: ''
         },
 
         _regex: '',
@@ -132,8 +134,12 @@
           }
         },
 
-        _inputValueChanged: function() {
+        valueChanged: function() {
           this.$.inputDecorator.isInvalid = !this.$.input.validity.valid;
+        },
+
+        patternChanged: function() {
+          this.$.input.pattern = this._regex = this.pattern;
         }
       });
 
