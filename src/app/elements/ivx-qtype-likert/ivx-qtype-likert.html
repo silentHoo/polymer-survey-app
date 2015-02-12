@@ -106,7 +106,7 @@
         _dimColHead: 0,
         _userChangedValue: false,
 
-        domReady: function() {
+        attached: function() {
           this._init();
         },
 
@@ -158,11 +158,11 @@
 
         _init: function() {
           this.job('waiting for data binding', function() {
-            if (!this._isVisible()) {
+            /*if (!this._isVisible()) {
               return;
-            }
+            }*/
 
-            if (this._firstRun) {
+            //if (this._firstRun) {
               this._firstRun = false;
 
               if (this.mode == 'slide') {
@@ -179,7 +179,7 @@
               }
 
               this._addResizeEvent();
-            }
+            //}
           });
         },
 
