@@ -1,7 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-shadow/paper-shadow.html">
 
-
 <polymer-element name="ivx-component-tiles" attributes="">
   <template>
     <style>
@@ -15,14 +14,16 @@
       }
 
       paper-shadow {
+        position: relative;
+        display: inline-block;
         padding: 10px;
         margin: 10px;
         width: 25%;
-        background-color: rgba(239, 239, 239, 0.100);
       }
     </style>
 
     <div layout horizontal justified wrap>
+
       <paper-shadow z="2">
         <ivx-qtype-rank>
           <item>A1</item>
