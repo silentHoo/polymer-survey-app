@@ -1,0 +1,220 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-icons/notification-icons.html">
+<link rel="import" href="../../bower_components/core-icons/image-icons.html">
+
+<polymer-element name="ivx-page-settings" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-page-settings.css">
+
+    <!-- non-visual dependencies -->
+    <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
+
+    <template if="{{ !_authorized }}">
+      <ivx-simple-authorize on-authorized="{{ onAuthorized }}"></ivx-simple-authorize>
+    </template>
+
+    <template if="{{ _authorized }}">
+
+      <div class="sectionWrapper">
+        <div class="headline">Grundeinstellungen</div>
+        <div class="divider"></div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="notification:vibration"></core-icon>
+          <div class="textWrapper">
+            <div class="title">Vibrationen</div>
+            <div class="descr">Aktiviert die Web Vibration API bei Touchgesten</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-checkbox id="vibrationEnable" on-tap="{{ onVibrationToggle }}"></paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <div class="textWrapper indented {{ _vibration.active ? 'active' : 'inactive' }}">
+            <div class="title">Kurz</div>
+            <div class="descr">Die Vibration wird für 200ms ausgeführt</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-checkbox
+              id="vibrationShort"
+              disabled?="{{ !_vibration.active }}"
+              on-tap="{{ onVibrationShortToggle }}"
+              checked?="{{ _vibration.short }}">
+            </paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <div class="textWrapper indented {{ _vibration.active ? 'active' : 'inactive' }}">
+            <div class="title">Lang</div>
+            <div class="descr">Die Vibration wird für 400ms ausgeführt</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-checkbox
+              id="vibrationLong"
+              disabled?="{{ !_vibration.active }}"
+              on-tap="{{ onVibrationLongToggle }}"
+              checked?="{{ _vibration.long }}">
+            </paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="sectionWrapper">
+        <div class="headline">Darstellung</div>
+        <div class="divider"></div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="image:color-lens"></core-icon>
+          <div class="textWrapper">
+            <div class="title">Theme</div>
+            <div class="descr">Wechselt die Farbdarstellung</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-dropdown-menu label="Theme">
+              <paper-dropdown class="dropdown" halign="right" valign="bottom">
+                <core-menu class="menu">
+                  <paper-item>Curacao</paper-item>
+                  <paper-item>Ruby</paper-item>
+                  <paper-item>Grinch</paper-item>
+                  <paper-item>Simple</paper-item>
+                </core-menu>
+              </paper-dropdown>
+            </paper-dropdown-menu>
+          </div>
+        </div>
+      </div>
+
+      <div class="sectionWrapper">
+        <div class="headline">Erweiterte Einstellungen</div>
+        <div class="divider"></div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="account-circle"></core-icon>
+          <div class="textWrapper">
+            <div class="title">PIN</div>
+            <div class="descr">Zugriff auf Verwaltungsoptionen</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-button on-tap="{{ onPasswordChange }}">Ändern</paper-button>
+
+            <paper-action-dialog id="passwordDialog" backdrop autoCloseDisabled layered="false">
+              <p>Geben Sie zunächst Ihre alte PIN ein und wiederholen Sie die neue PIN zwei Mal.</p>
+
+              <ivx-qtype-text mode="single" required label="Alte PIN" type="password" value="{{ oldPassword }}"></ivx-qtype-text>
+              <ivx-qtype-text mode="single" required label="Neue PIN" type="password" value="{{ newPassword1 }}"></ivx-qtype-text>
+              <ivx-qtype-text mode="single" required label="Neue PIN (Wiederholung)" type="password" value="{{ newPassword2 }}" pattern="^{{ newPassword1 }}$" customError="Das Passwort stimmt nicht überein."></ivx-qtype-text>
+
+              <div layout horizontal end-justified>
+                <paper-fab mini icon="check" id="dialogBtSave" on-tap="{{ onPasswordDialogSave }}"></paper-fab>
+                <paper-fab mini icon="close" id="dialogBtClose" on-tap="{{ onPasswordDialogClose }}"></paper-fab>
+              </div>
+            </paper-action-dialog>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <paper-toast id="toast"></paper-toast>
+
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _settingModel: null,
+        _authorized: false,
+        _vibration: null,
+
+        domReady: function() {
+          this._vibration = {
+            active: false,
+            long: false,
+            short: false
+          };
+
+          this._settingModel = this.$.settingModel.first();
+
+          if (this._settingModel.attr('authorized')) {
+            this._authorized = true;
+          }
+        },
+
+        onAuthorized: function() {
+          this._authorized = true;
+        },
+
+        onVibrationToggle: function() {
+          this._vibration.active = this.shadowRoot.querySelector('#vibrationEnable').checked;
+          if (!this._vibration.active) {
+            this._vibration.short = this._vibration.long = false;
+          }
+        },
+
+        onVibrationShortToggle: function() {
+          this._vibration.short = this.shadowRoot.querySelector('#vibrationShort').checked;
+          if (this._vibration.short) {
+            window.navigator.vibrate(200);
+            this._vibration.long = false;
+          }
+        },
+
+        onVibrationLongToggle: function() {
+          this._vibration.long = this.shadowRoot.querySelector('#vibrationLong').checked;
+          if (this._vibration.long) {
+            window.navigator.vibrate(400);
+            this._vibration.short = false;
+          }
+        },
+
+        onPasswordChange: function() {
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+        },
+
+        onPasswordDialogClose: function() {
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+        },
+
+        onPasswordDialogSave: function() {
+          console.log(this._settingModel.attr('pin'));
+          console.log(this.oldPassword);
+          if (this._settingModel.attr('pin') != this.oldPassword) {
+            this.$.toast.text = 'Die alte PIN ist nicht korrekt.';
+            this.$.toast.show();
+            return;
+          }
+
+          if (this.newPassword1 != this.newPassword2) {
+            this.$.toast.text = 'Die beiden eingegebenen PINs stimmen nicht überein.';
+            this.$.toast.show();
+            return;
+          }
+
+          if (this.newPassword1 == '') {
+            this.$.toast.text = 'Das neue Passwort darf nicht leer sein.';
+            this.$.toast.show();
+            return;
+          }
+
+          this._settingModel.attr('pin', this.newPassword1).save();
+
+          this.$.toast.text = 'Die PIN wurde erfolgreich geändert.';
+          this.$.toast.show();
+
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+        }
+      });
+    })();
+  </script>
+</polymer-element>
