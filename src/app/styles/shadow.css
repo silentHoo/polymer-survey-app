@@ -46,7 +46,8 @@ html /deep/ paper-input {
   width: 100%;
 }
 
-html /deep/ paper-input::shadow paper-input-decorator::shadow .input-body {
+html /deep/ paper-input::shadow paper-input-decorator::shadow .input-body,
+html /deep/ paper-input-decorator::shadow .input-body {
   font-size: 2rem;
 }
 
@@ -119,4 +120,10 @@ html /deep/ ivx-pager::shadow paper-progress::shadow #activeProgress {
 
 html /deep/ ivx-pager::shadow core-icon {
   color: grey;
+}
+
+html /deep/ paper-toast {
+  bottom: 0;
+  left: 25%;
+  width: 50%;
 }
