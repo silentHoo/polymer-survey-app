@@ -19,8 +19,8 @@ Example:
     <link rel="stylesheet" href="ivx-app.css">
 
     <!-- non-visual dependencies -->
-    <app-globals id="globals"></app-globals>
     <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
+    <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
 
     <core-drawer-panel id="drawerPanel">
       <core-header-panel drawer>
@@ -31,7 +31,7 @@ Example:
 
         <core-toolbar id="toolbar">
           <core-icon-button id="toggleButton" icon="menu" core-drawer-toggle></core-icon-button>
-          <span flex>{{ $.globals.toolbarTitle }}</span>
+          <span flex>{{ toolbarTitle }}</span>
 
           <div relative>
             <ivx-context-menu id="contextMenu" items="{{ contextItems }}" on-item-selected="{{ contextItemSelected }}"></ivx-context-menu>
@@ -46,8 +46,13 @@ Example:
     </core-drawer-panel>
 
     <!-- dialog -->
-    <ivx-dialog-base id="dialog" transition="core-transition-center" heading="{{ dialog.title }}">
-      {{ dialog.content }}
+    <ivx-dialog-base id="dialog" transition="core-transition-center" heading="Über diese App">
+      Diese Umfrage-App ist ein Proof-of-Concept für den Einsatz von Web Components und soll zeigen, wie gut sich
+      dieser neue Standard in modernen, mobilen Webanwendungen einsetzen lässt.<br>
+      <br>
+      Sie ist im Wintersemester 2014 im Rahmen der Master-Thesis entstanden.<br>
+      <br>
+      &copy; 2014-2015 Patrick Hillert
     </ivx-dialog-base>
     <!-- /dialog -->
   </template>
@@ -62,13 +67,13 @@ Example:
         pageItems: [{
           name: 'Umfragen',
           href: '/surveys',
-          closeDrawer: false,
+          closeDrawer: true,
           coreIconName: 'assignment'
         }, {
-          name: 'Anmelden',
-          href: '/authorize',
+          name: 'Einstellungen',
+          href: '/settings',
           closeDrawer: true,
-          coreIconName: 'account-circle'
+          coreIconName: 'settings'
         }],
 
         // configuration of the context menu in the toolbar.
@@ -76,23 +81,30 @@ Example:
           pageKey: 'load',
           name: 'Umfragen laden'
         }, {
-          pageKey: 'config',
-          name: 'Einstellungen'
-        }, {
           pageKey: 'about',
           name: 'Über'
         }],
 
-        dialog: {
-          title: '',
-          content: ''
+        uriToShow: '',
+        toolbarTitle: 'UmfrageApp',
+
+        ready: function() {
+          this._initApp();
         },
 
-        uriToShow: '',
+        _initApp: function() {
+          // we must setup the initial settings for the first time!
+          if (this.$.settingModel.all().length == 0) {
+            this._initSettings();
+          }
+        },
 
-        /* Init */
-        ready: function() {
-          this.$.globals.toolbarTitle = 'UmfrageApp';
+        _initSettings: function() {
+          var model = this.$.settingModel.new({
+            pin: '1234',
+            authorized: false
+          });
+          model.save();
         },
 
         // callback to load the dummy questions
@@ -103,9 +115,6 @@ Example:
             this.$.surveyModel.loadDummy();
             return;
           }
-
-          this.dialog.title = event.detail.item.name;
-          this.dialog.content = 'Inhalt von ' + event.detail.item.name + ' ... hier rein!';
 
           this.$.dialog.toggle();
         },
@@ -125,7 +134,7 @@ Example:
           }
 
           // change title to current page title
-          this.$.globals.toolbarTitle = item.name;
+          this.toolbarTitle = item.name;
 
           // route to current page
           this.uriToShow = item.href;
