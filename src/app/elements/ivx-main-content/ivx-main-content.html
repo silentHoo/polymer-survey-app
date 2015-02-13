@@ -29,7 +29,7 @@ Example:
     <link rel="stylesheet" href="ivx-main-content.css">
 
     <!-- history support? -->
-    <app-router id="router" mode="auto">
+    <app-router id="router" mode="auto" on-activate-route-end="{{ onPageHasSwitched }}">
       <app-route path="/">
         <template>
           <ivx-page-welcome fit></ivx-page-welcome>
@@ -67,7 +67,7 @@ Example:
     (function () {
       'use strict';
 
-      Polymer({
+      Polymer(Polymer.mixin({
 
         publish: {
           /**
@@ -91,8 +91,12 @@ Example:
           if (newVal != '') {
             this.$.router.go(newVal);
           }
+        },
+
+        onPageHasSwitched: function() {
+          this._addEventHandler(this.shadowRoot);
         }
-      });
+      }, mixinsSettings));
 
     })();
   </script>

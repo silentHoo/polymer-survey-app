@@ -39,7 +39,7 @@
         <div class="entry" layout horizontal>
           <div class="textWrapper indented {{ _vibration.active ? 'active' : 'inactive' }}">
             <div class="title">Kurz</div>
-            <div class="descr">Die Vibration wird für 200ms ausgeführt</div>
+            <div class="descr">Die Vibration wird für {{ _shortVibrate }}ms ausgeführt</div>
           </div>
           <div class="actionWrapper">
             <paper-checkbox
@@ -56,7 +56,7 @@
         <div class="entry" layout horizontal>
           <div class="textWrapper indented {{ _vibration.active ? 'active' : 'inactive' }}">
             <div class="title">Lang</div>
-            <div class="descr">Die Vibration wird für 400ms ausgeführt</div>
+            <div class="descr">Die Vibration wird für {{ _longVibrate }}ms ausgeführt</div>
           </div>
           <div class="actionWrapper">
             <paper-checkbox
@@ -185,7 +185,7 @@
         onVibrationShortToggle: function() {
           this._vibration.short = this.shadowRoot.querySelector('#vibrationShort').checked;
           if (this._vibration.short) {
-            window.navigator.vibrate(200);
+            this._vibrateShort();
             this._vibration.long = false;
           }
         },
@@ -193,13 +193,14 @@
         onVibrationLongToggle: function() {
           this._vibration.long = this.shadowRoot.querySelector('#vibrationLong').checked;
           if (this._vibration.long) {
-            window.navigator.vibrate(400);
+            this._vibrateLong();
             this._vibration.short = false;
           }
         },
 
         persistVibrationChange: function() {
           this._settingModel.attr('vibration', this._vibration).save();
+          this._vibration.active ? this._addEventHandler(document) : this._removeEventHandler(document);
         },
 
         onPasswordChange: function() {
