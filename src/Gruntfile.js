@@ -18,6 +18,7 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
 
   grunt.loadNpmTasks("grunt-remove-logging");
+  grunt.loadNpmTasks('grunt-contrib-sass');
 
   // configurable paths
   var yeomanConfig = {
@@ -72,8 +73,8 @@ module.exports = function (grunt) {
     // Compiles Sass to CSS and generates necessary files if requested
     sass: {
       options: {
-        sourceMap: true,
-        includePaths: ['bower_components']
+        //sourcemap: true,
+        //includePaths: ['bower_components']
         },
       dist: {
         options: {
