@@ -1,0 +1,169 @@
+/**
+ * Appwide Shadow DOM styling -> Theme
+ *
+ * Shadow DOM support is not integrated into libsass -> https://github.com/sass/libsass/issues/452
+ * As for now we use Ruby SASS -> https://sass-compatibility.github.io/#shadow_dom_styling
+ */
+
+body {
+  background: #fafafa;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
+ivx-app::shadow {
+  // Drawer area (left)
+  core-header-panel[drawer] {
+    background-color: #fefefe;
+  }
+
+  // Toolbar (top)
+  core-toolbar {
+    background-color: rgba(40, 180, 255, 0.05);
+  }
+
+  // Drawer items
+  ivx-drawer-content::shadow {
+    //(not selected)
+    paper-item {
+      background-color: #fff;
+    }
+
+    paper-item.core-selected {
+      background-color: rgba(40, 180, 255, 0.05);
+    }
+
+    // Drawer paper-ripple color
+    paper-item::shadow paper-ripple {
+      color: #258dc8;
+    }
+  }
+}
+
+html /deep/ {
+  .float-left {
+    float: left;
+  }
+
+  .float-right {
+    float: right;
+  }
+
+  .clear {
+    clear: both;
+  }
+
+  paper-input {
+    width: 100%;
+
+    &::shadow paper-input-decorator::shadow .input-body {
+      font-size: 2rem;
+    }
+  }
+
+  paper-button {
+    font-size: 1rem;
+    text-transform: none;
+
+    .highlight {
+      background-color: #2f6fad;
+      color: #fff;
+    }
+
+    .highlight::shadow #ripple {
+      color: #30afff;
+    }
+  }
+
+  paper-radio-button::shadow {
+    #ink[checked] {
+      color: #2f6fad;
+    }
+
+    #onRadio {
+      background-color: #2f6fad;
+    }
+  }
+
+  paper-checkbox::shadow {
+    #ink[checked] {
+      color: #2f6fad;
+    }
+
+    #checkbox.checked {
+      border-color: #2f6fad;
+    }
+  }
+
+  /* the item selector will match the given element in the `ivx-qtype-rank` element
+     but will also match the item in the avatar (this is when the item is dragged
+     around). So we need only one style to get the same appearance.
+   */
+  item {
+    display: block;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    padding: 1rem;
+    background-color: #0066bb;
+    color: white;
+    border: 1px #0066bb solid;
+  }
+
+  paper-slider.noprogress /deep/ {
+    #activeProgress {
+      display: none;
+      visibility: hidden;
+    }
+
+    .ring > #sliderKnob > #sliderKnobInner {
+      background-color: #3f51b5 !important;
+      border: none !important;
+    }
+  }
+
+  ivx-pager::shadow {
+    paper-progress::shadow #activeProgress {
+      background-color: #3f51b5;
+    }
+
+    core-icon {
+      color: grey;
+    }
+  }
+
+  paper-toast {
+    bottom: 0;
+    left: 25%;
+    width: 50%;
+    background-color: #256fbb;
+  }
+
+  core-icon {
+    color: #828282;
+  }
+
+  paper-fab /deep/ core-icon {
+    color: white;
+  }
+
+  .sectionWrapper {
+    .headline {
+      color: #0d3580;
+    }
+
+    .divider {
+      background-color: #0d3580;
+    }
+  }
+
+  #brandLogo {
+    filter: saturate(80%) hue-rotate(25deg) brightness(100%);
+  }
+}
+
+/* This is the avatar container to use when this pull-request will not be accepted:
+   https://github.com/Polymer/core-drag-drop/pull/12 */
+/*core-drag-avatar item {
+  border: 1px grey dotted;
+  opacity: 0.8;
+}*/
