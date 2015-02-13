@@ -1,0 +1,48 @@
+<script>
+  /**
+   * These object gives a core component shared functionality to use and maintain in a central file.
+   *
+   * Please refer to https://www.polymer-project.org/docs/polymer/helpers.html#using-mixins for more information.
+   */
+
+  var mixinsSettings = {
+
+    _bootstrapSettings: function() {
+      if (this.$.settingModel.all().length == 0) {
+        this._seedSettingModel();
+      }
+      this._setupSettings();
+    },
+
+    _seedSettingModel: function() {
+      var model = this.$.settingModel.new({
+        pin: '1234',
+        authorized: false,
+        activeTheme: 'curacao',
+        vibration: {
+          active: false,
+          long: false,
+          short: false
+        }
+      });
+      model.save();
+    },
+
+    _setupSettings: function() {
+      var themeName = this.$.settingModel.first().attr('activeTheme');
+      this._setTheme(themeName);
+    },
+
+    _setTheme: function(themeName) {
+      document.querySelector('#themeLink').href = 'styles/theme-' + themeName + '.css';
+    },
+
+    _allThemes: function() {
+      return [
+        'Curacao',
+        'Ruby',
+        'Grinch'
+      ];
+    }
+  };
+</script>

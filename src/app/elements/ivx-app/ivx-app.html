@@ -12,7 +12,7 @@ Example:
 @element ivx-app
 @homepage inovex.de
 -->
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../mixins-settings.html">
 
 <polymer-element name="ivx-app">
   <template>
@@ -62,7 +62,7 @@ Example:
     (function () {
       'use strict';
 
-      Polymer({
+      Polymer(Polymer.mixin({
         // configuration of the single paper-buttons in the drawer panel.
         pageItems: [{
           name: 'Umfragen',
@@ -89,22 +89,7 @@ Example:
         toolbarTitle: 'UmfrageApp',
 
         ready: function() {
-          this._initApp();
-        },
-
-        _initApp: function() {
-          // we must setup the initial settings for the first time!
-          if (this.$.settingModel.all().length == 0) {
-            this._initSettings();
-          }
-        },
-
-        _initSettings: function() {
-          var model = this.$.settingModel.new({
-            pin: '1234',
-            authorized: false
-          });
-          model.save();
+          this._bootstrapSettings();
         },
 
         // callback to load the dummy questions
@@ -139,7 +124,7 @@ Example:
           // route to current page
           this.uriToShow = item.href;
         }
-      });
+      }, mixinsSettings));
 
     })();
   </script>

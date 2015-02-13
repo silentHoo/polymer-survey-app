@@ -2,7 +2,14 @@
  * Appwide Shadow DOM styling
  *
  * Shadow DOM support is not integrated into libsass -> https://github.com/sass/libsass/issues/452
+ * As for now we could use Ruby SASS -> https://sass-compatibility.github.io/#shadow_dom_styling
  */
+
+body {
+  background: #fafafa;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #333;
+}
 
 /* Drawer area (left) */
 ivx-app::shadow core-header-panel[drawer] {
@@ -126,4 +133,25 @@ html /deep/ paper-toast {
   bottom: 0;
   left: 25%;
   width: 50%;
+  background-color: #256fbb;
+}
+
+html /deep/ core-icon {
+  color: #828282;
+}
+
+html /deep/ paper-fab /deep/ core-icon {
+  color: white;
+}
+
+html /deep/ .sectionWrapper .headline {
+  color: #0d3580;
+}
+
+html /deep/ .sectionWrapper .divider {
+  background-color: #0d3580;
+}
+
+html /deep/ #brandLogo {
+  filter: saturate(80%) hue-rotate(25deg) brightness(100%);
 }

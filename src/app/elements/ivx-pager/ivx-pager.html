@@ -46,16 +46,18 @@ Example:
     <!-- navigation = fab: fab buttons to switch between the pages -->
     <template if="[[ navigationVisible && navigation == 'fab' ]]">
       <div id="paperFabWrapper">
-        <paper-fab
-          icon="arrow-back"
-          title="Zurück"
-          role="button"
-          tabindex="0"
-          aria-label="arrow-back"
-          on-tap="{{ onPrevPage }}"
-          class="{{ {highlight: canMoveToPrevPage} | tokenList}}"
-          >
-        </paper-fab>
+        <template if="{{ currentPage > 0 }}">
+          <paper-fab
+            icon="arrow-back"
+            title="Zurück"
+            role="button"
+            tabindex="0"
+            aria-label="arrow-back"
+            on-tap="{{ onPrevPage }}"
+            class="{{ {highlight: canMoveToPrevPage} | tokenList}}"
+            >
+          </paper-fab>
+        </template>
 
         <paper-fab
           icon="arrow-forward"

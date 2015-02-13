@@ -40,7 +40,6 @@
           } else {
             this._model = this.$.settingModel.first();
             this._pin = this._model.attr('pin');
-            console.log(this._pin);
             this._authorized = this._model.attr('authorized');
           }
         },
@@ -66,7 +65,6 @@
           this.$.toast.show();
         }
       });
-
     })();
   </script>
 </polymer-element>
