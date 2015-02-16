@@ -5,18 +5,18 @@
  * As for now we use Ruby SASS -> https://sass-compatibility.github.io/#shadow_dom_styling
  */
 
-$color01: #0d3580;
-$color02: #256fbb;
+$color01: #801e11;
+$color02: #bb4d59;
 $color03: #fafafa;
 $color04: #333333;
 $color05: rgb(237, 237, 237);
 $color06: #ffffff;
-$color07: #258dc8;
-$color08: #2f6fad;
-$color09: rgba(40, 180, 255, 0.05);
-$color10: #30afff;
-$color11: #0066bb;
-$color12: #3f51b5;
+$color07: #c83e2c;
+$color08: #ad3226;
+$color09: rgba(181, 27, 13, 0.5);
+$color10: #ff998c;
+$color11: #bb9371;
+$color12: #b51b0d;
 
 body {
   background: $color03;
@@ -80,7 +80,7 @@ html /deep/ {
 
     .highlight {
       background-color: $color08;
-      color: $color06;
+      color: $color03;
     }
 
     .highlight::shadow #ripple {
@@ -122,9 +122,9 @@ html /deep/ {
     text-align: center;
     margin-bottom: 0.5rem;
     padding: 1rem;
-    background-color: $color11;
+    background-color: $color09;
     color: white;
-    border: 1px $color11 solid;
+    border: 1px $color09 solid;
   }
 
   paper-slider.noprogress /deep/ {
@@ -189,7 +189,7 @@ html /deep/ {
   }
 
   #brandLogo {
-    filter: saturate(80%) hue-rotate(25deg) brightness(100%);
+    filter: saturate(105%) hue-rotate(-199deg) brightness(96%);
   }
 }
 
