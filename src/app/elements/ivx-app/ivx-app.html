@@ -12,7 +12,6 @@ Example:
 @element ivx-app
 @homepage inovex.de
 -->
-<link rel="import" href="../mixins-settings.html">
 
 <polymer-element name="ivx-app">
   <template>
@@ -21,6 +20,7 @@ Example:
     <!-- non-visual dependencies -->
     <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
     <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
 
     <core-drawer-panel id="drawerPanel">
       <core-header-panel drawer>
@@ -62,7 +62,7 @@ Example:
     (function () {
       'use strict';
 
-      Polymer(Polymer.mixin({
+      Polymer({
         // configuration of the single paper-buttons in the drawer panel.
         pageItems: [{
           name: 'Umfragen',
@@ -87,10 +87,6 @@ Example:
 
         uriToShow: '',
         toolbarTitle: 'UmfrageApp',
-
-        ready: function() {
-          this._bootstrapSettings();
-        },
 
         // callback to load the dummy questions
         // @todo remove in production
@@ -124,7 +120,7 @@ Example:
           // route to current page
           this.uriToShow = item.href;
         }
-      }, mixinsSettings));
+      });
 
     })();
   </script>

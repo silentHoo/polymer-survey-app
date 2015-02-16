@@ -2,14 +2,13 @@
 <link rel="import" href="../../bower_components/core-icons/notification-icons.html">
 <link rel="import" href="../../bower_components/core-icons/image-icons.html">
 
-<link rel="import" href="../mixins-settings.html">
-
 <polymer-element name="ivx-page-settings" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-page-settings.css">
 
     <!-- non-visual dependencies -->
     <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
 
     <template if="{{ !_authorized }}">
       <ivx-simple-authorize on-authorized="{{ onAuthorized }}"></ivx-simple-authorize>
@@ -133,8 +132,8 @@
 
   <script>
     (function () {
-      Polymer(Polymer.mixin({
-        _settingModel: null,
+      Polymer({
+        _model: null,
 
         // model abstraction variables to use databinding
         _authorized: false,
@@ -148,6 +147,9 @@
         _selectedThemeIndex: 0,
         _themes: [],
 
+        _shortVibrate: 200,
+        _longVibrate: 400,
+
         observe: {
           '_vibration.active': 'persistVibrationChange',
           '_vibration.short': 'persistVibrationChange',
@@ -155,15 +157,19 @@
         },
 
         domReady: function() {
-          this._settingModel = this.$.settingModel.first();
+          this._model = this.$.settingModel.first();
+          this._controller = this.$.settingsController;
           this._restoreState();
         },
 
         _restoreState: function() {
-          this._authorized = this._settingModel.attr('authorized');
-          this._activeTheme = this._settingModel.attr('activeTheme');
-          this._vibration = this._settingModel.attr('vibration');
-          this._themes = this._allThemes();
+          this._authorized = this._model.attr('authorized');
+          this._activeTheme = this._model.attr('activeTheme');
+          this._vibration = this._model.attr('vibration');
+          this._themes = [
+            'Curacao',
+            'Ruby'
+          ];
 
           // find out which index is the activeTheme (lowercase saved!)
           this._selectedThemeIndex = this._themes.map(function(val, i) {
@@ -185,7 +191,7 @@
         onVibrationShortToggle: function() {
           this._vibration.short = this.shadowRoot.querySelector('#vibrationShort').checked;
           if (this._vibration.short) {
-            this._vibrateShort();
+            this._setVibrationDuration(this._shortVibrate);
             this._vibration.long = false;
           }
         },
@@ -193,14 +199,30 @@
         onVibrationLongToggle: function() {
           this._vibration.long = this.shadowRoot.querySelector('#vibrationLong').checked;
           if (this._vibration.long) {
-            this._vibrateLong();
+            this._setVibrationDuration(this._longVibrate);
             this._vibration.short = false;
           }
         },
 
+        _setVibrationDuration: function(duration) {
+          // set duration
+          var vibration = this._model.attr('vibration');
+          vibration.duration = duration;
+          this._model.attr('vibration', vibration);
+          this._model.save();
+
+          // vibrate via API
+          window.navigator.vibrate(duration);
+        },
+
         persistVibrationChange: function() {
-          this._settingModel.attr('vibration', this._vibration).save();
-          this._vibration.active ? this._addEventHandler(document) : this._removeEventHandler(document);
+          this._model.attr('vibration', this._vibration).save();
+
+          if (this._model.attr('vibration').active) {
+            this._controller.addEventHandler();
+          } else {
+            this._controller.removeEventHandler();
+          }
         },
 
         onPasswordChange: function() {
@@ -212,7 +234,7 @@
         },
 
         onPasswordDialogSave: function() {
-          if (this._settingModel.attr('pin') != this._oldPassword) {
+          if (this._model.attr('pin') != this._oldPassword) {
             this.$.toast.text = 'Die alte PIN ist nicht korrekt.';
             this.$.toast.show();
             return;
@@ -230,7 +252,7 @@
             return;
           }
 
-          this._settingModel.attr('pin', this._newPassword1).save();
+          this._model.attr('pin', this._newPassword1).save();
           this.shadowRoot.querySelector('#passwordDialog').toggle();
 
           this.$.toast.text = 'Die PIN wurde erfolgreich geändert.';
@@ -241,10 +263,10 @@
 
         onSelectTheme: function(event, detail, sender) {
           var themeName = detail.item.innerText.toLowerCase();
-          this._settingModel.attr('activeTheme', themeName).save();
-          this._setTheme(themeName);
+          this._model.attr('activeTheme', themeName).save();
+          this._controller.setTheme(themeName);
         }
-      }, mixinsSettings));
+      });
     })();
   </script>
 </polymer-element>

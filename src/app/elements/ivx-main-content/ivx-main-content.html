@@ -67,7 +67,7 @@ Example:
     (function () {
       'use strict';
 
-      Polymer(Polymer.mixin({
+      Polymer({
 
         publish: {
           /**
@@ -91,12 +91,8 @@ Example:
           if (newVal != '') {
             this.$.router.go(newVal);
           }
-        },
-
-        onPageHasSwitched: function() {
-          this._addEventHandler(this.shadowRoot);
         }
-      }, mixinsSettings));
+      });
 
     })();
   </script>
