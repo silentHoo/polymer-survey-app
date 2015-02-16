@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  margin-top: 1rem;
+}
+
+/* default values can be overwritten with /deep/ and ::shadow  */
+paper-radio-group,
+core-label {
+  font-size: 1.25rem;
+}
+
+paper-radio-button {
+  display: block;
+  padding-top: 0.1rem !important;
+}
+
+core-label {
+  padding-top: 1rem !important;
+}
+
+core-label > div {
+  margin-left: 1rem;
+}

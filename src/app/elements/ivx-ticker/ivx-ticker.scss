@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  overflow: hidden;
+}
+
+#wrapper {
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  transition: transform;
+  transition-timing-function: linear;
+}
+
+.separator {
+  text-shadow: 1px 0px 0 rgb(202,202,202);
+  color: #0066bb;
+}

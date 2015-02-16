@@ -1,0 +1,9 @@
+:host {
+  display: block;
+  margin-top: 1rem;
+}
+
+/* default values can be overwritten with /deep/ and ::shadow  */
+paper-radio-group {
+  font-size: 1.25rem;
+}
