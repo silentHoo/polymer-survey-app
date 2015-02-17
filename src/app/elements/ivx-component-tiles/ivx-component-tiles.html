@@ -1,26 +1,17 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-shadow/paper-shadow.html">
 
+<link rel="import" href="../ivx-qtype-selection-matrix/ivx-qtype-selection-matrix.html">
+<link rel="import" href="../ivx-qtype-rank/ivx-qtype-rank.html">
+<link rel="import" href="../ivx-qtype-likert/ivx-qtype-likert.html">
+<link rel="import" href="../ivx-qtype-multiple-choice/ivx-qtype-multiple-choice.html">
+<link rel="import" href="../ivx-qtype-usermedia/ivx-qtype-usermedia.html">
+<link rel="import" href="../ivx-qtype-text/ivx-qtype-text.html">
+<link rel="import" href="../ivx-qtype-yesno/ivx-qtype-yesno.html">
+
 <polymer-element name="ivx-component-tiles" attributes="">
   <template>
-    <style>
-      :host {
-        display: block;
-        padding: 5px;
-      }
-
-      div {
-        background-color: white;
-      }
-
-      paper-shadow {
-        position: relative;
-        display: inline-block;
-        padding: 10px;
-        margin: 10px;
-        width: 25%;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-component-tiles.css">
 
     <div layout horizontal justified wrap>
 
@@ -190,6 +181,8 @@
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         // define element prototype here
       });

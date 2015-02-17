@@ -2,17 +2,14 @@
 
 <polymer-element name="ivx-page-survey" attributes="surveyId">
   <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-page-survey.css">
 
     Hey, here comes the survey content for survey {{ surveyId }}
   </template>
 
   <script>
     (function () {
+      'use strict';
 
       Polymer({
         ready: function() {

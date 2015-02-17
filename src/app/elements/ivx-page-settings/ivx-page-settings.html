@@ -1,6 +1,20 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+
 <link rel="import" href="../../bower_components/core-icons/notification-icons.html">
 <link rel="import" href="../../bower_components/core-icons/image-icons.html">
+<link rel="import" href="../../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-action-dialog.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="../ivx-model/ivx-model.html">
+<link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
+<link rel="import" href="../ivx-simple-authorize/ivx-simple-authorize.html">
+<link rel="import" href="../ivx-qtype-text/ivx-qtype-text.html">
 
 <polymer-element name="ivx-page-settings" attributes="">
   <template>
@@ -132,6 +146,8 @@
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         _model: null,
 

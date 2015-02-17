@@ -61,23 +61,7 @@ By default, the `aria-label` will be set to the value of the `heading` attribute
 
 <polymer-element name="ivx-dialog-base" extends="paper-dialog" noscript>
   <template>
-    <style>
-      :host {
-        width: auto !important;
-        max-width: 40rem;
-        min-width: 30rem;
-      }
-
-      :host::shadow h1 {
-        font-size: 1.5rem;
-        margin: 0;
-        margin-bottom: 0.5rem;
-      }
-
-      :host::shadow #scroller {
-        padding: 20px;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-dialog-base.css">
 
     <!--
       grab the content of the <paper-dialog> and mix the content from the consumer in.

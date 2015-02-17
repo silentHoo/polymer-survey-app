@@ -1,5 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input-decorator.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="../ivx-model/ivx-model.html">
 
 <polymer-element name="ivx-simple-authorize" attributes="">
   <template>
@@ -27,6 +32,7 @@
   </template>
   <script>
     (function () {
+      'use strict';
 
       Polymer({
         _pin: '',

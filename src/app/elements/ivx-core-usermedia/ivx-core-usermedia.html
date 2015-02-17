@@ -13,6 +13,8 @@ This component is a wrapper around the GetUserMedia/Stream API.
 <polymer-element name="ivx-core-usermedia" constructor="IvxCoreUserMedia" attributes="">
   <script>
     (function () {
+      'use strict';
+
       Polymer(Polymer.mixin({
 
         _stream: null,    // the stream object, returned by the GetUserMedia API

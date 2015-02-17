@@ -1,18 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+
 <polymer-element name="ivx-qtype-yesno" extends="ivx-qtype-base" attributes="">
   <template>
-    <style>
-      :host {
-        display: block;
-        margin-top: 1rem;
-      }
-
-      /* default values can be overwritten with /deep/ and ::shadow  */
-      paper-radio-group {
-        font-size: 1.25rem;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-qtype-yesno.css">
 
     <div horizontal center-justified layout>
       <paper-radio-group selected="">
@@ -24,6 +16,7 @@
 
   <script>
     (function () {
+      'use strict';
 
       Polymer({
         // define element prototype here

@@ -50,25 +50,7 @@ Example (imperative):
 
 <polymer-element name="ivx-ticker" attributes="msg msgs separator animationPause animationSpeed">
   <template>
-    <style>
-      :host {
-        display: block;
-        overflow: hidden;
-      }
-
-      #wrapper {
-        white-space: nowrap;
-        overflow: hidden;
-        display: inline-block;
-        transition: transform;
-        transition-timing-function: linear;
-      }
-
-      .separator {
-        text-shadow: 1px 0px 0 rgb(202,202,202);
-        color: #0066bb;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-ticker.css">
 
     <div id="wrapper">
       <!-- for all messages, we create a text string with some separators -->
@@ -85,6 +67,7 @@ Example (imperative):
 
   <script>
     (function () {
+      'use strict';
 
       Polymer({
 

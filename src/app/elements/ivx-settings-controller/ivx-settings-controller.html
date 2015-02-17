@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../ivx-model/ivx-model.html">
 
 <polymer-element name="ivx-settings-controller" attributes="">
   <template>
@@ -8,7 +9,12 @@
 
   <script>
     (function () {
+      'use strict';
+
       var _shadowRoot, _buttons = null;
+      var _initialized = false;
+      var _eventHandlerAdded = false;
+      var _eventFunc = null;
 
       // returns a list with all relevant and potential buttons currently inserted into the DOM
       var _getButtons = function() {
@@ -30,10 +36,6 @@
         var duration = settingModel.attr('vibration').duration;
         window.navigator.vibrate(duration);
       };
-
-      var _initialized = false;
-      var _eventHandlerAdded = false;
-      var _eventFunc = null;
 
       Polymer({
         _model: null,

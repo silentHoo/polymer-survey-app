@@ -1,9 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+
 <link rel="import" href="../../bower_components/core-animated-pages/core-animated-pages.html">
 <link rel="import" href="../../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../../bower_components/core-icons/image-icons.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 
 <!--
 This component divides the provided content into pages and acts as a `<core-animated-pages>` wrapper. All configuration
@@ -132,6 +135,7 @@ Example:
 
   <script>
     (function () {
+      'use strict';
 
       // private, static, shared
       var _createTemplateByNode = function(node) {
@@ -188,7 +192,6 @@ Example:
       };
 
       Polymer({
-
         /**
          * The navigation type. You can choose between two fab buttons on the right, bottom corner or two bar columns
          * on the left and right side of the page.

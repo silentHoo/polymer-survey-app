@@ -2,22 +2,43 @@
 
 <polymer-element name="ivx-qtype-base" attributes="optional">
   <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-qtype-base.css">
   </template>
+
   <script>
     (function () {
+      'use strict';
 
       Polymer({
         publish: {
           optional: false
         },
 
+        /**
+         * Checks if the user inputs are correct and returns a boolean value.
+         *
+         * @return true if all is good. False if not.
+         */
         valid: function() {
-          // you should implement this
+
+        },
+
+        /**
+         * Returns a serialized JSON object with all the relevant data.
+         *
+         * @return A JSON object.
+         */
+        save: function() {
+
+        },
+
+        /**
+         * Restores a previously serialized state.
+         *
+         * @param {object} state The state to deserialize.
+         */
+        load: function(state) {
+
         }
       });
 
