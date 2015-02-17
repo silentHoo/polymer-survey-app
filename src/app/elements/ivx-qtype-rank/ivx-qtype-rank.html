@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-drag-drop/core-drag-drop.html">
+<link rel="import" href="../../bower_components/core-animation/core-animation.html">
 
 <!--
 This component allows you to easily setup an interactive **drag & drop** for individual styled items. Each item
@@ -22,8 +23,8 @@ You can style the component as you need it. There are some CSS classes which are
 use them to adjust your styling.
 
 *
-***Please note**: There is a bug in Google Chrome so that custom styling with CSS keyframes is currently not possible. But you can add
-other CSS properties without any problems.
+***Please note**: There is a bug in Google Chrome so that custom styling with CSS keyframes is currently not possible.
+But you can add other CSS properties without any problems.
 
 You should see the demo.html for more infos on that.
 
@@ -40,6 +41,7 @@ You should see the demo.html for more infos on that.
     <!--  -> related: https://www.w3.org/Bugs/Public/show_bug.cgi?id=18429 -->
     <div style="display: none;">
       <content id="items" select="item"></content>
+      <content id="animations" select="core-animation, core-animation-group"></content>
     </div>
 
     <!-- we use the core-drag-drop element to use drag & drop functionality -->
@@ -92,6 +94,8 @@ You should see the demo.html for more infos on that.
         _lastDragTarget: null,    // stores the last dragged element
         _lastDropTarget: null,    // stores the last element where the user has dropped the dragged element
         _instance: 0,
+        _animation: null,
+        _animationsEnabled: false,
 
         created: function() {
           if (instanceCount == -1) {
@@ -100,18 +104,33 @@ You should see the demo.html for more infos on that.
           } else {
             this._instance = ++instanceCount;
           }
+
+          this._animation = {
+            dragging: {
+              node: null,
+              player: null
+            },
+            droppedSource: {
+              node: null
+            },
+            droppedTarget: {
+              node: null
+            }
+          };
         },
 
-        ready: function() {
-          this._init();
+        domReady: function() {
+          this._getAllItems();
+          this._prepareCustomEvents();
+          this._appendConsumerItems();
+          this._addDragStartEvent();
         },
 
         detached: function() {
           this._removeDragStartEvent();
         },
 
-        // gets all the consumer provided distributed item nodes
-        _init: function() {
+        _getAllItems: function() {
           this._items = [];
           [].forEach.call(this.$.items.getDistributedNodes(), function (node, i) {
             var cNode = node.cloneNode(true);
@@ -129,14 +148,18 @@ You should see the demo.html for more infos on that.
 
             this._items.push(cNode);
           }, this);
+        },
 
-          // insert the elements the first time
-          this._draw();
-          this._addDragStartEvent();
+        _prepareCustomEvents: function() {
+          if (this._animationsEnabled = this.$.animations.getDistributedNodes().length != 0) {
+            this._animation.dragging.node = this.querySelector('core-animation.dragging, core-animation-group.dragging');
+            this._animation.droppedSource.node = this.querySelector('core-animation.dropped-source, core-animation-group.dropped-source');
+            this._animation.droppedTarget.node = this.querySelector('core-animation.dropped-target, core-animation-group.dropped-target');
+          }
         },
 
         // insert all consumer provided items into the drag and drop area
-        _draw: function() {
+        _appendConsumerItems: function() {
           this.$.dragdroparea.innerHTML = '';
 
           for (var i = 0; i < this._items.length; i++) {
@@ -156,13 +179,15 @@ You should see the demo.html for more infos on that.
 
         // called when the user begins to start a drag action
         onDragStart: function(e) {
-          // only if this is not the first time, we remove previously attached class names from the nodes
-          if (this._lastDragTarget !== null) {
-            this._lastDragTarget.classList.remove('dropped-source');
-          }
+          if (!this._animationsEnabled) {
+            // only if this is not the first time, we remove previously attached class names from the nodes
+            if (this._lastDragTarget !== null) {
+              this._lastDragTarget.classList.remove('dropped-source');
+            }
 
-          if (this._lastDropTarget !== null) {
-            this._lastDropTarget.classList.remove('dropped-target');
+            if (this._lastDropTarget !== null) {
+              this._lastDropTarget.classList.remove('dropped-target');
+            }
           }
 
           var dragInfo = e.detail;
@@ -187,7 +212,46 @@ You should see the demo.html for more infos on that.
 
         // is multiple times called when the user drags an element around
         _onDrag: function (dragInfo) {
-          this._dragTarget.classList.add('dragging');
+          if (!this._animationsEnabled) {
+            this._dragTarget.classList.add('dragging');
+          } else {
+            this._startDraggingAnimation();
+          }
+        },
+
+        _startDraggingAnimation: function() {
+          var anim   = this._animation.dragging.node;
+          var player = this._animation.dragging.player;
+
+          if (anim != null && !player) {
+            this._animation.dragging.node.target = this._dragTarget;
+            this._animation.dragging.player = anim.play();
+          }
+        },
+
+        _stopDraggingAnimation: function() {
+          var anim   = this._animation.dragging.node;
+          var player = this._animation.dragging.player;
+
+          if (anim == null) return;
+
+          if (player) {
+            this._animation.dragging.player = anim.cancel();
+          }
+        },
+
+        _animateDropSource: function(target) {
+          if (this._animation.droppedSource.node != null) {
+            this._animation.droppedSource.node.target = target;
+            this._animation.droppedSource.node.play();
+          }
+        },
+
+        _animateDropTarget: function(target) {
+          if (this._animation.droppedTarget.node != null) {
+            this._animation.droppedTarget.node.target = target;
+            this._animation.droppedTarget.node.play();
+          }
         },
 
         // is called when the user drops an element
@@ -195,23 +259,32 @@ You should see the demo.html for more infos on that.
           var dragTarget = this._dragTarget;
           var dropTarget = dragInfo.event.relatedTarget;
 
-          dragTarget.classList.remove('dragging');
-          dragTarget.classList.add('dropped-source');
+          if (this._animationsEnabled) {
+            this._stopDraggingAnimation();
+            this._animateDropSource(dragTarget);
+          } else {
+            dragTarget.classList.remove('dragging');
+            dragTarget.classList.add('dropped-source');
 
-          // workaround for `core-drag-drop` global
-          if (dropTarget.getAttribute('instance') == this._instance) {
-            dropTarget.classList.add('dropped-target');
+            // workaround for `core-drag-drop` global
+            if (dropTarget.getAttribute('instance') == this._instance) {
+              dropTarget.classList.add('dropped-target');
+            }
+
+            // @todo: improve the removal of css classes, because we assume that the animations lasts ~2s
+            this.job('remove css classes after 2 secs', function() {
+              dragTarget.classList.remove('dropped-source');
+              dropTarget.classList.remove('dropped-target');
+            }, 2000);
           }
-
-          // @todo: improve the removal of css classes, because we assume that the animations lasts ~2s
-          this.job('remove css classes after 2 secs', function() {
-            dragTarget.classList.remove('dropped-source');
-            dropTarget.classList.remove('dropped-target');
-          }, 2000);
 
           // we let only drop items on items
           if (dropTarget.nodeName != 'ITEM') {
             return;
+          }
+
+          if (this._animationsEnabled) {
+            this._animateDropTarget(dropTarget);
           }
 
           // workaround for `core-drag-drop` global
@@ -228,7 +301,7 @@ You should see the demo.html for more infos on that.
             this._lastDropTarget = dropTarget;
           }
 
-          this._draw();
+          this._appendConsumerItems();
         },
 
         // the avatar is a wrapper container to place something in so that the user have a visual feedback of what

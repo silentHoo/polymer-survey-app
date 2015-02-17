@@ -17,6 +17,8 @@ $color09: rgba(181, 27, 13, 0.5);
 $color10: #ff998c;
 $color11: #bb9371;
 $color12: #b51b0d;
+$color13: rgba(35, 47, 35, 0.28);
+$color14: #00ff84;
 
 body {
   background: $color03;
@@ -191,6 +193,31 @@ html /deep/ {
   #brandLogo {
     filter: saturate(105%) hue-rotate(-199deg) brightness(96%);
   }
+/*
+  ivx-qtype-rank::shadow {
+    item {
+      background-color: $color08;
+      border: $color08;
+    }
+
+    item.dragging {
+      border: 1px red solid;
+      background-color: yellow;
+    }
+
+    item.dropped-source {
+      // animations with keyframes don't work by now as of https://code.google.com/p/chromium/issues/detail?id=382498
+      // we could use <core-animation> but this needs some more business logic when using themes:
+      // view-source:https://www.polymer-project.org/components/core-animation/demo.html
+
+      // but this works:
+      background-color: pink;
+    }
+
+    item.dropped-target {
+      background-color: yellow;
+    }
+  }*/
 }
 
 /* This is the avatar container to use when this pull-request will not be accepted:

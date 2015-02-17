@@ -9,7 +9,7 @@
 <link rel="import" href="../ivx-qtype-text/ivx-qtype-text.html">
 <link rel="import" href="../ivx-qtype-yesno/ivx-qtype-yesno.html">
 
-<polymer-element name="ivx-component-tiles" attributes="">
+<polymer-element name="ivx-component-tiles" attributes="" noscript>
   <template>
     <link rel="stylesheet" href="ivx-component-tiles.css">
 
@@ -17,6 +17,42 @@
 
       <paper-shadow z="2">
         <ivx-qtype-rank>
+          <core-animation duration="2000" iterations="Infinity" easing="linear" class="dragging">
+            <core-animation-keyframe>
+              <core-animation-prop name="opacity" value="1.0"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="opacity" value="0.3"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="opacity" value="1.0"></core-animation-prop>
+            </core-animation-keyframe>
+          </core-animation>
+
+          <core-animation duration="1000" easing="linear" class="dropped-source">
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="transparent"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="#FF0000"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="transparent"></core-animation-prop>
+            </core-animation-keyframe>
+          </core-animation>
+
+          <core-animation duration="1000" easing="linear" class="dropped-target">
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="transparent"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="#FFFF00"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="transparent"></core-animation-prop>
+            </core-animation-keyframe>
+          </core-animation>
+
           <item>A1</item>
           <item>A2</item>
           <item>A3</item>
@@ -178,14 +214,4 @@
       </paper-shadow>
     </div>
   </template>
-
-  <script>
-    (function () {
-      'use strict';
-
-      Polymer({
-        // define element prototype here
-      });
-    })();
-  </script>
 </polymer-element>
