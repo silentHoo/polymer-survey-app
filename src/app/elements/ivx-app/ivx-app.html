@@ -25,6 +25,7 @@ Example:
 <link rel="import" href="../ivx-context-menu/ivx-context-menu.html">
 <link rel="import" href="../ivx-main-content/ivx-main-content.html">
 <link rel="import" href="../ivx-dialog-base/ivx-dialog-base.html">
+<link rel="import" href="../ivx-keyboard-controller/ivx-keyboard-controller.html">
 
 <polymer-element name="ivx-app">
   <template>
@@ -33,6 +34,7 @@ Example:
     <!-- non-visual dependencies -->
     <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
     <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
+    <ivx-keyboard-controller target="{{ parentElement }}"></ivx-keyboard-controller>
     <ivx-settings-controller id="settingsController"></ivx-settings-controller>
 
     <core-drawer-panel id="drawerPanel">
@@ -80,7 +82,7 @@ Example:
         pageItems: [{
           name: 'Umfragen',
           href: '/surveys',
-          closeDrawer: true,
+          closeDrawer: false,
           coreIconName: 'assignment'
         }, {
           name: 'Einstellungen',

@@ -1,0 +1,28 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/core-a11y-keys/core-a11y-keys.html">
+
+<polymer-element name="ivx-keyboard-controller" attributes="target">
+  <template>
+    <core-a11y-keys target="{{ target }}" keys="ctrl+e ctrl+u" on-keys-pressed="{{ onKeysPressed }}"></core-a11y-keys>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        // publish via core-signals
+        // use <core-signals on-core-signal-switch-page="{{ onPageSwitch }}">
+        onKeysPressed: function(event, detail, sender) {
+          var k = detail;
+          if (k.ctrl && k.key == 'e') {
+            this.fire('core-signal', { name: 'switch-page', data: 'settings' });
+          } else if (k.ctrl && k.key == 'u') {
+            this.fire('core-signal', { name: 'switch-page', data: 'surveys' });
+          } else if (k.ctrl && k.key == 'n') {
+            this.fire('core-signal', { name: 'switch-page', data: 'surveys/new' });
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>

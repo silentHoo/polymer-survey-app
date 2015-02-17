@@ -23,10 +23,14 @@ Example:
 -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-router/app-router.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
 
 <polymer-element name="ivx-main-content" attributes="uriToShow">
   <template>
     <link rel="stylesheet" href="ivx-main-content.css">
+
+    <!-- non-visual dependencies -->
+    <core-signals on-core-signal-switch-page="{{ onPageSwitch }}"></core-signals>
 
     <!-- history support? -->
     <app-router id="router" mode="auto" on-activate-route-end="{{ onPageHasSwitched }}">
@@ -91,6 +95,10 @@ Example:
           if (newVal != '') {
             this.$.router.go(newVal);
           }
+        },
+
+        onPageSwitch: function(event, page, sender) {
+          this.$.router.go('/' + page);
         }
       });
 
