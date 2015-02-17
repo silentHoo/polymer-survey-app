@@ -1,1 +1,0 @@
-jsduck-5.3.4.exe src --output docs
