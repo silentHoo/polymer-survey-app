@@ -35,16 +35,20 @@ Example:
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/core-image/core-image.html">
 <link rel="import" href="../../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
 
 <polymer-element name="ivx-drawer-content" attributes="items">
   <template>
     <link rel="stylesheet" href="ivx-drawer-content.css">
 
+    <!-- non-visual dependencies -->
+    <core-signals on-core-signal-switch-page="{{ onPageSwitch }}"></core-signals>
+
     <div id="imageContainer">
       <a href="/"><core-image id="brandLogo" sizing="cover" preload fade src="/images/logo.png"></core-image></a>
     </div>
 
-    <core-menu selectedAttribute="">
+    <core-menu selected="{{ _selectedIndex }}">
 
       <template repeat="{{ item, index in items }}">
         <paper-item on-tap="{{ onItemSelected }}" index="{{ index }}">
@@ -113,6 +117,8 @@ Example:
           }*/]
         },
 
+        _selectedIndex: 0,
+
         // Important: For properties that are objects or arrays, you should always initialize the properties in the
         // created callback. If you set the default value directly on the prototype (or on the publish object), you
         // may run into unexpected “shared state” across different instances of the same element.
@@ -132,12 +138,20 @@ Example:
 
         // will be invoked, when an item in the core-menu is tapped and will
         // fire an item-selected event with the item object.
-        onItemSelected: function (event) {
+        onItemSelected: function (event, detail, sender) {
           var paperItem = event.currentTarget;
 
           this.fire('item-selected', {
             item: this.items[+paperItem.getAttribute('index')]
           });
+        },
+
+        onPageSwitch: function(event, detail, sender) {
+          var paths = this.items.map(function(item) {
+            return item.href;
+          });
+
+          this._selectedIndex = paths.indexOf('/' + detail);
         }
       });
 

@@ -18,8 +18,6 @@
             this.fire('core-signal', { name: 'switch-page', data: 'settings' });
           } else if (k.ctrl && k.key == 'u') {
             this.fire('core-signal', { name: 'switch-page', data: 'surveys' });
-          } else if (k.ctrl && k.key == 'n') {
-            this.fire('core-signal', { name: 'switch-page', data: 'surveys/new' });
           }
         }
       });
