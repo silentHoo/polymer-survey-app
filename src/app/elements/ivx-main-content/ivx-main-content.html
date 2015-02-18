@@ -42,13 +42,19 @@ Example:
 
       <app-route path="/surveys">
         <template>
-          <ivx-page-surveylist on-survey-selected="{{ onSurveySelected }}" fit></ivx-page-surveylist>
+          <ivx-page-surveylist fit></ivx-page-surveylist>
         </template>
       </app-route>
 
       <app-route path="/authorize">
         <template>
           <ivx-page-authorize fit></ivx-page-authorize>
+        </template>
+      </app-route>
+
+      <app-route path="/survey/new">
+        <template>
+          <ivx-page-survey-new fit></ivx-page-survey-new>
         </template>
       </app-route>
 
@@ -61,6 +67,12 @@ Example:
       <app-route path="/settings">
         <template>
           <ivx-page-settings fit></ivx-page-settings>
+        </template>
+      </app-route>
+
+      <app-route path="/component-tiles">
+        <template>
+          <ivx-page-component-tiles fit></ivx-page-component-tiles>
         </template>
       </app-route>
     </app-router>
@@ -84,12 +96,6 @@ Example:
           uriToShow: '/'
         },
 
-        // forces the router to show a detailed page with the survey
-        onSurveySelected: function(event, detail, sender) {
-          var surveyId = detail.survey.id;
-          this.$.router.go('/survey/' + surveyId);
-        },
-
         // as this is the content area, this method reacts on attribute changes of the uri
         uriToShowChanged: function(oldVal, newVal) {
           if (newVal != '') {
@@ -98,7 +104,7 @@ Example:
         },
 
         onPageSwitch: function(event, page, sender) {
-          this.$.router.go('/' + page);
+          this.$.router.go(page);
         }
       });
 

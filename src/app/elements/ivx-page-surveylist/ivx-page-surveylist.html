@@ -28,7 +28,7 @@
       </template>
     </core-list>
 
-    <paper-fab class="fab" icon="add"></paper-fab>
+    <paper-fab class="fab" icon="add" on-tap="{{ onAddSurveyTapped }}"></paper-fab>
 
     <!-- dialog -->
     <ivx-dialog-context id="dialog" transition="core-transition-center" layered="true" heading="{{ viewModel.dialog.title }}">
@@ -106,14 +106,16 @@
 
         onSurveySelected: function(event, detail, sender) {
           var surveyId = +sender.getAttribute('surveyId');
-          this.fire('survey-selected', {
-            survey: this.$.surveyModel.find(surveyId)
-          });
+          this.fire('core-signal', { name: 'switch-page', data: '/survey/' + surveyId });
         },
 
         // never use *Changed as the name for an event handler, these are reserved for Polymer!
         onModelChanged: function(event, detail, sender) {
           this.updateSurveyList();
+        },
+
+        onAddSurveyTapped: function() {
+          this.fire('core-signal', { name: 'switch-page', data: '/survey/new' });
         }
       });
 

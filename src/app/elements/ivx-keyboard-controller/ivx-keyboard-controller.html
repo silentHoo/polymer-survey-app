@@ -15,9 +15,9 @@
         onKeysPressed: function(event, detail, sender) {
           var k = detail;
           if (k.ctrl && k.key == 'e') {
-            this.fire('core-signal', { name: 'switch-page', data: 'settings' });
+            this.fire('core-signal', { name: 'switch-page', data: '/settings' });
           } else if (k.ctrl && k.key == 'u') {
-            this.fire('core-signal', { name: 'switch-page', data: 'surveys' });
+            this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
           }
         }
       });
