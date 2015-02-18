@@ -1,0 +1,53 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="ivx-qtype-builder-base.html">
+
+<polymer-element name="ivx-qtype-builder-insertions" extends="ivx-qtype-builder-base" attributes="">
+  <template>
+    <style>
+      #area {
+        width: 100%;
+        height: 10rem;
+      }
+    </style>
+
+    <template if="{{ _innerHTML }}">
+      <strong>Insertion Points:</strong><br>
+      <br>
+      <textarea id="area">{{ _innerHTML }}</textarea>
+    </template>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _innerHTML: '',
+        _properties: [], // storing {name: '', value: ''}
+        _dummyString: 'lorem ipsum',
+        _roundsPerEl: 3,
+
+        prepare: function(keyValue, propValue) {
+          this._properties.push(keyValue);
+
+/*
+          'col-item': {
+            content: 'string'
+          },
+          'row-item': {
+            content: 'string'
+          }*/
+          for (var elName in propValue) {
+            var el = '<' + elName + '>' + this._dummyString + '<' + elName + '>';
+            for (var i = 0; i < this._roundsPerEl; ++i) {
+              this._innerHTML += el + '\n';
+            }
+            this._innerHTML += '\n';
+          }
+        },
+
+        reset: function() {
+          this._models = [];
+        }
+      });
+    })();
+  </script>
+</polymer-element>

@@ -1,0 +1,109 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="ivx-qtype-builder-keyvalue.html">
+<link rel="import" href="ivx-qtype-builder-select.html">
+<link rel="import" href="ivx-qtype-builder-insertions.html">
+
+<polymer-element name="ivx-qtype-builder" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-qtype-builder.css">
+
+    <fieldset active?="{{ _step == 1 }}" on-next-step="{{ onNextStep }}">
+      <legend>Schritt 1: Element auswählen</legend>
+
+        <div horizontal layout justified center>
+          Q-Type Element:
+
+          <div layout horizontal center>
+            {{ _selectedEl }}
+
+            <paper-menu-button>
+              <paper-icon-button icon="menu"></paper-icon-button>
+              <paper-dropdown class="dropdown" transition="" halign="right" valign="top">
+                <core-menu class="menu" on-core-select="{{ onTypeSelected }}">
+                  <template repeat="{{ t in _qtypes }}">
+                    <paper-item>{{ t }}</paper-item>
+                  </template>
+                </core-menu>
+              </paper-dropdown>
+            </paper-menu-button>
+
+          </div>
+        </div>
+    </fieldset>
+
+    <fieldset active?="{{ _step == 2 }}">
+      <legend>Schritt 2: Element konfigurieren</legend>
+
+      <!-- selectors -->
+      <ivx-qtype-builder-select id="selectBuilder" on-property-selected="{{ onPropertySelected }}"></ivx-qtype-builder-select>
+
+      <!-- key value -->
+      <ivx-qtype-builder-keyvalue id="keyValueBuilder"></ivx-qtype-builder-keyvalue>
+
+      <!-- insertion constraints -->
+      <ivx-qtype-builder-insertions id="insertionBuilder"></ivx-qtype-builder-insertions>
+    </fieldset>
+
+    <template if="{{ _preview }}">
+      <fieldset preview>
+        <legend>Vorschau</legend>
+      </fieldset>
+    </template>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _step: 1,
+        _qtypes: [
+          'ivx-qtype-likert',
+          'ivx-qtype-multiple-choice',
+          'ivx-qtype-rank',
+          'ivx-qtype-selection-matrix',
+          'ivx-qtype-text',
+          'ivx-qtype-usermedia',
+          'ivx-qtype-yesno'
+        ],
+        _meta: {},
+        _selectedEl: '',
+        _preview: false,
+
+        onTypeSelected: function(event, detail, sender) {
+          this._step = 2;
+
+          this._selectedEl = detail.item.innerText;
+          this._meta = document.createElement(this._selectedEl).getPublishMeta();
+          this._prepareMeta();
+        },
+
+        _prepareMeta: function() {
+          this.$.selectBuilder.reset();
+          this.$.keyValueBuilder.reset();
+
+          for (var key in this._meta.properties) {
+            var propValue = this._meta.properties[key];
+
+            // multiple attributes in one array: ['attr1': 'val1', ...]
+            if (Array.isArray(propValue)) {
+              this.$.selectBuilder.prepare(key, propValue);
+            }
+
+            if (propValue === 'int' || propValue === 'string') {
+              this.$.keyValueBuilder.prepare(key, propValue);
+            }
+          }
+        },
+
+        onPropertySelected: function(event, detail, sender) {
+          // check for constraints
+          var propConstraints = this._meta.insertionConstraints[detail.name][detail.value];
+
+          if (propConstraints !== undefined) {
+            this.$.insertionBuilder.prepare({ name: detail.name, value: detail.value}, propConstraints);
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>

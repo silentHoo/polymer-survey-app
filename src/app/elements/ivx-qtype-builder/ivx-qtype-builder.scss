@@ -1,0 +1,26 @@
+fieldset {
+  margin-top: 2.5%;
+  border: 1px #eaeaea dashed;
+
+  &[active] {
+    border: 1px black dashed;
+
+    legend {
+      font-weight: bold;
+      color: black;
+    }
+  }
+
+  &[preview] {
+    border: 1px black solid;
+
+    legend {
+      color: #778899;
+    }
+  }
+
+  legend {
+    font-weight: bold;
+    color: lightgrey;
+  }
+}

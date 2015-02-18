@@ -120,6 +120,35 @@
           this._userChangedValue = true;
         },
 
+        getPublishMeta: function() {
+          return {
+            properties: {
+              mode: ['slide', 'matrix'],
+              preselectedColumn: 'int'
+            },
+            insertionConstraints: {
+              mode: {
+                slide: {
+                  'col-item': {
+                    content: 'string'
+                  },
+                  'row-item': {
+                    content: 'string'
+                  }
+                },
+                matrix: {
+                  'col-item': {
+                    content: 'string'
+                  },
+                  'row-item': {
+                    content: 'string'
+                  }
+                }
+              }
+            }
+          }
+        },
+
         _addResizeEvent: function() {
           window.addEventListener('resize', this._onResizeWindow.bind(this));
         },

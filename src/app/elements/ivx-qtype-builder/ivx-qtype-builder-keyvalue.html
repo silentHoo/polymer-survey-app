@@ -1,0 +1,35 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="ivx-qtype-builder-base.html">
+
+<polymer-element name="ivx-qtype-builder-keyvalue" extends="ivx-qtype-builder-base" attributes="">
+  <template>
+
+    <div vertical layout>
+      <template repeat="{{ m in _models }}">
+        <div horizontal layout center justified>
+          <div>{{ m.name }}</div>
+          <paper-input floatingLabel="true" label="{{ m.type == 'int' ? 'Zahl' : 'String' }}"></paper-input>
+        </div>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _models: [],
+
+        prepare: function(key, propValue) {
+          this._models.push({
+            name: key,
+            type: propValue
+          });
+        },
+
+        reset: function() {
+          this._models = [];
+        }
+      });
+    })();
+  </script>
+</polymer-element>
