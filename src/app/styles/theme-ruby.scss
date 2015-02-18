@@ -27,30 +27,28 @@ body {
 }
 
 ivx-app::shadow {
-  // Drawer area (left)
+  // left drawer (navigation panel)
   core-header-panel[drawer] {
     background-color: $color05;
-  }
 
-  // Toolbar (top)
-  core-toolbar {
-    background-color: $color09;
-  }
-
-  // Drawer items
-  ivx-drawer-content::shadow {
-    //(not selected)
-    paper-item {
+    & /deep/ paper-item {
       background-color: $color06;
-    }
 
-    paper-item.core-selected {
+      &.core-selected {
+        color: $color03;
+        background-color: $color09;
+      }
+
+      &::shadow paper-ripple {
+        color: $color07;
+      }
+    }
+  }
+
+  core-header-panel[main] {
+    core-toolbar {
       background-color: $color09;
-    }
-
-    // Drawer paper-ripple color
-    paper-item::shadow paper-ripple {
-      color: $color07;
+      color: $color06;
     }
   }
 }
@@ -71,8 +69,16 @@ html /deep/ {
   paper-input {
     width: 100%;
 
-    &::shadow paper-input-decorator::shadow .input-body {
-      font-size: 2rem;
+    &::shadow paper-input-decorator::shadow {
+      &.input-body {
+        font-size: 2rem;
+      }
+    }
+  }
+
+  paper-input-decorator::shadow {
+    .focused-underline {
+      background-color: $color08;
     }
   }
 
@@ -129,15 +135,24 @@ html /deep/ {
     border: 1px $color09 solid;
   }
 
+  paper-slider.noprogress::shadow,
+  paper-slider::shadow {
+    #sliderKnobInner {
+      background-color: $color12 !important;
+      border: none !important;
+    }
+  }
+
   paper-slider.noprogress /deep/ {
     #activeProgress {
       display: none;
       visibility: hidden;
     }
+  }
 
-    #sliderKnobInner {
+  paper-slider /deep/ {
+    #activeProgress {
       background-color: $color12 !important;
-      border: none !important;
     }
   }
 
@@ -192,6 +207,14 @@ html /deep/ {
 
   #brandLogo {
     filter: saturate(105%) hue-rotate(-199deg) brightness(96%);
+  }
+
+  ivx-qtype-selection-matrix[mode=single-answer]::shadow {
+    .rowHead,
+    .colHead,
+    .cell {
+      border-bottom: 1px $color12 solid !important;
+    }
   }
 /*
   ivx-qtype-rank::shadow {
