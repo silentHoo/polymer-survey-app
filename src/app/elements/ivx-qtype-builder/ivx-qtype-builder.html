@@ -21,28 +21,36 @@
   <template>
     <link rel="stylesheet" href="ivx-qtype-builder.css">
 
+    <fieldset active>
+      <legend on-tap="{{ onLegendTap }}">Schritt 0: Frage</legend>
+
+      <div class="contentWrapper">
+        <paper-input id="title" value="{{ _title }}" floatingLabel="true" label="Ihre Frage für dieses Element"></paper-input>
+      </div>
+    </fieldset>
+
     <fieldset active?="{{ _step >= 1 }}">
       <legend on-tap="{{ onLegendTap }}">Schritt 1: Element auswählen</legend>
 
-        <div horizontal layout justified center class="contentWrapper">
-          Q-Type Element:
+      <div horizontal layout justified center class="contentWrapper">
+        Q-Type Element:
 
-          <div layout horizontal center>
-            {{ _selectedEl }}
+        <div layout horizontal center>
+          {{ _selectedEl }}
 
-            <paper-menu-button>
-              <paper-icon-button icon="menu"></paper-icon-button>
-              <paper-dropdown class="dropdown" transition="" halign="right" valign="top">
-                <core-menu class="menu" on-core-select="{{ onTypeSelected }}">
-                  <template repeat="{{ t in _qtypes }}">
-                    <paper-item>{{ t }}</paper-item>
-                  </template>
-                </core-menu>
-              </paper-dropdown>
-            </paper-menu-button>
+          <paper-menu-button>
+            <paper-icon-button icon="menu"></paper-icon-button>
+            <paper-dropdown class="dropdown" transition="" halign="right" valign="top">
+              <core-menu id="selectMenu" class="menu" on-core-select="{{ onTypeSelected }}">
+                <template repeat="{{ t in _qtypes }}">
+                  <paper-item>{{ t }}</paper-item>
+                </template>
+              </core-menu>
+            </paper-dropdown>
+          </paper-menu-button>
 
-          </div>
         </div>
+      </div>
     </fieldset>
 
     <fieldset active?="{{ _step >= 2 }}">
@@ -83,10 +91,8 @@
     <fieldset active?="{{ _step >= 3 }}">
       <legend on-tap="{{ onLegendTap }}">Speichern</legend>
 
-      <div horizontal layout end-justified class="contentWrapper">
-        <paper-button raised on-tap="{{ onSaveNext }}" disabled?="{{ _step < 3 }}">Speichern und weiter</paper-button>
-        <paper-button raised on-tap="{{ onSaveAll }}" disabled?="{{ _step < 3 }}">Speichern und Umfrage beenden</paper-button>
-        <paper-button raised on-tap="{{ onAbort }}" disabled?="{{ _step < 3 }}">Abbrechen</paper-button>
+      <div horizontal layout center class="contentWrapper">
+        <paper-button raised on-tap="{{ onSaveNext }}" disabled?="{{ _step < 3 }}">+ Weitere Frage</paper-button>
       </div>
     </fieldset>
   </template>
@@ -94,7 +100,7 @@
   <script>
     (function () {
       Polymer({
-        _step: 1,
+        _step: 0,
         _qtypes: [
           'ivx-qtype-likert',
           'ivx-qtype-multiple-choice',
@@ -106,9 +112,26 @@
         ],
         _meta: {},
         _selectedEl: '',
+        _title: '',
         _htmlCode: '',
+        _questions: [],
+
+        _reset: function() {
+          this._selectedEl = '';
+          this._title = '';
+          this._htmlCode = '';
+          this._meta = {};
+          this._step = 1;
+          this.$.previewEl.innerHTML = '';
+          this.$.selectMenu.selectedAttribute = '';
+
+          this.$.selectBuilder.reset();
+          this.$.keyValueBuilder.reset();
+          this.$.insertionBuilder.reset();
+        },
 
         onTypeSelected: function(event, detail, sender) {
+          if (!detail.isSelected) return;
           this._step = 2;
 
           this._selectedEl = detail.item.innerText;
@@ -119,6 +142,7 @@
         _prepareMeta: function() {
           this.$.selectBuilder.reset();
           this.$.keyValueBuilder.reset();
+          this.$.insertionBuilder.reset();
 
           for (var key in this._meta.properties) {
             var propValue = this._meta.properties[key];
@@ -132,6 +156,10 @@
               this.$.keyValueBuilder.prepare(key, propValue);
             }
           }
+        },
+
+        _titleChanged: function() {
+          this._step = 1;
         },
 
         onLegendTap: function(event, detail, sender) {
@@ -167,15 +195,20 @@
         },
 
         onSaveNext: function() {
-
+          this._saveCurrent();
+          this._reset();
         },
 
-        onSaveAll: function() {
-
+        _saveCurrent: function() {
+          this._questions.push({
+            title: this._title,
+            html: this._htmlCode
+          });
         },
 
-        onAbort: function() {
-          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
+        getQuestions: function() {
+          this._saveCurrent();
+          return this._questions;
         },
 
         _renderAttributeString: function(properties) {
