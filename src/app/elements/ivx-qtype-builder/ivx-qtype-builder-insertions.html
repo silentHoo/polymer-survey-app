@@ -22,23 +22,43 @@
         _roundsPerEl: 3,
 
         prepare: function(keyValue, propValue) {
-          this._properties.push(keyValue);
+          // delete current markup of this property
+          this._properties.forEach(function(p, i) {
+            if (p.name == keyValue.name) {
+              this._properties.splice(i, 1);
+              return;
+            }
+          }, this);
 
+          var markup = '';
           var propLength = Object.keys(propValue).length;
           var currElCount = 1;
           for (var elName in propValue) {
             var el = '<' + elName + '>' + this._dummyString + '</' + elName + '>';
             for (var i = 0; i < this._roundsPerEl; i++) {
-              this._innerHTML  += el + '\n';
+              markup  += el + '\n';
 
               var lastIterRound = (i == this._roundsPerEl - 1);
               var morePropsAfter = currElCount < propLength;
               if (lastIterRound && morePropsAfter) {
-                this._innerHTML  += '\n';
+                markup += '\n';
               }
             }
             ++currElCount;
           }
+
+          // add newly generated markup
+          var prop = keyValue;
+          prop.html = markup;
+          this._properties.push(prop);
+          this._generateHTML();
+        },
+
+        _generateHTML: function() {
+          this._innerHTML = '';
+          this._properties.forEach(function(p) {
+            this._innerHTML += p.html;
+          }, this);
         },
 
         reset: function() {
