@@ -1,8 +1,9 @@
 fieldset {
   margin-top: 2.5%;
   border: 1px #eaeaea dashed;
+  color: lightgray;
 
-  &[closed=true] .contentWrapper {
+  &[closed] .contentWrapper {
     display: none;
     visibility: hidden;
     height: 0;
@@ -10,6 +11,7 @@ fieldset {
 
   &[active] {
     border: 1px black dashed;
+    color: black;
 
     legend {
       font-weight: bold;
@@ -29,5 +31,9 @@ fieldset {
     font-weight: bold;
     color: lightgrey;
     user-select: none;
+  }
+
+  #title {
+    width: 100%;
   }
 }
