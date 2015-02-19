@@ -1,18 +1,47 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../ivx-pager/ivx-pager.html">
+
 <polymer-element name="ivx-page-survey-new" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-page-survey-new.css">
 
-    <div id="wrapper" layout vertical>
-        <ivx-qtype-builder></ivx-qtype-builder>
-    </div>
+    <!-- non-visual dependencies -->
+    <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
+
+    <ivx-pager navigation="bar" showProgress="true" vertical-layout="true" on-done="{{ onSave }}" on-abort="{{ onAbort }}">
+     <!-- <page optional="true">
+        <div layout horizontal center-center>
+          <paper-input id="title" floatingLabel="true" label="Umfragetitel"></paper-input>
+        </div>
+      </page>
+-->
+      <page>
+        <ivx-qtype-builder id="builder"></ivx-qtype-builder>
+      </page>
+    </ivx-pager>
+
   </template>
 
   <script>
     (function () {
       Polymer({
+        onSave: function() {
+          var questions = this.$.builder.getQuestions();
+          /*
+          this.$.surveyModel.add({
+            title: this.$.title.value,
+            questionCount:
+          });*/
+          console.log(questions);
 
+          this.fire('core-signal', { name: 'show-toast', data: 'Umfrage wurde gespeichert.' });
+        },
+
+        onAbort: function() {
+          this.fire('core-signal', { name: 'show-toast', data: 'Erstellung der Umfrage abgebrochen.' });
+          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
+        }
       });
     })();
   </script>
