@@ -25,8 +25,6 @@
           <paper-fab id="fab" icon="done" on-tap="{{ onAuthorize }}"></paper-fab>
         </div>
       </div>
-
-      <paper-toast id="toast"></paper-toast>
     </div>
 
   </template>
@@ -67,8 +65,7 @@
             this.fire('authorized');
           }
 
-          this.$.toast.text = pinCorrect ? 'Erfolgreich autorisiert!' : 'PIN ist nicht korrekt.';
-          this.$.toast.show();
+          this.fire('core-signal', { name: 'show-toast', data: pinCorrect ? 'Erfolgreich autorisiert!' : 'PIN ist nicht korrekt.' });
         }
       });
     })();

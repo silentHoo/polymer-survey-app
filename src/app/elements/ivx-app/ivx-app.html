@@ -18,6 +18,8 @@ Example:
 <link rel="import" href="../../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../../bower_components/core-toolbar/core-toolbar.html">
 <link rel="import" href="../../bower_components/core-icon-button/core-icon-button.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
 <link rel="import" href="../ivx-model/ivx-model.html">
 <link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
@@ -34,6 +36,7 @@ Example:
     <!-- non-visual dependencies -->
     <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
     <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
+    <core-signals on-core-signal-show-toast="{{ onShowToast }}"></core-signals>
     <ivx-keyboard-controller target="{{ parentElement }}"></ivx-keyboard-controller>
     <ivx-settings-controller id="settingsController"></ivx-settings-controller>
 
@@ -70,6 +73,8 @@ Example:
       &copy; 2014-2015 Patrick Hillert
     </ivx-dialog-base>
     <!-- /dialog -->
+
+    <paper-toast id="toast"></paper-toast>
   </template>
 
   <script src="../../bower_components/js-model/dist/js-model-0.11.0.min.js"></script>
@@ -138,6 +143,13 @@ Example:
 
           // route to current page
           this.fire('core-signal', { name: 'switch-page', data: item.href });
+        },
+
+        onShowToast: function(event, detail, sender) {
+          this.job('', function() {
+            this.$.toast.text = detail;
+            this.$.toast.show();
+          });
         }
       });
 

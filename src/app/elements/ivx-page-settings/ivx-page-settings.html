@@ -140,8 +140,6 @@
       </div>
     </template>
 
-    <paper-toast id="toast"></paper-toast>
-
   </template>
 
   <script>
@@ -251,29 +249,23 @@
 
         onPasswordDialogSave: function() {
           if (this._model.attr('pin') != this._oldPassword) {
-            this.$.toast.text = 'Die alte PIN ist nicht korrekt.';
-            this.$.toast.show();
+            this.fire('core-signal', { name: 'show-toast', data: 'Die alte PIN ist nicht korrekt.' });
             return;
           }
 
           if (this._newPassword1 != this._newPassword2) {
-            this.$.toast.text = 'Die beiden eingegebenen PINs stimmen nicht überein.';
-            this.$.toast.show();
+            this.fire('core-signal', { name: 'show-toast', data: 'Die beiden eingegebenen PINs stimmen nicht überein.' });
             return;
           }
 
           if (this._newPassword1 == '') {
-            this.$.toast.text = 'Das neue Passwort darf nicht leer sein.';
-            this.$.toast.show();
+            this.fire('core-signal', { name: 'show-toast', data: 'Das neue Passwort darf nicht leer sein.' });
             return;
           }
 
           this._model.attr('pin', this._newPassword1).save();
           this.shadowRoot.querySelector('#passwordDialog').toggle();
-
-          this.$.toast.text = 'Die PIN wurde erfolgreich geändert.';
-          this.$.toast.show();
-
+          this.fire('core-signal', { name: 'show-toast', data: 'Die PIN wurde erfolgreich geändert.' });
           this._oldPassword = this._newPassword1 = this._newPassword2 = '';
         },
 
