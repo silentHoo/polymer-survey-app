@@ -12,25 +12,34 @@ paper-progress {
   }
 }
 
-#paperFabWrapper {
+.paperFabWrapper {
   z-index: 2;
   position: fixed;
   bottom: 1rem;
   right: 1rem;
 
+  #prevButton {
+    background-color: lightgrey;
+  }
+
+  #nextButton {
+    background-color: #456b8b;
+  }
+
+  #doneButton {
+    background-color: green;
+  }
+
+  #abortButton {
+    background-color: red;
+  }
+
   paper-fab {
-    color: white;
-
-    &:first-child  {
-      background-color: lightgrey;
-      left: -1rem;
+    &::shadow core-icon {
+      color: white;
     }
 
-    &:last-child  {
-      background-color: #456b8b;
-    }
-
-    &.highlight {
+    &.highlight::shadow core-icon {
       color: red;
     }
 

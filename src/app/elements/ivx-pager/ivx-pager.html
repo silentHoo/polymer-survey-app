@@ -48,7 +48,7 @@ Example:
 
     <!-- navigation = fab: fab buttons to switch between the pages -->
     <template if="[[ navigationVisible && navigation == 'fab' ]]">
-      <div id="paperFabWrapper">
+      <div class="paperFabWrapper">
         <template if="{{ currentPage > 0 }}">
           <paper-fab
             icon="arrow-back"
@@ -58,20 +58,30 @@ Example:
             aria-label="arrow-back"
             on-tap="{{ onPrevPage }}"
             class="{{ {highlight: canMoveToPrevPage} | tokenList}}"
+            id="prevButton"
             >
           </paper-fab>
         </template>
 
-        <paper-fab
-          icon="arrow-forward"
-          title="Weiter"
-          role="button"
-          tabindex="0"
-          aria-label="arrow-forward"
-          on-tap="{{ onNextPage }}"
-          class="{{ {highlight: canMoveToNextPage, isOptional: optionalPages[currentPage]} | tokenList}}"
-          >
-        </paper-fab>
+        <template if="{{ currentPage < pageCount - 1 }}">
+          <paper-fab
+            icon="arrow-forward"
+            title="Weiter"
+            role="button"
+            tabindex="0"
+            aria-label="arrow-forward"
+            on-tap="{{ onNextPage }}"
+            class="{{ {highlight: canMoveToNextPage, isOptional: optionalPages[currentPage]} | tokenList}}"
+            id="nextButton"
+            >
+          </paper-fab>
+        </template>
+
+        <!-- done button -->
+        <template if="{{ currentPage == pageCount - 1 }}" bind ref="doneButtonTemplate"></template>
+
+        <!-- abort button -->
+        <template bind ref="abortButtonTemplate"></template>
       </div>
     </template>
 
@@ -95,9 +105,40 @@ Example:
               </div>
             </template>
           </div>
+
         </template>
 
       </div>
+
+      <div class="paperFabWrapper">
+        <!-- done button -->
+        <template if="{{ currentPage == pageCount - 1 }}" bind ref="doneButtonTemplate"></template>
+
+        <!-- abort button -->
+        <template bind ref="abortButtonTemplate"></template>
+      </div>
+    </template>
+
+    <template id="doneButtonTemplate">
+      <paper-fab
+        icon="done"
+        title="Beenden"
+        role="button"
+        on-tap="{{ onDone }}"
+        id="doneButton"
+        >
+      </paper-fab>
+    </template>
+
+    <template id="abortButtonTemplate">
+      <paper-fab
+        icon="close"
+        title="Abbrechen"
+        role="button"
+        on-tap="{{ onAbort }}"
+        id="abortButton"
+        >
+      </paper-fab>
     </template>
 
     <!-- page content area -->
@@ -126,10 +167,6 @@ Example:
         -->
 
     </core-animated-pages>
-
-    <div id="toastWrapper">
-      <paper-toast id="toastMessage" text="Diese Frage ist optional und kann übersprungen werden."></paper-toast>
-    </div>
 
   </template>
 
@@ -257,7 +294,7 @@ Example:
 
           // show toast if this (the first) page is optional
           if (this.optionalPages[this.currentPage]) {
-            this.$.toastMessage.show();
+            this.fire('core-signal', { name: 'show-toast', data: 'Diese Seite ist optional und kann übersprungen werden.' });
           }
         },
 
@@ -388,10 +425,18 @@ Example:
           }
         },
 
+        onDone: function() {
+          this.fire('done', {});
+        },
+
+        onAbort: function() {
+          this.fire('abort', {});
+        },
+
         currentPageChanged: function() {
           // show toast if current page is optional
           if (this.optionalPages[this.currentPage]) {
-            this.$.toastMessage.show();
+            this.fire('core-signal', { name: 'show-toast', data: 'Diese Seite ist optional und kann übersprungen werden.' });
           }
         },
 
