@@ -1,17 +1,30 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<!-- third party -->
+<link rel="import" href="../../bower_components/akyral-code/akyral-code.html">
+
+<!-- builders -->
 <link rel="import" href="ivx-qtype-builder-keyvalue.html">
 <link rel="import" href="ivx-qtype-builder-select.html">
 <link rel="import" href="ivx-qtype-builder-insertions.html">
+
+<!-- qtypes -->
+<link rel="import" href="../ivx-qtype-selection-matrix/ivx-qtype-selection-matrix.html">
+<link rel="import" href="../ivx-qtype-text/ivx-qtype-text.html">
+<link rel="import" href="../ivx-qtype-multiple-choice/ivx-qtype-multiple-choice.html">
+<link rel="import" href="../ivx-qtype-rank/ivx-qtype-rank.html">
+<link rel="import" href="../ivx-qtype-usermedia/ivx-qtype-usermedia.html">
+<link rel="import" href="../ivx-qtype-likert/ivx-qtype-likert.html">
+<link rel="import" href="../ivx-qtype-yesno/ivx-qtype-yesno.html">
 
 <polymer-element name="ivx-qtype-builder" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-qtype-builder.css">
 
-    <fieldset active?="{{ _step == 1 }}" on-next-step="{{ onNextStep }}">
-      <legend>Schritt 1: Element auswählen</legend>
+    <fieldset active?="{{ _step >= 1 }}">
+      <legend on-tap="{{ onLegendTap }}">Schritt 1: Element auswählen</legend>
 
-        <div horizontal layout justified center>
+        <div horizontal layout justified center class="contentWrapper">
           Q-Type Element:
 
           <div layout horizontal center>
@@ -32,24 +45,50 @@
         </div>
     </fieldset>
 
-    <fieldset active?="{{ _step == 2 }}">
-      <legend>Schritt 2: Element konfigurieren</legend>
+    <fieldset active?="{{ _step >= 2 }}">
+      <legend on-tap="{{ onLegendTap }}">Schritt 2: Element konfigurieren</legend>
 
-      <!-- selectors -->
-      <ivx-qtype-builder-select id="selectBuilder" on-property-selected="{{ onPropertySelected }}"></ivx-qtype-builder-select>
+      <div class="contentWrapper">
+        <!-- selectors -->
+        <ivx-qtype-builder-select id="selectBuilder" on-property-selected="{{ onPropertySelected }}"></ivx-qtype-builder-select>
 
-      <!-- key value -->
-      <ivx-qtype-builder-keyvalue id="keyValueBuilder"></ivx-qtype-builder-keyvalue>
+        <!-- key value -->
+        <ivx-qtype-builder-keyvalue id="keyValueBuilder"></ivx-qtype-builder-keyvalue>
 
-      <!-- insertion constraints -->
-      <ivx-qtype-builder-insertions id="insertionBuilder"></ivx-qtype-builder-insertions>
+        <!-- insertion constraints -->
+        <ivx-qtype-builder-insertions id="insertionBuilder"></ivx-qtype-builder-insertions>
+
+        <br><br>
+
+        <div horizontal layout end-justified>
+          <paper-button raised on-tap="{{ onGenerate }}" disabled?="{{ _step < 2 }}">generieren</paper-button>
+        </div>
+      </div>
     </fieldset>
 
-    <template if="{{ _preview }}">
-      <fieldset preview>
-        <legend>Vorschau</legend>
-      </fieldset>
-    </template>
+    <fieldset active?="{{ _step >= 3 }}">
+      <legend on-tap="{{ onLegendTap }}">Vorschau</legend>
+
+      <div id="previewEl" class="contentWrapper"></div>
+    </fieldset>
+
+    <fieldset active?="{{ _step >= 3 }}">
+      <legend on-tap="{{ onLegendTap }}">HTML-Code</legend>
+
+      <div class="contentWrapper">
+        <code is="akyral-code" theme="railscasts">{{ _htmlCode }}</code>
+      </div>
+    </fieldset>
+
+    <fieldset active?="{{ _step >= 3 }}">
+      <legend on-tap="{{ onLegendTap }}">Speichern</legend>
+
+      <div horizontal layout end-justified class="contentWrapper">
+        <paper-button raised on-tap="{{ onSaveNext }}" disabled?="{{ _step < 3 }}">Speichern und weiter</paper-button>
+        <paper-button raised on-tap="{{ onSaveAll }}" disabled?="{{ _step < 3 }}">Speichern und Umfrage beenden</paper-button>
+        <paper-button raised on-tap="{{ onAbort }}" disabled?="{{ _step < 3 }}">Abbrechen</paper-button>
+      </div>
+    </fieldset>
   </template>
 
   <script>
@@ -67,7 +106,7 @@
         ],
         _meta: {},
         _selectedEl: '',
-        _preview: false,
+        _htmlCode: '',
 
         onTypeSelected: function(event, detail, sender) {
           this._step = 2;
@@ -95,6 +134,11 @@
           }
         },
 
+        onLegendTap: function(event, detail, sender) {
+          var fieldset = sender.parentElement;
+          fieldset.getAttribute('closed') ? fieldset.removeAttribute('closed') : fieldset.setAttribute('closed', true);
+        },
+
         onPropertySelected: function(event, detail, sender) {
           // check for constraints
           var propConstraints = this._meta.insertionConstraints[detail.name][detail.value];
@@ -102,6 +146,48 @@
           if (propConstraints !== undefined) {
             this.$.insertionBuilder.prepare({ name: detail.name, value: detail.value}, propConstraints);
           }
+        },
+
+        onGenerate: function() {
+          this._step = 3;
+          var selectProps = this.$.selectBuilder.getProperties();
+          var keyValProps = this.$.keyValueBuilder.getProperties();
+          var insertProps = this.$.insertionBuilder.getProperties();
+          var attributes = this._renderAttributeString(selectProps.concat(keyValProps));
+
+          // prettify insertion points
+          insertProps = '  ' + insertProps.replace(new RegExp('\n', 'g'), '\n  '); // indent all by '  '
+          insertProps = insertProps.replace(new RegExp('  $'), ''); // but not the last one
+
+          this._htmlCode = '<' + this._selectedEl + ' ' + attributes + '>\n' +
+                             insertProps +
+                           '</' +  this._selectedEl + '>';
+
+          this.$.previewEl.innerHTML = this._htmlCode;
+        },
+
+        onSaveNext: function() {
+
+        },
+
+        onSaveAll: function() {
+
+        },
+
+        onAbort: function() {
+          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
+        },
+
+        _renderAttributeString: function(properties) {
+          var i = 0;
+          var str = '';
+          properties.forEach(function(p) {
+            str += p.name + '="' + p.value + '"';
+            (i < properties.length - 1) ? str += ' ' : '';
+            ++i;
+          }, this);
+
+          return str;
         }
       });
     })();

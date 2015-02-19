@@ -2,6 +2,12 @@ fieldset {
   margin-top: 2.5%;
   border: 1px #eaeaea dashed;
 
+  &[closed=true] .contentWrapper {
+    display: none;
+    visibility: hidden;
+    height: 0;
+  }
+
   &[active] {
     border: 1px black dashed;
 
@@ -12,7 +18,7 @@ fieldset {
   }
 
   &[preview] {
-    border: 1px black solid;
+    border: 1px black dashed;
 
     legend {
       color: #778899;
@@ -22,5 +28,6 @@ fieldset {
   legend {
     font-weight: bold;
     color: lightgrey;
+    user-select: none;
   }
 }

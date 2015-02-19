@@ -1,19 +1,15 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+
 <link rel="import" href="ivx-qtype-builder-base.html">
 
 <polymer-element name="ivx-qtype-builder-insertions" extends="ivx-qtype-builder-base" attributes="">
   <template>
-    <style>
-      #area {
-        width: 100%;
-        height: 10rem;
-      }
-    </style>
+    <link rel="stylesheet" href="ivx-qtype-builder-insertions.css">
 
     <template if="{{ _innerHTML }}">
       <strong>Insertion Points:</strong><br>
       <br>
-      <textarea id="area">{{ _innerHTML }}</textarea>
+      <textarea id="area" value="{{ _innerHTML }}"></textarea>
     </template>
   </template>
 
@@ -22,30 +18,35 @@
       Polymer({
         _innerHTML: '',
         _properties: [], // storing {name: '', value: ''}
-        _dummyString: 'lorem ipsum',
+        _dummyString: 'text text',
         _roundsPerEl: 3,
 
         prepare: function(keyValue, propValue) {
           this._properties.push(keyValue);
 
-/*
-          'col-item': {
-            content: 'string'
-          },
-          'row-item': {
-            content: 'string'
-          }*/
+          var propLength = Object.keys(propValue).length;
+          var currElCount = 1;
           for (var elName in propValue) {
-            var el = '<' + elName + '>' + this._dummyString + '<' + elName + '>';
-            for (var i = 0; i < this._roundsPerEl; ++i) {
-              this._innerHTML += el + '\n';
+            var el = '<' + elName + '>' + this._dummyString + '</' + elName + '>';
+            for (var i = 0; i < this._roundsPerEl; i++) {
+              this._innerHTML  += el + '\n';
+
+              var lastIterRound = (i == this._roundsPerEl - 1);
+              var morePropsAfter = currElCount < propLength;
+              if (lastIterRound && morePropsAfter) {
+                this._innerHTML  += '\n';
+              }
             }
-            this._innerHTML += '\n';
+            ++currElCount;
           }
         },
 
         reset: function() {
-          this._models = [];
+          this._innerHTML = this._prettyHTML = '';
+        },
+
+        getProperties: function() {
+          return this._innerHTML;
         }
       });
     })();

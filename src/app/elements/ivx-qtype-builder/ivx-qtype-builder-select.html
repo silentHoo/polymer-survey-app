@@ -57,10 +57,21 @@
           var propIndex = detail.item.attributes['data-property-index'].value;
           var propName  = detail.item.attributes['data-property-name'].value;
           var propValue = detail.item.innerHTML;
-
           this._models[propIndex].selected = propValue;
 
           this.fire('property-selected', { name: propName, value: propValue });
+        },
+
+        getProperties: function() {
+          var props = [];
+          this._models.forEach(function(m) {
+            // only add those props that are set by the user
+            if (m.selected != '') {
+              props.push({name: m.attribute, value: m.selected });
+            }
+          });
+
+          return props;
         }
       });
     })();
