@@ -307,6 +307,35 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
         _getItem: function(rowId, colId) {
           var items = this._getItemsInRow(rowId);
           return items[colId];
+        },
+
+        getPublishMeta: function() {
+          return {
+            properties: {
+              mode: ['single-answer', 'multi-answer'],
+              preselectedColumn: 'int'
+            },
+            insertionConstraints: {
+              mode: {
+                'single-answer': {
+                  'col-item': {
+                    content: 'string'
+                  },
+                  'row-item': {
+                    content: 'string'
+                  }
+                },
+                'multi-answer': {
+                  'col-item': {
+                    content: 'string'
+                  },
+                  'row-item': {
+                    content: 'string'
+                  }
+                }
+              }
+            }
+          }
         }
       });
     })();

@@ -8,7 +8,12 @@
       <template repeat="{{ m in _models }}">
         <div horizontal layout center justified>
           <div>{{ m.name }}</div>
-          <paper-input id="{{ m.name }}" floatingLabel="true" label="{{ m.type == 'int' ? 'Zahl' : 'String' }}"></paper-input>
+          <paper-input
+            id="{{ m.name }}"
+            floatingLabel="true"
+            label="{{ m.type == 'int' ? 'Zahl' : 'String' }}"
+            value="{{ m.example }}"
+          ></paper-input>
         </div>
       </template>
     </div>
@@ -20,9 +25,16 @@
         _models: [],
 
         prepare: function(key, propValue) {
+          var dataType = propValue, presetValue = '';
+          if (typeof propValue === 'object') {
+            dataType = propValue.type;
+            presetValue = propValue.example;
+          }
+
           this._models.push({
             name: key,
-            type: propValue
+            type: dataType,
+            example: presetValue
           });
         },
 

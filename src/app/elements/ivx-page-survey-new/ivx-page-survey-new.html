@@ -10,32 +10,34 @@
     <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
 
     <ivx-pager navigation="bar" showProgress="true" vertical-layout="true" on-done="{{ onSave }}" on-abort="{{ onAbort }}">
-     <!-- <page optional="true">
+      <page optional="true">
         <div layout horizontal center-center>
           <paper-input id="title" floatingLabel="true" label="Umfragetitel"></paper-input>
         </div>
       </page>
--->
+
       <page>
         <ivx-qtype-builder id="builder"></ivx-qtype-builder>
       </page>
     </ivx-pager>
-
   </template>
 
   <script>
     (function () {
       Polymer({
+
         onSave: function() {
           var questions = this.$.builder.getQuestions();
-          /*
-          this.$.surveyModel.add({
+
+          var record = this.$.surveyModel.new({
             title: this.$.title.value,
-            questionCount:
-          });*/
-          console.log(questions);
+            questionCount: questions.length,
+            questions: questions
+          });
+          record.save();
 
           this.fire('core-signal', { name: 'show-toast', data: 'Umfrage wurde gespeichert.' });
+          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
         },
 
         onAbort: function() {

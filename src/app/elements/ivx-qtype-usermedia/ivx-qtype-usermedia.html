@@ -668,8 +668,7 @@ Example 3:
             }
           };
 
-          update();
-          this.async(update, null, 1000);
+          this.async(update, this, 1000);
         },
 
         // starts the record for the current mode
@@ -712,6 +711,15 @@ Example 3:
             this._audioBlob = audioBlob;
             this._audioObjectURL = window.URL.createObjectURL(this._audioBlob);
           }).bind(this));
+        },
+
+        getPublishMeta: function() {
+          return {
+            properties: {
+              mode: ['image', 'video', 'audio'],
+              visualizeAudio: ['true', 'false']
+            }
+          }
         }
       }, mixinsHelper));
     })();

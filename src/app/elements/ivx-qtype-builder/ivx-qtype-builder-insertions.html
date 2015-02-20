@@ -34,16 +34,7 @@
           var propLength = Object.keys(propValue).length;
           var currElCount = 1;
           for (var elName in propValue) {
-            var el = '<' + elName + '>' + this._dummyString + '</' + elName + '>';
-            for (var i = 0; i < this._roundsPerEl; i++) {
-              markup  += el + '\n';
-
-              var lastIterRound = (i == this._roundsPerEl - 1);
-              var morePropsAfter = currElCount < propLength;
-              if (lastIterRound && morePropsAfter) {
-                markup += '\n';
-              }
-            }
+            markup += this._generateMarkup(elName, currElCount, propLength);
             ++currElCount;
           }
 
@@ -54,6 +45,26 @@
           this._generateHTML();
         },
 
+        _generateMarkup: function(elName, currElCount, propLength) {
+          var markup = '';
+
+          var el = '<' + elName + '>' + this._dummyString + '</' + elName + '>';
+          for (var i = 0; i < this._roundsPerEl; i++) {
+            markup  += el + '\n';
+
+            var lastIterRound = (i == this._roundsPerEl - 1);
+            var morePropsAfter = currElCount < propLength;
+            if (lastIterRound && morePropsAfter) {
+              markup += '\n';
+            }
+          }
+          return markup;
+        },
+
+        prepareNodeOnly: function(elName) {
+          this._innerHTML = this._generateMarkup(elName, 1, 0);
+        },
+
         _generateHTML: function() {
           this._innerHTML = '';
           this._properties.forEach(function(p) {
@@ -62,7 +73,7 @@
         },
 
         reset: function() {
-          this._innerHTML = this._prettyHTML = '';
+          this._innerHTML = '';
         },
 
         getProperties: function() {

@@ -131,6 +131,9 @@
         },
 
         onTypeSelected: function(event, detail, sender) {
+          this.$.previewEl.innerHTML = '';
+          this._htmlCode = '';
+
           if (!detail.isSelected) return;
           this._step = 2;
 
@@ -144,16 +147,23 @@
           this.$.keyValueBuilder.reset();
           this.$.insertionBuilder.reset();
 
-          for (var key in this._meta.properties) {
-            var propValue = this._meta.properties[key];
-
-            // multiple attributes in one array: ['attr1': 'val1', ...]
-            if (Array.isArray(propValue)) {
-              this.$.selectBuilder.prepare(key, propValue);
+          if (Object.keys(this._meta.properties).length == 0) {
+            // no properties given -> directly check for constraints
+            for (var elName in this._meta.insertionConstraints) {
+              this.$.insertionBuilder.prepareNodeOnly(elName);
             }
+          } else {
+            for (var key in this._meta.properties) {
+              var propValue = this._meta.properties[key];
 
-            if (propValue === 'int' || propValue === 'string') {
-              this.$.keyValueBuilder.prepare(key, propValue);
+              // multiple attributes in one array: ['attr1': 'val1', ...]
+              if (Array.isArray(propValue)) {
+                this.$.selectBuilder.prepare(key, propValue);
+              }
+
+              if (propValue === 'int' || propValue === 'string' || (typeof propValue === 'object' && !Array.isArray(propValue))) {
+                this.$.keyValueBuilder.prepare(key, propValue);
+              }
             }
           }
         },
@@ -169,6 +179,10 @@
 
         onPropertySelected: function(event, detail, sender) {
           // check for constraints
+          if (this._meta.insertionConstraints === undefined) {
+            return;
+          }
+
           var propConstraints = this._meta.insertionConstraints[detail.name][detail.value];
 
           if (propConstraints !== undefined) {
@@ -187,7 +201,10 @@
           insertProps = '  ' + insertProps.replace(new RegExp('\n', 'g'), '\n  '); // indent all by '  '
           insertProps = insertProps.replace(new RegExp('  $'), ''); // but not the last one
 
-          this._htmlCode = '<' + this._selectedEl + ' ' + attributes + '>\n' +
+          if (attributes != '') {
+            attributes = ' ' + attributes;
+          }
+          this._htmlCode = '<' + this._selectedEl + attributes + '>\n' +
                              insertProps +
                            '</' +  this._selectedEl + '>';
 
@@ -212,6 +229,11 @@
         },
 
         _renderAttributeString: function(properties) {
+          // filter out empty values
+          properties = properties.filter(function(p) {
+            return p.value !== '';
+          });
+
           var i = 0;
           var str = '';
           properties.forEach(function(p) {

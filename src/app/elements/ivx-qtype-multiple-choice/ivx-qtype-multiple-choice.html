@@ -52,6 +52,28 @@
           [].forEach.call(distributedNodes, function(node, i) {
             this._answers.push(node.innerHTML);
           }, this);
+        },
+
+        getPublishMeta: function() {
+          return {
+            properties: {
+              mode: ['single-answer', 'multi-answer']
+            },
+            insertionConstraints: {
+              mode: {
+                'single-answer': {
+                  answer: {
+                    content: 'string'
+                  }
+                },
+                'multi-answer': {
+                  answer: {
+                    content: 'string'
+                  }
+                }
+              }
+            }
+          }
         }
       });
 

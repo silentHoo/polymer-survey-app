@@ -342,6 +342,15 @@ You should see the demo.html for more infos on that.
         _getComputedStyleValue: function(element, property) {
           var style = element.currentStyle || window.getComputedStyle(element);
           return style[property];
+        },
+
+        getPublishMeta: function() {
+          return {
+            properties: { /* no properties */ },
+            insertionConstraints: {
+              item: 'string'
+            }
+          }
         }
       });
 

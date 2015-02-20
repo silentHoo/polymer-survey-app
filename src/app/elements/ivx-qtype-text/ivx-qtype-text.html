@@ -142,6 +142,24 @@
 
         patternChanged: function() {
           this.$.input.pattern = this._regex = this.pattern;
+        },
+
+        getPublishMeta: function() {
+          return {
+            properties: {
+              mode: ['single-answer', 'multi-answer'],
+              maxRows: 'int',
+              required: ['true', 'false'],
+              validationType: ['text', 'int', 'float', 'email', 'postcode'],
+              min: { type: 'int', example: '1' },
+              max: { type: 'int', example: '1000' },
+              pattern: { type: 'string', example: '^[0-9]{5}$' },
+              customError: { type: 'string', example: 'Meine Fehlermeldung' },
+              label: { type: 'string', example: 'Mein Label' },
+              type: ['password', 'text'],
+              value: { type: 'string', example: 'Dieser Wert steht bereits' }
+            }
+          }
         }
       });
 
