@@ -279,6 +279,10 @@ Example:
         canMoveToNextPage: false,         // indicates if on drop at the current position will switch to the next page.
         canMoveToPrevPage: false,         // indicates if on drop at the current position will switch to the previous page.
 
+        created: function() {
+          this.insertedPages = [];
+        },
+
         // guarantees that the element is in the DOM tree
         attached: function() {
           if (this.sort != 'none') {
