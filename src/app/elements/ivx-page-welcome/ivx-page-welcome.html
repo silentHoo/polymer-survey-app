@@ -11,12 +11,15 @@
 <link rel="import" href="../ivx-qtype-likert/ivx-qtype-likert.html">
 <link rel="import" href="../ivx-qtype-multiple-choice/ivx-qtype-multiple-choice.html">
 
-<polymer-element name="ivx-page-welcome" attributes="" noscript>
+<polymer-element name="ivx-page-welcome" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-page-welcome.css">
 
+    <!-- non-visual dependencies -->
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
+
     <div>
-      <ivx-pager navigation="fab" <!--sort="ivx-question-layouter.question:asc"-->>
+      <ivx-pager navigation="{{ _navigationMode }}" <!--sort="ivx-question-layouter.question:asc"-->>
 <!--
         <page>
           <ivx-ticker separator="♫" msgs="Armin van Buuren - Communication Part III, System of a Down - Chop Suey, Ella Henderson - Ghost, asdasdasdasdasdasd, asdasdasdwiwouowieriqwero"></ivx-ticker>
@@ -256,4 +259,18 @@
       </ivx-pager>
     </div>
   </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        _navigationMode: '',
+
+        domReady: function() {
+          this._navigationMode = this.$.settingsController.getConfig()['navigationMode'];
+        }
+      });
+    })();
+  </script>
 </polymer-element>

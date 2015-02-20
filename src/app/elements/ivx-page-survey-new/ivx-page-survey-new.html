@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../ivx-pager/ivx-pager.html">
+<link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
 
 <polymer-element name="ivx-page-survey-new" attributes="">
   <template>
@@ -8,9 +9,10 @@
 
     <!-- non-visual dependencies -->
     <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
 
-    <ivx-pager navigation="bar" showProgress="true" vertical-layout="true" on-done="{{ onSave }}" on-abort="{{ onAbort }}">
-      <page optional="true">
+    <ivx-pager navigation="{{ _navigationMode }}" showProgress="true" vertical-layout="true" on-done="{{ onSave }}" on-abort="{{ onAbort }}">
+      <page>
         <div layout horizontal center-center>
           <paper-input id="title" floatingLabel="true" label="Umfragetitel"></paper-input>
         </div>
@@ -24,7 +26,14 @@
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
+        _navigationMode: '',
+
+        domReady: function() {
+          this._navigationMode = this.$.settingsController.getConfig()['navigationMode'];
+        },
 
         onSave: function() {
           var questions = this.$.builder.getQuestions();

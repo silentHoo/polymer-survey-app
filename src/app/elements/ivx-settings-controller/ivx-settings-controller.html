@@ -4,7 +4,8 @@
 <polymer-element name="ivx-settings-controller" attributes="">
   <template>
     <!-- non-visual dependencies -->
-    <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
+    <ivx-model id="settingModel" name="settings" storageType="localStorage"></ivx-model>
+    <core-signals on-core-signal-settings-changed="{{ onSettingsModelChanged }}"></core-signals>
   </template>
 
   <script>
@@ -56,7 +57,7 @@
         },
 
         _seedModel: function() {
-          var model = this.$.settingModel.new({
+          var model = this.$.settingModel.create({
             pin: '1234',
             authorized: false,
             activeTheme: 'curacao',
@@ -65,7 +66,8 @@
               long: false,
               short: false,
               duration: 0
-            }
+            },
+            navigationMode: 'fab'
           });
           model.save();
         },
@@ -74,7 +76,7 @@
           if (!_initialized) {
             _initialized = true;
             var themeName = this._model.attr('activeTheme');
-            this.setTheme(themeName);
+            this._setTheme(themeName);
 
             var vibrationActive = this._model.attr('vibration').active;
             if (vibrationActive) {
@@ -83,8 +85,12 @@
           }
         },
 
-        setTheme: function(themeName) {
+        _setTheme: function(themeName) {
           document.querySelector('#themeLink').href = 'styles/theme-' + themeName + '.css';
+        },
+
+        getConfig: function() {
+          return this.$.settingModel.first().attributes;
         },
 
         addEventHandler: function() {
@@ -108,6 +114,10 @@
             _buttons[i].removeEventListener('tap', _eventFunc);
           }
           _eventHandlerAdded = false;
+        },
+
+        onSettingsModelChanged: function(event, detail, sender) {
+          if (detail.attrName == 'activeTheme') this._setTheme(detail.attrValue);
         }
       });
     })();

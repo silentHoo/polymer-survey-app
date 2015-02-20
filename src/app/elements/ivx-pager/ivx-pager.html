@@ -47,7 +47,7 @@ Example:
     </tempalte>
 
     <!-- navigation = fab: fab buttons to switch between the pages -->
-    <template if="[[ navigationVisible && navigation == 'fab' ]]">
+    <template if="{{ navigationVisible && navigation == 'fab' }}">
       <div class="paperFabWrapper">
         <template if="{{ currentPage > 0 }}">
           <paper-fab
@@ -86,7 +86,7 @@ Example:
     </template>
 
     <!-- navigation = bar: two bars to switch between the pages -->
-    <template if="[[ navigation == 'bar' ]]">
+    <template if="{{ navigation == 'bar' }}">
       <div id="btWrapper" horizontal layout justified>
 
         <template if="{{ navigationVisible }}">
