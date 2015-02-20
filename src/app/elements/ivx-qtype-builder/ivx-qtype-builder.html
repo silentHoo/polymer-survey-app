@@ -116,6 +116,10 @@
         _htmlCode: '',
         _questions: [],
 
+        created: function() {
+          this._questions = [];
+        },
+
         _reset: function() {
           this._selectedEl = '';
           this._title = '';

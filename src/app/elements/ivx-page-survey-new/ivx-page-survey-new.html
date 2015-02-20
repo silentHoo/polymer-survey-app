@@ -29,12 +29,11 @@
         onSave: function() {
           var questions = this.$.builder.getQuestions();
 
-          var record = this.$.surveyModel.new({
+          this.$.surveyModel.add({
             title: this.$.title.value,
             questionCount: questions.length,
             questions: questions
           });
-          record.save();
 
           this.fire('core-signal', { name: 'show-toast', data: 'Umfrage wurde gespeichert.' });
           this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
