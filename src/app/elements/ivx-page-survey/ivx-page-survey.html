@@ -1,10 +1,31 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-pager/ivx-pager.html">
+<link rel="import" href="../ivx-question-layouter/ivx-question-layouter.html">
+
+<!--
+The `ivx-page-survey` element is the `detail page` for a selected survey in the survey list. The element will
+build a paged survey. Each question on a different page.
+
+You can use the `ivx-page-survey` by simply setting a surveyId attribute.
+
+Example:
+
+    <ivx-page-survey surveyId="23"></ivx-page-survey>
+
+@group Inovex Survey Elements
+@element ivx-page-survey
+@homepage inovex.de
+-->
 <polymer-element name="ivx-page-survey" attributes="surveyId">
   <template>
     <link rel="stylesheet" href="ivx-page-survey.css">
 
-    Hey, here comes the survey content for survey {{ surveyId }}
+    <!-- non-visual dependencies -->
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
+
+    <div id="pages"></div>
   </template>
 
   <script>
@@ -12,7 +33,17 @@
       'use strict';
 
       Polymer({
+        publish: {
+          surveyId: -1
+        },
+
+        _survey: {},
+        _pages: '',
+        _navigationMode: '',
+
+        // polymer callback
         ready: function() {
+          // the declarative way to use the model abstraction layer
           this.Survey = Model('survey', function() {
             this.persistence(Model.localStorage);
           });
@@ -20,11 +51,65 @@
           this.Survey.load();
         },
 
+        domReady: function() {
+          this._navigationMode = this.$.settingsController.getConfig()['navigationMode'];
+        },
+
+        // polymer callback
+        detached: function() {
+          this._removePagerEventHandler();
+        },
+
+        // polymer callback
         surveyIdChanged: function() {
-          console.log(this.Survey.find(this.surveyId));
+          this._survey = this.Survey.find(this.surveyId);
+          this._buildSurvey();
+        },
+
+        // builds the survey from the selected survey object
+        _buildSurvey: function() {
+          this._questions = this._survey.attributes.questions;
+
+          var html = '';
+          this._questions.forEach(function(q) {
+            // as we cannot insert html with data bindin, we build it by strings and append them later
+            // into the DOM
+            html += '<page>' +
+                      '<ivx-question-layouter question="' + q.title + '">' +
+                        q.html +
+                      '</ivx-question-layouter>' +
+                    '</page>';
+          }, this);
+
+          this.$.pages.innerHTML = '<ivx-pager id="pager" navigation="' + this._navigationMode + '">' + html + '</ivx-pager>';
+          this._addPagerEventHandler();
+        },
+
+        // adds eventhandler to the pager
+        _addPagerEventHandler: function() {
+          var pager = this.shadowRoot.querySelector('#pager');
+          pager.addEventListener('done', this._pagerDoneHandler.bind(this));
+          pager.addEventListener('abort', this._pagerAbortHandler.bind(this));
+        },
+
+        // removes the eventhandler from the pager
+        _removePagerEventHandler: function() {
+          var pager = this.shadowRoot.querySelector('#pager');
+          pager.removeEventListener('done', this._pagerDoneHandler.bind(this));
+          pager.removeEventListener('abort', this._pagerAbortHandler.bind(this));
+        },
+
+        // eventhandler for `done`
+        _pagerDoneHandler: function(event, detail, sender) {
+          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
+          this.fire('core-signal', { name: 'show-toast', data: '@todo Speichern' });
+        },
+
+        // eventhandler for `abort`
+        _pagerAbortHandler: function(event, detail, sender) {
+          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
         }
       });
-
     })();
   </script>
 </polymer-element>
