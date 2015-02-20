@@ -16,7 +16,7 @@
     <core-signals on-core-signal-survey-changed="{{ onModelChanged }}"></core-signals>
     <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
 
-    <core-list id="list" data="{{ surveylist }}" height="120" style="height: 100%">
+    <core-list id="list" data="{{ _surveylist }}" height="120" style="height: 100%">
       <template>
 
         <div surveyId="{{ model.id }}" on-tap="{{ onSurveySelected }}" class="row {{ { selected: selected } | tokenList }}" flex>
@@ -30,13 +30,41 @@
 
     <paper-fab class="fab" icon="add" on-tap="{{ onAddSurveyTapped }}"></paper-fab>
 
-    <!-- dialog -->
-    <ivx-dialog-context id="dialog" transition="core-transition-center" layered="true" heading="{{ viewModel.dialog.title }}">
-      <template repeat="{{ item in viewModel.contextList }}">
-        <div class="entry">{{ item.name }}</div>
+    <!-- dialogs -->
+    <ivx-dialog-context id="dialogContext" transition="core-transition-center" heading="{{ _dialog.survey.title }}">
+      <template repeat="{{ item in _dialog.context.contextList }}">
+        <div class="entry" on-tap="{{ onContextItemTapped }}">{{ item.name }}</div>
       </template>
     </ivx-dialog-context>
-    <!-- /dialog -->
+
+    <ivx-dialog-context id="dialogConfirm" transition="core-transition-center" heading="Umfrage löschen">
+      <div layout vertical style="padding: 1rem;">
+        Möchten Sie die Umfrage "{{ _dialog.survey.title }}" endgültig löschen?<br>
+        <br>
+        <br>
+
+        <div layout horizontal end-justified>
+          <paper-fab
+            icon="done"
+            title="Ja"
+            role="button"
+            on-tap="{{ onDeleteSurvey }}"
+            id="doneButton"
+            >
+          </paper-fab>
+
+          <paper-fab
+            icon="close"
+            title="Nein"
+            role="button"
+            on-tap="{{ onAbortDelete }}"
+            id="abortButton"
+            >
+          </paper-fab>
+        </div>
+      </div>
+    </ivx-dialog-context>
+    <!-- /dialogs -->
 
   </template>
 
@@ -54,53 +82,40 @@
           this.updateSurveyList();
         },
 
-        surveylist: [],
+        _surveylist: [],
 
-        viewModel: {/*
-          surveylist: [],
-
-          dialog: {
-            title: 'No title'
+        _dialog: {
+          context: {
+            contextList: [{
+              name: 'Ergebnisse anzeigen',
+              callback: 'onShowResults'
+            }, {
+              name: 'Umfrage bearbeiten',
+              callback: 'onEdit'
+            }, {
+              name: 'Umfrage löschen',
+              callback: 'onDelete'
+            }]
           },
-
-          contextList: [{
-            name: 'Ergebnisse anzeigen'
-          }, {
-            name: 'Umfrage bearbeiten'
-          }, {
-            name: 'Umfrage löschen'
-          }]
-        */},
+          survey: {}
+        },
 
         // Important: For properties that are objects or arrays, you should always initialize the properties in the
         // created callback. If you set the default value directly on the prototype (or on the publish object), you
         // may run into unexpected “shared state” across different instances of the same element.
         created: function() {
-          this.viewModel = {
-            surveylist: [],
 
-            dialog: {
-              title: 'No title'
-            },
-
-            contextList: [{
-              name: 'Ergebnisse anzeigen'
-            }, {
-              name: 'Umfrage bearbeiten'
-            }, {
-              name: 'Umfrage löschen'
-            }]
-          };
         },
 
         updateSurveyList: function() {
-          this.surveylist = this.$.surveyModel.all();
+          this._surveylist = this.$.surveyModel.all();
         },
 
         openContextDialog: function(event, detail, sender) {
           var surveyId = +sender.parentNode.getAttribute('surveyId');
-          this.viewModel.dialog.title = this.$.surveyModel.find(surveyId)['title'];
-          this.$.dialog.toggle();
+          this._dialog.survey = this.$.surveyModel.find(surveyId);
+
+          this.$.dialogContext.toggle();
           event.stopPropagation();
         },
 
@@ -116,6 +131,36 @@
 
         onAddSurveyTapped: function() {
           this.fire('core-signal', { name: 'switch-page', data: '/survey/new' });
+        },
+
+        onContextItemTapped: function(event, detail, sender) {
+          var itemDescr = sender.innerText;
+          var callbackName = this._dialog.context.contextList.filter(function(item) {
+            return item.name == itemDescr;
+          })[0].callback;
+          this[callbackName]();
+        },
+
+        onShowResults: function() {
+          // @todo to be implemented
+        },
+
+        onEdit: function() {
+          // @todo to be implemented
+        },
+
+        onDelete: function() {
+          this.$.dialogContext.toggle();
+          this.$.dialogConfirm.toggle();
+        },
+
+        onAbortDelete: function() {
+          this.$.dialogConfirm.toggle();
+        },
+
+        onDeleteSurvey: function() {
+          this.$.surveyModel.removeById(this._dialog.survey.id);
+          this.$.dialogConfirm.toggle();
         }
       });
 
