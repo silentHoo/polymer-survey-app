@@ -2,6 +2,7 @@
 
 <link rel="import" href="../../bower_components/core-icons/notification-icons.html">
 <link rel="import" href="../../bower_components/core-icons/image-icons.html">
+<link rel="import" href="../../bower_components/core-icons/maps-icons.html">
 <link rel="import" href="../../bower_components/core-menu/core-menu.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
@@ -10,6 +11,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-action-dialog.html">
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
 
 <link rel="import" href="../ivx-model/ivx-model.html">
 <link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
@@ -21,7 +23,7 @@
     <link rel="stylesheet" href="ivx-page-settings.css">
 
     <!-- non-visual dependencies -->
-    <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
+    <ivx-model id="settingModel" name="settings" storageType="localStorage"></ivx-model>
     <ivx-settings-controller id="settingsController"></ivx-settings-controller>
 
     <template if="{{ !_authorized }}">
@@ -87,6 +89,7 @@
         <div class="divider"></div>
       </div>
 
+      <!-- @todo refactor into own component -->
       <div class="listWrapper" layout vertical center>
         <div class="entry" layout horizontal>
           <core-icon icon="image:color-lens"></core-icon>
@@ -95,11 +98,53 @@
             <div class="descr">Wechselt die Farbdarstellung</div>
           </div>
           <div class="actionWrapper">
-            <paper-dropdown-menu label="Theme" on-core-select="{{ onSelectTheme }}">
+            <paper-dropdown-menu label="Theme" on-core-select="{{ onSelect }}">
               <paper-dropdown class="dropdown" halign="right" valign="bottom">
                 <core-menu class="menu" selected="{{ _selectedThemeIndex }}">
                   <template repeat="{{ t in _themes }}">
-                    <paper-item>[[ t ]]</paper-item>
+                    <paper-item data-name="activeTheme">[[ t ]]</paper-item>
+                  </template>
+                </core-menu>
+              </paper-dropdown>
+            </paper-dropdown-menu>
+          </div>
+        </div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="maps:navigation"></core-icon>
+          <div class="textWrapper">
+            <div class="title">Pager-Navigation</div>
+            <div class="descr">Wechselt die Navigation</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-dropdown-menu label="Navigation" on-core-select="{{ onSelect }}">
+              <paper-dropdown class="dropdown" halign="right" valign="bottom">
+                <core-menu class="menu" selected="{{ _selectedNavigationIndex }}">
+                  <template repeat="{{ t in _navigations }}">
+                    <paper-item data-name="navigationMode">[[ t ]]</paper-item>
+                  </template>
+                </core-menu>
+              </paper-dropdown>
+            </paper-dropdown-menu>
+          </div>
+        </div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="sort"></core-icon>
+          <div class="textWrapper">
+            <div class="title">Pager-Sortierung</div>
+            <div class="descr">Sortiert die Seiten anhand ihrer Fragen</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-dropdown-menu label="Navigation" on-core-select="{{ onSelect }}">
+              <paper-dropdown class="dropdown" halign="right" valign="bottom">
+                <core-menu class="menu" selected="{{ _selectedSortIndex }}">
+                  <template repeat="{{ t in _sortModes }}">
+                    <paper-item data-name="sortMode">[[ t ]]</paper-item>
                   </template>
                 </core-menu>
               </paper-dropdown>
@@ -159,6 +204,7 @@
         _newPassword1: '',
         _newPassword2: '',
         _selectedThemeIndex: 0,
+        _selectedNavigationIndex: 0,
         _themes: [],
 
         _shortVibrate: 200,
@@ -179,16 +225,29 @@
         _restoreState: function() {
           this._authorized = this._model.attr('authorized');
           this._activeTheme = this._model.attr('activeTheme');
+          this._navigationMode = this._model.attr('navigationMode');
           this._vibration = this._model.attr('vibration');
           this._themes = [
             'Curacao',
             'Ruby'
+          ];
+          this._navigations = [
+            'Fab',
+            'Bar'
+          ];
+          this._sortModes = [
+            'aufsteigend',
+            'absteigend'
           ];
 
           // find out which index is the activeTheme (lowercase saved!)
           this._selectedThemeIndex = this._themes.map(function(val, i) {
             return val.toLowerCase();
           }).indexOf(this._activeTheme);
+
+          this._selectedNavigationIndex = this._navigations.map(function(val, i) {
+            return val.toLowerCase();
+          }).indexOf(this._navigationMode);
         },
 
         onAuthorized: function() {
@@ -269,10 +328,15 @@
           this._oldPassword = this._newPassword1 = this._newPassword2 = '';
         },
 
-        onSelectTheme: function(event, detail, sender) {
-          var themeName = detail.item.innerText.toLowerCase();
-          this._model.attr('activeTheme', themeName).save();
-          this._controller.setTheme(themeName);
+        onSelect: function(event, detail, sender) {
+          var attrName = detail.item.getAttribute('data-name');
+          var attrValue = detail.item.innerText.toLowerCase();
+          this._setAttr(attrName, attrValue);
+        },
+
+        _setAttr: function(attr, value) {
+          this._model.attr(attr, value).save();
+          this.fire('core-signal', {name: 'settings-changed', data: { attrName: attr, attrValue: value }});
         }
       });
     })();
