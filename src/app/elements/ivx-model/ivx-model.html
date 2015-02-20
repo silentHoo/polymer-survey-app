@@ -128,7 +128,11 @@ You can listen to it by using
         },
 
         add: function(keyValueFields) {
-          this.model.add(new models[this.storageType][this.name](keyValueFields));
+          if (keyValueFields.id === undefined) {
+            keyValueFields.id = this.model.all().length + 1;
+          }
+          var record = new this.model(keyValueFields);
+          record.save();
         },
 
         /**
@@ -212,12 +216,17 @@ You can listen to it by using
           return this.model.map(func);
         },
 
-        new: function(attributes) {
+        create: function(attributes) {
           return new this.model(attributes);
         },
 
         remove: function(model) {
           this.model.remove(model);
+        },
+
+        removeById: function(id) {
+          this.model.find(id).destroy();
+          this._makeSignal();
         },
 
         reverse: function() {
@@ -254,9 +263,13 @@ You can listen to it by using
             survey[index].save();
           }, this);
 
+          this._makeSignal();
+        },
+
+        _makeSignal: function() {
           // publish via core-signals
-          // use <core-signals on-core-signal-model-changed="{{ onModelChanges }}">
-          this.fire('core-signal', {name: this.name + '-changed', data: survey});
+          // use: <core-signals on-core-signal-model-changed="{{ onModelChanges }}">
+          this.fire('core-signal', {name: this.name + '-changed', data: {}});
         }
       });
 
