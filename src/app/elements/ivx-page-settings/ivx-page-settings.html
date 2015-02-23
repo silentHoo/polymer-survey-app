@@ -102,7 +102,7 @@
               <paper-dropdown class="dropdown" halign="right" valign="bottom">
                 <core-menu class="menu" selected="{{ _selectedThemeIndex }}">
                   <template repeat="{{ t in _themes }}">
-                    <paper-item data-name="activeTheme">[[ t ]]</paper-item>
+                    <paper-item data-name="theme" data-section="app" data-keyName="{{ t.keyName }}">[[ t.humanName ]]</paper-item>
                   </template>
                 </core-menu>
               </paper-dropdown>
@@ -115,7 +115,7 @@
         <div class="entry" layout horizontal>
           <core-icon icon="maps:navigation"></core-icon>
           <div class="textWrapper">
-            <div class="title">Pager-Navigation</div>
+            <div class="title">Pager: Navigation</div>
             <div class="descr">Wechselt die Navigation</div>
           </div>
           <div class="actionWrapper">
@@ -123,7 +123,7 @@
               <paper-dropdown class="dropdown" halign="right" valign="bottom">
                 <core-menu class="menu" selected="{{ _selectedNavigationIndex }}">
                   <template repeat="{{ t in _navigations }}">
-                    <paper-item data-name="navigationMode">[[ t ]]</paper-item>
+                    <paper-item data-name="navigation" data-section="pager" data-keyName="{{ t.keyName }}">[[ t.humanName ]]</paper-item>
                   </template>
                 </core-menu>
               </paper-dropdown>
@@ -136,15 +136,15 @@
         <div class="entry" layout horizontal>
           <core-icon icon="sort"></core-icon>
           <div class="textWrapper">
-            <div class="title">Pager-Sortierung</div>
-            <div class="descr">Sortiert die Seiten anhand ihrer Fragen</div>
+            <div class="title">Pager: Sortierung</div>
+            <div class="descr">Sortiert die Seiten anhand ihrer Titel</div>
           </div>
           <div class="actionWrapper">
-            <paper-dropdown-menu label="Navigation" on-core-select="{{ onSelect }}">
+            <paper-dropdown-menu label="Sortierung" on-core-select="{{ onSelect }}">
               <paper-dropdown class="dropdown" halign="right" valign="bottom">
                 <core-menu class="menu" selected="{{ _selectedSortIndex }}">
-                  <template repeat="{{ t in _sortModes }}">
-                    <paper-item data-name="sortMode">[[ t ]]</paper-item>
+                  <template repeat="{{ t in _sortings }}">
+                    <paper-item data-name="sort" data-section="pager" data-keyName="{{ t.keyName }}">[[ t.humanName ]]</paper-item>
                   </template>
                 </core-menu>
               </paper-dropdown>
@@ -192,112 +192,181 @@
       'use strict';
 
       Polymer({
-        _model: null,
-
-        // model abstraction variables to use databinding
         _authorized: false,
-        _activeTheme: '',
-        _vibration: {},
+
+        _shortVibrate: 0,
+        _longVibrate: 0,
+        _vibration: {
+          active: false,
+          short: false,
+          long: false
+        },
+
+        // select #1
+        _themes: [],
+        _theme: '',
+        _selectedThemeIndex: -1,
+
+        // select #2
+        _navigations: [],
+        _navigation: '',
+        _selectedNavigationIndex: -1,
+
+        // select #3
+        _sortings: [],
+        _sorting: '',
+        _selectedSortIndex: -1,
 
         // ui page variables only
         _oldPassword: '',
         _newPassword1: '',
         _newPassword2: '',
-        _selectedThemeIndex: 0,
-        _selectedNavigationIndex: 0,
-        _themes: [],
 
-        _shortVibrate: 200,
-        _longVibrate: 400,
+        _controller: null,
+        _config: null,
+        _defaults: null,
 
         observe: {
-          '_vibration.active': 'persistVibrationChange',
-          '_vibration.short': 'persistVibrationChange',
-          '_vibration.long': 'persistVibrationChange'
+          '_authorized': '_onAuthorizedChanged',
+          '_vibration.active': '_onVibrationActiveChanged',
+          '_vibration.short': '_onVibrationShortChanged',
+          '_vibration.long': '_onVibrationLongChanged'
         },
 
         domReady: function() {
-          this._model = this.$.settingModel.first();
           this._controller = this.$.settingsController;
+          this._config = this._controller.getConfig();
+          this._defaults = this._controller.getDefaults();
+
           this._restoreState();
         },
 
         _restoreState: function() {
-          this._authorized = this._model.attr('authorized');
-          this._activeTheme = this._model.attr('activeTheme');
-          this._navigationMode = this._model.attr('navigationMode');
-          this._vibration = this._model.attr('vibration');
-          this._themes = [
-            'Curacao',
-            'Ruby'
-          ];
-          this._navigations = [
-            'Fab',
-            'Bar'
-          ];
-          this._sortModes = [
-            'aufsteigend',
-            'absteigend'
-          ];
+          // defaults
+          this._shortVibrate = this._defaults.app.vibration.values[0].short;
+          this._longVibrate = this._defaults.app.vibration.values[1].long;
 
-          // find out which index is the activeTheme (lowercase saved!)
-          this._selectedThemeIndex = this._themes.map(function(val, i) {
-            return val.toLowerCase();
-          }).indexOf(this._activeTheme);
+          // persisted config values
+          this._vibration.active = this._config.app.vibration != 0;
+          this._vibration.short  = this._config.app.vibration == this._defaults.app.vibration.values[0].short;
+          this._vibration.long   = this._config.app.vibration == this._defaults.app.vibration.values[1].long;
 
-          this._selectedNavigationIndex = this._navigations.map(function(val, i) {
-            return val.toLowerCase();
-          }).indexOf(this._navigationMode);
+          /* @todo refactor to something like this:
+          ['app.theme', 'app.pager.navigation', 'app.pager.sort'].forEach(function(objectToSelect) {
+            console.log(objectToSelect);
+          });
+          */
+          this._theme = this._config.app.theme;
+          this._themes = this._defaults.app.theme.values.map(this._getPropertyValues);
+          this._selectedThemeIndex = this._defaults.app.theme.values.map(this._getPropertyIndexes).indexOf(this._theme);
+
+          this._navigation = this._config.pager.navigation;
+          this._navigations = this._defaults.pager.navigation.values.map(this._getPropertyValues);
+          this._selectedNavigationIndex = this._defaults.pager.navigation.values.map(this._getPropertyIndexes).indexOf(this._navigation);
+
+          this._sorting = this._config.pager.sort;
+          this._sortings = this._defaults.pager.sort.values.map(this._getPropertyValues);
+          this._selectedSortIndex = this._defaults.pager.sort.values.map(this._getPropertyIndexes).indexOf(this._sorting);
+        },
+
+        _getPropertyValues: function(valueObject, i) {
+          var values = [];
+          for (var prop in valueObject) {
+            values['keyName'] = prop;
+            values['humanName'] = valueObject[prop];
+          }
+          return values;
+        },
+
+        _getPropertyIndexes: function(valueObject, i) {
+          var values = [];
+          for (var prop in valueObject) {
+            values.push(prop);
+          }
+          return values[0];
+        },
+
+        _makeSignal: function(property) {
+          function index(obj,i) { return obj[i] };
+          this.fire('core-signal', {
+            name: 'settings-changed',
+            data: {
+              propName: property,
+              propValue: property.split('.').reduce(index, this._config), // get the value of the string
+                                                                          // given property path
+              config: this._config
+            }
+          });
         },
 
         onAuthorized: function() {
           this._authorized = true;
         },
 
-        onVibrationToggle: function() {
-          this._vibration.active = this.shadowRoot.querySelector('#vibrationEnable').checked;
+        // separates the UI state via observers from the internal config state
+        _onAuthorizedChanged: function(oldValue, newValue) {
+          this._config.app.authorized = newValue;
+          this._makeSignal('app.authorized');
+        },
+
+        onVibrationToggle: function(event, detail, sender) {
+          this._vibration.active = sender.checked;
+
           if (!this._vibration.active) {
             this._vibration.short = this._vibration.long = false;
           }
         },
 
-        onVibrationShortToggle: function() {
-          this._vibration.short = this.shadowRoot.querySelector('#vibrationShort').checked;
+        onVibrationShortToggle: function(event, detail, sender) {
+          if (!this._vibration.active) return;
+          this._vibration.short = sender.checked;
+
           if (this._vibration.short) {
-            this._setVibrationDuration(this._shortVibrate);
             this._vibration.long = false;
           }
         },
 
-        onVibrationLongToggle: function() {
-          this._vibration.long = this.shadowRoot.querySelector('#vibrationLong').checked;
+        // separates the UI state via observers from the internal config state
+        _onVibrationShortChanged: function(oldValue, newValue) {
+          if (newValue != true) return;
+          this._config.app.vibration = this._defaults.app.vibration.values[0].short;
+          this._makeSignal('app.vibration');
+        },
+
+        onVibrationLongToggle: function(event, detail, sender) {
+          if (!this._vibration.active) return;
+          this._vibration.long = sender.checked;
           if (this._vibration.long) {
-            this._setVibrationDuration(this._longVibrate);
             this._vibration.short = false;
           }
         },
 
-        _setVibrationDuration: function(duration) {
-          // set duration
-          var vibration = this._model.attr('vibration');
-          vibration.duration = duration;
-          this._model.attr('vibration', vibration);
-          this._model.save();
-
-          // vibrate via API
-          window.navigator.vibrate(duration);
+        // separates the UI state via observers from the internal config state
+        _onVibrationLongChanged: function(oldValue, newValue) {
+          if (newValue != true) return;
+          this._config.app.vibration = this._defaults.app.vibration.values[1].long;
+          this._makeSignal('app.vibration');
         },
 
-        persistVibrationChange: function() {
-          this._model.attr('vibration', this._vibration).save();
-
-          if (this._model.attr('vibration').active) {
-            this._controller.addEventHandler();
-          } else {
-            this._controller.removeEventHandler();
-          }
+        // separates the UI state via observers from the internal config state
+        _onVibrationActiveChanged: function(oldValue, newValue) {
+          if (newValue == true) return;
+          this._config.app.vibration = this._defaults.app.vibration.default;
+          this._makeSignal('app.vibration');
         },
 
+        onSelect: function(event, detail, sender) {
+          // get name and section
+          var sectName = detail.item.getAttribute('data-section');
+          var attrName = detail.item.getAttribute('data-name');
+          var keyName  = detail.item.getAttribute('data-keyName');
+
+          // make signal and let save
+          this._config[sectName][attrName] = keyName;
+          this._makeSignal(sectName + '.' + attrName);
+        },
+
+        // @todo refactor into own component for below source code
         onPasswordChange: function() {
           this.shadowRoot.querySelector('#passwordDialog').toggle();
         },
@@ -307,7 +376,7 @@
         },
 
         onPasswordDialogSave: function() {
-          if (this._model.attr('pin') != this._oldPassword) {
+          if (this._config.app.adminPin != this._oldPassword) {
             this.fire('core-signal', { name: 'show-toast', data: 'Die alte PIN ist nicht korrekt.' });
             return;
           }
@@ -322,21 +391,12 @@
             return;
           }
 
-          this._model.attr('pin', this._newPassword1).save();
+          this._config.app.adminPin = this._newPassword1;
+          this._makeSignal('app.adminPin');
+
           this.shadowRoot.querySelector('#passwordDialog').toggle();
           this.fire('core-signal', { name: 'show-toast', data: 'Die PIN wurde erfolgreich geändert.' });
           this._oldPassword = this._newPassword1 = this._newPassword2 = '';
-        },
-
-        onSelect: function(event, detail, sender) {
-          var attrName = detail.item.getAttribute('data-name');
-          var attrValue = detail.item.innerText.toLowerCase();
-          this._setAttr(attrName, attrValue);
-        },
-
-        _setAttr: function(attr, value) {
-          this._model.attr(attr, value).save();
-          this.fire('core-signal', {name: 'settings-changed', data: { attrName: attr, attrValue: value }});
         }
       });
     })();

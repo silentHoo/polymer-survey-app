@@ -12,75 +12,53 @@
     (function () {
       'use strict';
 
-      var _shadowRoot, _buttons = null;
       var _initialized = false;
-      var _eventHandlerAdded = false;
-      var _eventFunc = null;
-
-      // returns a list with all relevant and potential buttons currently inserted into the DOM
-      var _getButtons = function() {
-        return document.querySelectorAll(
-          '* /deep/ paper-fab,' +
-          '* /deep/ paper-button,' +
-          '* /deep/ paper-checkbox,' +
-          '* /deep/ paper-dropdown,' +
-          '* /deep/ paper-dropdown-menu,' +
-          '* /deep/ paper-fab,' +
-          '* /deep/ paper-icon-button,' +
-          '* /deep/ paper-item,' +
-          '* /deep/ paper-tab,' +
-          '* /deep/ paper-radio-button,' +
-          '* /deep/ paper-toggle-button');
-      };
-
-      var _onTapButton = function(settingModel) {
-        var duration = settingModel.attr('vibration').duration;
-        window.navigator.vibrate(duration);
-      };
 
       Polymer({
         _model: null,
 
         domReady: function() {
-          _shadowRoot = this.shadowRoot;
-
           if (this.$.settingModel.all().length == 0) {
             this._seedModel();
           }
           this._model = this.$.settingModel.first();
-
-          // only setup eventfunc if not already set
-          if (_eventFunc === null) {
-            _eventFunc = _onTapButton.bind(this, this._model);
-          }
-          this._setup();
+          this._applyConfig();
         },
 
         _seedModel: function() {
-          var model = this.$.settingModel.create({
-            pin: '1234',
-            authorized: false,
-            activeTheme: 'curacao',
-            vibration: {
-              active: false,
-              long: false,
-              short: false,
-              duration: 0
-            },
-            navigationMode: 'fab'
-          });
+          var config = this.getDefaults();
+
+          var modelSeed = {};
+          for (var componentName in config) {
+            var component = config[componentName];
+
+            for (var attributeName in component) {
+              var attribute = component[attributeName];
+
+              if (!modelSeed[componentName]) modelSeed[componentName] = {};
+              // set default values for attributes (if array `values` is set)
+              if (Array.isArray(attribute.values)) {
+                attribute.values.forEach(function (value) {
+                  modelSeed[componentName][attributeName] = config[componentName][attributeName].default;
+                }, this);
+              } else {
+                modelSeed[componentName][attributeName] = config[componentName][attributeName].default;
+              }
+            }
+          }
+
+          var model = this.$.settingModel.create(modelSeed);
           model.save();
         },
 
-        _setup: function() {
+        _applyConfig: function() {
           if (!_initialized) {
             _initialized = true;
-            var themeName = this._model.attr('activeTheme');
-            this._setTheme(themeName);
+            this._setTheme(this._model.attributes.app.theme);
 
-            var vibrationActive = this._model.attr('vibration').active;
+            var vibrationActive = this._model.attributes.app.vibration != 0;
             if (vibrationActive) {
-              this.addEventHandler();
+              this.fire('core-signal', { name: 'config-vibration-enabled', data: { duration: this._model.attributes.app.vibration } });
             }
           }
         },
@@ -93,31 +71,64 @@
           return this.$.settingModel.first().attributes;
         },
 
-        addEventHandler: function() {
-          if (_eventHandlerAdded) {
-            return;
-          }
-          _eventHandlerAdded = true;
+        getDefaults: function() {
+          var config = {
+            pager: {                // custom element / section
+              navigation: {         // public attribute
+                values: [           // user can choose from
+                  {'fab': 'Fab'},
+                  {'bar': 'Bar'}
+                ],
+                default: 'fab'     // if nothing is set, this is the default
+              },
+              sort: {
+                values: [
+                  {'none': 'keine'},
+                  {'asc': 'aufsteigend'},
+                  {'desc': 'absteigend'}
+                ],
+                default: 'none'
+              }
+            },
+            app: {
+              adminPin: {
+                values: 'string',   // value is of type string
+                default: '1234'
+              },
+              authorized: {
+                values: 'bool',
+                default: false
+              },
+              theme: {
+                values: [
+                  { 'curacao': 'Curacao' },
+                  { 'ruby': 'Ruby' }
+                ],
+                default: 'curacao'
+              },
+              vibration: {
+                values: [
+                  { 'short': 200 },
+                  { 'long': 400 }
+                ],
+                default: 0
+              }
+            }
+          };
 
-          _buttons = _getButtons();
-          for (var i = 0; i < _buttons.length; i++) {
-            _buttons[i].addEventListener('tap', _eventFunc);
-          }
-        },
-
-        removeEventHandler: function() {
-          if (_buttons == null) {
-            return;
-          }
-
-          for (var i = 0; i < _buttons.length; i++) {
-            _buttons[i].removeEventListener('tap', _eventFunc);
-          }
-          _eventHandlerAdded = false;
+          return config;
         },
 
         onSettingsModelChanged: function(event, detail, sender) {
-          if (detail.attrName == 'activeTheme') this._setTheme(detail.attrValue);
+          if (this._model) {
+            // @todo only save the destination property here and not the whole config!
+            this._model.attr(detail.config).save();
+          }
+
+          // set theme
+          if (detail.propName == 'app.theme') this._setTheme(detail.propValue);
+
+          // do some more stuff here ...
         }
       });
     })();
