@@ -216,6 +216,7 @@ html /deep/ {
       border-bottom: 1px $color12 solid !important;
     }
   }
+
 /*
   ivx-qtype-rank::shadow {
     item {
@@ -241,6 +242,17 @@ html /deep/ {
       background-color: yellow;
     }
   }*/
+}
+
+// context dialog: action buttons
+html /deep/ ivx-dialog-context {
+  #doneButton {
+    background-color: red;
+  }
+
+  #abortButton {
+    background-color: green;
+  }
 }
 
 /* This is the avatar container to use when this pull-request will not be accepted:

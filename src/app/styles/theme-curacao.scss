@@ -193,6 +193,17 @@ html /deep/ {
   }
 }
 
+// context dialog: action buttons
+html /deep/ ivx-dialog-context {
+  #doneButton {
+    background-color: red;
+  }
+
+  #abortButton {
+    background-color: green;
+  }
+}
+
 /* This is the avatar container to use when this pull-request will not be accepted:
    https://github.com/Polymer/core-drag-drop/pull/12 */
 /*core-drag-avatar item {
