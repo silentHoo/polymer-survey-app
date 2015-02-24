@@ -42,9 +42,9 @@ Example:
     </div>
 
     <!-- the progress of the current page -->
-    <tempalte if="{{ showProgress }}">
+    <template if="{{ showProgress }}">
       <paper-progress min="0" max="{{ pageCount - 1 }}" value="{{ currentPage }}"></paper-progress>
-    </tempalte>
+    </template>
 
     <!-- navigation = fab: fab buttons to switch between the pages -->
     <template if="{{ navigationVisible && navigation == 'fab' }}">
