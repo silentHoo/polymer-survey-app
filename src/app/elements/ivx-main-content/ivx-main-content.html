@@ -33,44 +33,44 @@ Example:
     <core-signals on-core-signal-switch-page="{{ onPageSwitch }}"></core-signals>
 
     <!-- history support? -->
-    <app-router id="router" mode="auto" on-activate-route-end="{{ onPageHasSwitched }}">
-      <app-route path="/">
+    <app-router id="router" mode="auto" on-activate-route-end="{{ onPageSwitched }}">
+      <app-route path="/" data-title="UmfrageApp">
         <template>
           <ivx-page-welcome fit></ivx-page-welcome>
         </template>
       </app-route>
 
-      <app-route path="/surveys">
+      <app-route path="/surveys" data-title="Liste der Umfragen">
         <template>
           <ivx-page-surveylist fit></ivx-page-surveylist>
         </template>
       </app-route>
 
-      <app-route path="/authorize">
+      <app-route path="/authorize" data-title="Authentifizierung">
         <template>
           <ivx-page-authorize fit></ivx-page-authorize>
         </template>
       </app-route>
 
-      <app-route path="/survey/new">
+      <app-route path="/survey/new" data-title="Neue Umfrage erstellen">
         <template>
           <ivx-page-survey-new fit></ivx-page-survey-new>
         </template>
       </app-route>
 
-      <app-route path="/survey/:id">
+      <app-route path="/survey/:id" data-title="{{ _surveyTitle }}">
         <template>
-          <ivx-page-survey surveyId="{{ id }}" fit></ivx-page-survey>
+          <ivx-page-survey id="surveyPage" surveyId="{{ id }}" fit></ivx-page-survey>
         </template>
       </app-route>
 
-      <app-route path="/settings">
+      <app-route path="/settings" data-title="Einstellungen">
         <template>
           <ivx-page-settings fit></ivx-page-settings>
         </template>
       </app-route>
 
-      <app-route path="/component-tiles">
+      <app-route path="/component-tiles" data-title="Kachelansicht">
         <template>
           <ivx-page-component-tiles fit></ivx-page-component-tiles>
         </template>
@@ -96,11 +96,27 @@ Example:
           uriToShow: '/'
         },
 
+        _surveyTitle: '',
+
         // as this is the content area, this method reacts on attribute changes of the uri
         uriToShowChanged: function(oldVal, newVal) {
           if (newVal != '') {
             this.$.router.go(newVal);
           }
+        },
+
+        onPageSwitched: function(event, detail, sender) {
+
+          this.job('wait for template insertion of app-route', function() {
+            var surveyPage = this.shadowRoot.querySelector('#surveyPage');
+            if (surveyPage) {
+              this._surveyTitle = this.shadowRoot.querySelector('#surveyPage').surveyTitle;
+            }
+
+            this.job('wait for data-binding bound back', function() {
+              this.fire('page-changed', {title: detail.route.getAttribute('data-title')});
+            });
+          });
         },
 
         onPageSwitch: function(event, page, sender) {

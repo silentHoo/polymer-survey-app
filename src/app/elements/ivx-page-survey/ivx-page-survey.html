@@ -18,7 +18,7 @@ Example:
 @element ivx-page-survey
 @homepage inovex.de
 -->
-<polymer-element name="ivx-page-survey" attributes="surveyId">
+<polymer-element name="ivx-page-survey" attributes="surveyId surveyTitle">
   <template>
     <link rel="stylesheet" href="ivx-page-survey.css">
 
@@ -34,7 +34,8 @@ Example:
 
       Polymer({
         publish: {
-          surveyId: -1
+          surveyId: -1,
+          surveyTitle: { value: '', reflect: true } // reflects the value back to the attribute
         },
 
         _survey: {},
@@ -61,6 +62,7 @@ Example:
         // polymer callback
         surveyIdChanged: function() {
           this._survey = this.Survey.find(this.surveyId);
+          this.surveyTitle = this._survey.attributes.title;
           this._buildSurvey();
         },
 

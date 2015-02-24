@@ -57,7 +57,7 @@ Example:
         </core-toolbar>
 
         <div class="content" fit>
-          <ivx-main-content id="mainContent" fit></ivx-main-content>
+          <ivx-main-content id="mainContent" fit on-page-changed="{{ _setToolbarTitle }}"></ivx-main-content>
         </div>
 
       </core-header-panel>
@@ -110,7 +110,7 @@ Example:
           name: 'Über'
         }],
 
-        toolbarTitle: 'UmfrageApp',
+        _toolbarTitle: 'UmfrageApp',
 
         // callback to load the dummy questions
         // @todo remove in production
@@ -150,6 +150,10 @@ Example:
             this.$.toast.text = detail;
             this.$.toast.show();
           });
+        },
+
+        _setToolbarTitle: function(event, detail, sender) {
+          this._toolbarTitle = detail.title;
         }
       });
 
