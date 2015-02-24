@@ -40,12 +40,9 @@ Example:
 
         _survey: {},
         _pages: '',
-        _navigationMode: '',
 
         // polymer callback
         ready: function() {
-          this._navigationMode = this.$.settingsController.getConfig().pager.navigation;
-
           // the declarative way to use the model abstraction layer
           this.Survey = Model('survey', function() {
             this.persistence(Model.localStorage);
@@ -81,7 +78,16 @@ Example:
                     '</page>';
           }, this);
 
-          this.$.pages.innerHTML = '<ivx-pager id="pager" navigation="' + this._navigationMode + '">' + html + '</ivx-pager>';
+          var navMode = this.$.settingsController.getConfig().pager.navigation;
+          var sortMode = this.$.settingsController.getConfig().pager.sort;
+
+          // @todo remove in production, this is just a workaround
+          if (sortMode != 'none') {
+            sortMode = 'ivx-question-layouter.question:' + sortMode;
+          }
+
+          this.$.pages.innerHTML = '<ivx-pager id="pager" navigation="' + navMode + '"' +
+                                     'sort="' + sortMode + '">' + html + '</ivx-pager>';
           this._addPagerEventHandler();
         },
 
