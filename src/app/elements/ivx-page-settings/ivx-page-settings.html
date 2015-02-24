@@ -193,7 +193,6 @@
 
       Polymer({
         _authorized: false,
-
         _shortVibrate: 0,
         _longVibrate: 0,
         _vibration: {
@@ -233,10 +232,13 @@
           '_vibration.long': '_onVibrationLongChanged'
         },
 
-        domReady: function() {
+        ready: function() {
           this._controller = this.$.settingsController;
           this._config = this._controller.getConfig();
           this._defaults = this._controller.getDefaults();
+          this._authorized = this._config.app.authorized;   // if we set this here and not in domReady we can avoid
+                                                            // that the ivx-simple-authorize is shown for a tiny amount
+                                                            // of time.
 
           this._restoreState();
         },
