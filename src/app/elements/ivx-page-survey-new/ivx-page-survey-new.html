@@ -32,7 +32,7 @@
         _navigationMode: '',
 
         domReady: function() {
-          this._navigationMode = this.$.settingsController.getConfig()['navigationMode'];
+          this._navigationMode = this.$.settingsController.getConfig().pager.navigation;
         },
 
         onSave: function() {

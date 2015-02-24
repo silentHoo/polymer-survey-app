@@ -43,16 +43,14 @@ Example:
 
         // polymer callback
         ready: function() {
+          this._navigationMode = this.$.settingsController.getConfig().pager.navigation;
+
           // the declarative way to use the model abstraction layer
           this.Survey = Model('survey', function() {
             this.persistence(Model.localStorage);
           });
 
           this.Survey.load();
-        },
-
-        domReady: function() {
-          this._navigationMode = this.$.settingsController.getConfig()['navigationMode'];
         },
 
         // polymer callback
@@ -101,8 +99,8 @@ Example:
 
         // eventhandler for `done`
         _pagerDoneHandler: function(event, detail, sender) {
-          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
           this.fire('core-signal', { name: 'show-toast', data: '@todo Speichern' });
+          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
         },
 
         // eventhandler for `abort`
