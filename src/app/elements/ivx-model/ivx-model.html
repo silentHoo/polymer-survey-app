@@ -35,26 +35,53 @@ You can listen to it by using
 
       // some dummy question objects to seed the storage with
       var dummys = [{
-        title: 'Marktanalyse zum Thema Schokolade',
-        questionCount: 20
+        title: 'Beispielumfrage A',
+        questionCount: 3,
+        questions:[{
+          title: 'Frage #1',
+          html: '<ivx-qtype-rank>' +
+          '  <item>B</item>' +
+          '  <item>C</item>' +
+          '  <item>A</item>' +
+          '</ivx-qtype-rank>'
+        }, {
+          title: 'Frage #2',
+          html: '<ivx-qtype-likert mode="slide" preselectedColumn="1">' +
+          '  <col-item>text text</col-item>' +
+          '  <col-item>text text</col-item>' +
+          '  <col-item>text text</col-item>' +
+          '  <row-item>text text</row-item>' +
+          '  <row-item>text text</row-item>' +
+          '  <row-item>text text</row-item>' +
+          '</ivx-qtype-likert>'
+        }, {
+          title: 'Frage #3',
+          html: '<ivx-qtype-yesno></ivx-qtype-yesno>'
+        }]
       }, {
-        title: 'Kundenzufriedenheit Q4 2014',
-        questionCount: 11
-      }, {
-        title: 'Einkaufverhalten 18-25 jähriger 12/2014',
-        questionCount: 42
-      }, {
-        title: 'Mitarbeiterzufriedenheit 2014',
-        questionCount: 8
-      }, {
-        title: 'Designumfrage zum Thema IX-234',
-        questionCount: 65
-      }, {
-        title: 'Fussballkonsum während der WM, Marktanalyse',
-        questionCount: 23
-      }, {
-        title: 'Monatliche Ausgaben 30-50 jähriger Q4/2014',
-        questionCount: 11
+        title: 'Beispielumfrage B',
+        questionCount: 2,
+        questions:[{
+          title: 'Frage #1',
+          html: '<ivx-qtype-yesno></ivx-qtype-yesno>'
+        }, {
+          title: 'Frage #2',
+          html: '<ivx-qtype-likert mode="matrix" preselectedColumn="2">' +
+          '  <col-item>text text</col-item>' +
+          '  <col-item>text text</col-item>' +
+          '  <col-item>text text</col-item>' +
+          '  <row-item>text text</row-item>' +
+          '  <row-item>text text</row-item>' +
+          '  <row-item>text text</row-item>' +
+          '</ivx-qtype-likert>'
+        }, {
+          title: 'Frage #3',
+          html: '<ivx-qtype-multiple-choice mode="single-answer">' +
+                '  <answer>text text</answer>' +
+                '  <answer>text text</answer>' +
+                '  <answer>text text</answer>' +
+                '</ivx-qtype-multiple-choice>'
+        }]
       }];
 
       Polymer({
@@ -257,7 +284,8 @@ You can listen to it by using
             survey[index] = new models[this.storageType][this.name]({
               id: index,
               title: el.title,
-              questionCount: el.questionCount
+              questionCount: el.questionCount,
+              questions: el.questions
             });
 
             survey[index].save();
