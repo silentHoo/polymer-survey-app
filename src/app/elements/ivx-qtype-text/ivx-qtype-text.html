@@ -11,7 +11,7 @@
       }
     </style>
 
-    <template if="{{ mode == 'single' }}">
+    <template if="{{ mode == 'single' }}" bind>
       <form>
         <paper-input-decorator
           id="inputDecorator"
@@ -29,7 +29,7 @@
       </form>
     </template>
 
-    <template if="{{ mode == 'multiple' }}">
+    <template if="{{ mode == 'multiple' }}" bind>
       <form>
         <paper-input-decorator label="{{ label }}" >
           <paper-autogrow-textarea maxRows="{{ maxRows }}">
@@ -70,12 +70,14 @@
         _regex: '',
         _error: '',
 
-        ready: function() {
+        domReady: function() {
           H5F.setup(this.querySelectorAll('form'));
 
+          var input = this.$.input;
           if (this.required) {
-            this.$.input.required = true; // data-binding doesnt work here, so we need to do it with JavaScript,
-                                          // only this will set the value to === true
+            input.required = true; // data-binding doesnt work here, so we need to do
+                                   // it with JavaScript, only this will set the
+                                   // value to === true
           }
 
           if (!_isInt(this.min) || !_isInt(this.max)) {
@@ -89,24 +91,24 @@
               break;
             case 'int':
               this._error = 'Bitte geben Sie eine Ganzzahl zwischen '+this.min+' und '+this.max+' ein.';
-              this.$.input.type = 'number';
-              this.$.input.min = this.min;
-              this.$.input.max = this.max;
+              input.type = 'number';
+              input.min = this.min;
+              input.max = this.max;
               break;
             case 'float':
               this._error = 'Bitte geben Sie eine Kommazahl ein.';
-              this.$.input.type = 'number';
-              this.$.input.min = 0;
-              this.$.input.max = this.max;
-              this.$.input.step = 'any';
+              input.type = 'number';
+              input.min = 0;
+              input.max = this.max;
+              input.step = 'any';
               break;
             case 'date':
               this._regex = '^(0[1-9]|1[0-9]|2[0-9]|3[01]).(0[1-9]|1[012]).[0-9]{4}$'; // dd.mm.YYYY
               this._error = 'Bitte geben Sie ein Datum ein.';
               break;
             case 'email':
-              this.$.input.type = 'email';
-              this.$.input.required = true
+              input.type = 'email';
+              input.required = true
               this._error = 'Bitte geben Sie eine E-Mail Adresse ein.';
               break;
             case 'postcode':
@@ -132,7 +134,7 @@
 
           // finally: set it
           if (this._regex != '') {
-            this.$.input.pattern = this._regex;
+            input.pattern = this._regex;
           }
         },
 
@@ -147,7 +149,7 @@
         getPublishMeta: function() {
           return {
             properties: {
-              mode: ['single-answer', 'multi-answer'],
+              mode: ['single', 'multi'],
               maxRows: 'int',
               required: ['true', 'false'],
               validationType: ['text', 'int', 'float', 'email', 'postcode'],
