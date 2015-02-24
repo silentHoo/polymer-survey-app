@@ -13,58 +13,108 @@
       'use strict';
 
       var _initialized = false;
+      var _currentTheme = '';
+      var _model = null;
 
-      Polymer({
-        _model: null,
+      var _setTheme = function(themeName) {
+        document.querySelector('#themeLink').href = 'styles/theme-' + themeName + '.css';
+      };
 
-        domReady: function() {
-          if (this.$.settingModel.all().length == 0) {
-            this._seedModel();
-          }
-          this._model = this.$.settingModel.first();
-          this._applyConfig();
-        },
-
-        _seedModel: function() {
-          var config = this.getDefaults();
-
-          var modelSeed = {};
-          for (var componentName in config) {
-            var component = config[componentName];
-
-            for (var attributeName in component) {
-              var attribute = component[attributeName];
-
-              if (!modelSeed[componentName]) modelSeed[componentName] = {};
-              // set default values for attributes (if array `values` is set)
-              if (Array.isArray(attribute.values)) {
-                attribute.values.forEach(function (value) {
-                  modelSeed[componentName][attributeName] = config[componentName][attributeName].default;
-                }, this);
-              } else {
-                modelSeed[componentName][attributeName] = config[componentName][attributeName].default;
-              }
+      var getDefaults = function() {
+        var config = {
+          pager: {                // custom element / section
+            navigation: {         // public attribute
+              values: [           // user can choose from
+                {'fab': 'Fab'},
+                {'bar': 'Bar'}
+              ],
+              default: 'fab'     // if nothing is set, this is the default
+            },
+            sort: {
+              values: [
+                {'none': 'keine'},
+                {'asc': 'aufsteigend'},
+                {'desc': 'absteigend'}
+              ],
+              default: 'none'
+            }
+          },
+          app: {
+            adminPin: {
+              values: 'string',   // value is of type string
+              default: '1234'
+            },
+            authorized: {
+              values: 'bool',
+              default: false
+            },
+            theme: {
+              values: [
+                { 'curacao': 'Curacao' },
+                { 'ruby': 'Ruby' }
+              ],
+              default: 'curacao'
+            },
+            vibration: {
+              values: [
+                { 'short': 200 },
+                { 'long': 400 }
+              ],
+              default: 0
             }
           }
+        };
 
-          var model = this.$.settingModel.create(modelSeed);
-          model.save();
+        return config;
+      };
+
+      var _generateSeedModel = function() {
+        var config = getDefaults();
+
+        var modelSeed = {};
+        for (var componentName in config) {
+          var component = config[componentName];
+
+          for (var attributeName in component) {
+            var attribute = component[attributeName];
+
+            if (!modelSeed[componentName]) modelSeed[componentName] = {};
+            // set default values for attributes (if array `values` is set)
+            if (Array.isArray(attribute.values)) {
+              attribute.values.forEach(function (value) {
+                modelSeed[componentName][attributeName] = config[componentName][attributeName].default;
+              }, this);
+            } else {
+              modelSeed[componentName][attributeName] = config[componentName][attributeName].default;
+            }
+          }
+        }
+
+        return modelSeed;
+      };
+
+      Polymer({
+        domReady: function() {
+          if (this.$.settingModel.all().length == 0) {
+            this.$.settingModel.create(_generateSeedModel()).save();
+          }
+
+          if (_model === null) {
+            _model = this.$.settingModel.first();
+          }
+          this._applyConfig();
         },
 
         _applyConfig: function() {
           if (!_initialized) {
             _initialized = true;
-            this._setTheme(this._model.attributes.app.theme);
+            _setTheme(_model.attributes.app.theme);
 
-            var vibrationActive = this._model.attributes.app.vibration != 0;
+            var vibrationActive = _model.attributes.app.vibration != 0;
             if (vibrationActive) {
-              this.fire('core-signal', { name: 'config-vibration-enabled', data: { duration: this._model.attributes.app.vibration } });
+              this.fire('core-signal', { name: 'config-vibration-enabled', data: { duration: _model.attributes.app.vibration } });
             }
           }
-        },
-
-        _setTheme: function(themeName) {
-          document.querySelector('#themeLink').href = 'styles/theme-' + themeName + '.css';
         },
 
         getConfig: function() {
@@ -72,63 +122,24 @@
         },
 
         getDefaults: function() {
-          var config = {
-            pager: {                // custom element / section
-              navigation: {         // public attribute
-                values: [           // user can choose from
-                  {'fab': 'Fab'},
-                  {'bar': 'Bar'}
-                ],
-                default: 'fab'     // if nothing is set, this is the default
-              },
-              sort: {
-                values: [
-                  {'none': 'keine'},
-                  {'asc': 'aufsteigend'},
-                  {'desc': 'absteigend'}
-                ],
-                default: 'none'
-              }
-            },
-            app: {
-              adminPin: {
-                values: 'string',   // value is of type string
-                default: '1234'
-              },
-              authorized: {
-                values: 'bool',
-                default: false
-              },
-              theme: {
-                values: [
-                  { 'curacao': 'Curacao' },
-                  { 'ruby': 'Ruby' }
-                ],
-                default: 'curacao'
-              },
-              vibration: {
-                values: [
-                  { 'short': 200 },
-                  { 'long': 400 }
-                ],
-                default: 0
-              }
-            }
-          };
-
-          return config;
+          return getDefaults();
         },
 
         onSettingsModelChanged: function(event, detail, sender) {
-          if (this._model) {
+          if (_model) {
             // @todo only save the destination property here and not the whole config!
-            this._model.attr(detail.config).save();
+            _model.attr(detail.config).save();
           }
 
           // set theme
-          if (detail.propName == 'app.theme') this._setTheme(detail.propValue);
+          if (detail.propName == 'app.theme') {
+            if (_currentTheme != detail.propValue) {
+              _currentTheme = detail.propValue;
+              _setTheme(_currentTheme);
+            }
+          }
 
-          // do some more stuff here ...
+          // do some other stuff here ...
         }
       });
     })();
