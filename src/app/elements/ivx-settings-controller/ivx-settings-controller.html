@@ -20,10 +20,6 @@
       var _currentTheme = '';
       var _model = null;
 
-      var _setTheme = function(themeName) {
-        document.querySelector('#themeLink').href = 'styles/theme-' + themeName + '.css';
-      };
-
       var getDefaults = function() {
         var config = {
           pager: {                // custom element / section
@@ -112,7 +108,7 @@
         _applyConfig: function() {
           if (!_initialized) {
             _initialized = true;
-            _setTheme(_model.attributes.app.theme);
+            this.fire('theme-changed', { themeName: _model.attributes.app.theme });
 
             var vibrationActive = _model.attributes.app.vibration != 0;
             if (vibrationActive) {
@@ -139,7 +135,9 @@
           if (detail.propName == 'app.theme') {
             if (_currentTheme != detail.propValue) {
               _currentTheme = detail.propValue;
-              _setTheme(_currentTheme);
+
+              // delegate to the document (scripts/app.js will handle it)
+              this.fire('theme-changed', { themeName: _currentTheme });
             }
           }
 
