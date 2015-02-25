@@ -1,22 +1,5 @@
+<!-- 3rd party dependecies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-
-<!-- mixins for shared functionality -->
-<link rel="import" href="../mixins-helper.html">
-<link rel="import" href="../mixins-core.html">
-<link rel="import" href="../mixins-audiovideo.html">
-
-<!--
-This component is a wrapper around the Web Audio API and provides a recording functionality with the used Audio
-Recorder developed by Matt Diamond (Recorder.js).
-
-This component gives basic functionality to record from a given `getUserMedia` stream and visualize the audio frequency
-with vertical bars. It's possible to adjust the gain level of the stream node. The visualizer will expand to the whole
-parent height and width and will show 32 frequency bars.
-
-@group Core Elements
-@element ivx-core-audio
-@homepage inovex.de
--->
 
 <!--
 Audio Recorder: Recorder.js
@@ -37,6 +20,24 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER I
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 <script src="../../bower_components/Recorderjs/recorder.js"></script>
+
+<!-- mixins for shared functionality -->
+<link rel="import" href="../mixins-helper.html">
+<link rel="import" href="../mixins-core.html">
+<link rel="import" href="../mixins-audiovideo.html">
+
+<!--
+This component is a wrapper around the Web Audio API and provides a recording functionality with the used Audio
+Recorder developed by Matt Diamond (Recorder.js).
+
+This component gives basic functionality to record from a given `getUserMedia` stream and visualize the audio frequency
+with vertical bars. It's possible to adjust the gain level of the stream node. The visualizer will expand to the whole
+parent height and width and will show 32 frequency bars.
+
+@group Core Elements
+@element ivx-core-audio
+@homepage inovex.de
+-->
 
 <polymer-element name="ivx-core-audio" constructor="IvxCoreAudio"
                  attributes="visualizeAudio initialGain gain barSpacing recorderWorkerFile">

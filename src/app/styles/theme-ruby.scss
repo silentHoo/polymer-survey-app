@@ -66,7 +66,7 @@ html /deep/ {
     clear: both;
   }
 
-  page paper-input {
+  one-page paper-input {
     width: 100%;
 
     &::shadow paper-input-decorator::shadow {
@@ -125,7 +125,7 @@ html /deep/ {
      but will also match the item in the avatar (this is when the item is dragged
      around). So we need only one style to get the same appearance.
    */
-  item {
+  rank-item {
     display: block;
     text-align: center;
     margin-bottom: 0.5rem;
@@ -219,17 +219,17 @@ html /deep/ {
 
 /*
   ivx-qtype-rank::shadow {
-    item {
+    rank-item {
       background-color: $color08;
       border: $color08;
     }
 
-    item.dragging {
+    rank-item.dragging {
       border: 1px red solid;
       background-color: yellow;
     }
 
-    item.dropped-source {
+    rank-item.dropped-source {
       // animations with keyframes don't work by now as of https://code.google.com/p/chromium/issues/detail?id=382498
       // we could use <core-animation> but this needs some more business logic when using themes:
       // view-source:https://www.polymer-project.org/components/core-animation/demo.html
@@ -238,7 +238,7 @@ html /deep/ {
       background-color: pink;
     }
 
-    item.dropped-target {
+    rank-item.dropped-target {
       background-color: yellow;
     }
   }*/

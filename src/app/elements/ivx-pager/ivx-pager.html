@@ -1,5 +1,5 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-
 <link rel="import" href="../../bower_components/core-animated-pages/core-animated-pages.html">
 <link rel="import" href="../../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../../bower_components/core-icon/core-icon.html">
@@ -7,6 +7,9 @@
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+
+<!-- own component childrens -->
+<link rel="import" href="one-page.html">
 
 <!--
 This component divides the provided content into pages and acts as a `<core-animated-pages>` wrapper. All configuration
@@ -22,9 +25,9 @@ The following features are additionally integrated within this component:
 Example:
 
     <ivx-pager navigation="bar" showProgress>
-      <page optional="true">
+      <one-page optional="true">
         ... Your page content here ...
-      </page>
+      </one-page>
     </ivx-pager>
 
 @group Question Type Survey Elements
@@ -38,7 +41,7 @@ Example:
 
     <!-- There is no possibility to prevent the rendering if we want to select the elements -->
     <div style="display: none;">
-      <content id="distributedContent" select="page"></content>
+      <content id="distributedContent" select="one-page"></content>
     </div>
 
     <!-- the progress of the current page -->

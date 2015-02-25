@@ -1,6 +1,8 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
 
+<!-- self-defined elements -->
 <link rel="import" href="../ivx-qtype-helper/ivx-qtype-helper.html">
 <link rel="import" href="../ivx-ticker/ivx-ticker.html">
 <link rel="import" href="../ivx-qtype-selection-matrix/ivx-qtype-selection-matrix.html">
@@ -15,8 +17,8 @@
     <!--  -> related: https://www.w3.org/Bugs/Public/show_bug.cgi?id=18429 -->
     <template if="[[ mode == 'slide' ]]">
       <div style="display: none;">
-        <content id="cols" select="col-item"></content>
-        <content id="rows" select="row-item"></content>
+        <content id="cols" select="div.col"></content>
+        <content id="rows" select="div.row"></content>
       </div>
     </template>
 
@@ -27,8 +29,8 @@
     <template id="matrixModeTemplate">
       <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="{{ preselectedColumn }}">
         <!-- beware when modify something: <content> is greedy, so don't use a selector twice! -->
-        <content select="col-item"></content>
-        <content select="row-item"></content>
+        <content select="div.col"></content>
+        <content select="div.row"></content>
       </ivx-qtype-selection-matrix>
     </template>
 
@@ -129,18 +131,18 @@
             insertionConstraints: {
               mode: {
                 slide: {
-                  'col-item': {
+                  'div class="col"': {
                     content: 'string'
                   },
-                  'row-item': {
+                  'div class="row"': {
                     content: 'string'
                   }
                 },
                 matrix: {
-                  'col-item': {
+                  'div class="col"': {
                     content: 'string'
                   },
-                  'row-item': {
+                  'div class="row"': {
                     content: 'string'
                   }
                 }

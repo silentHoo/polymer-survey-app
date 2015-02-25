@@ -1,3 +1,22 @@
+<!-- 3rd party dependecies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-icons/av-icons.html">
+<link rel="import" href="../../bower_components/core-icons/image-icons.html">
+<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-core-audio/ivx-core-audio.html">
+<link rel="import" href="../ivx-core-image/ivx-core-image.html">
+<link rel="import" href="../ivx-core-video/ivx-core-video.html">
+<link rel="import" href="../ivx-core-usermedia/ivx-core-usermedia.html">
+<link rel="import" href="../ivx-core-mediastreamtrack/ivx-core-mediastreamtrack.html">
+
+<!-- mixins for shared functionality -->
+<link rel="import" href="../mixins-helper.html">
+
 <!--
 `ivx-qtype-usermedia` can be used to record audio and video from the devices microphones and cameras. It uses only the
 standard APIs **Web Audio API** and **UserMedia API**. It also overlays the live video output with a audio visualization.
@@ -43,25 +62,6 @@ Example 3:
 @element ivx-qtype-usermedia
 @homepage inovex.de
 -->
-
-<!-- 3rd party dependecies -->
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/core-icons/av-icons.html">
-<link rel="import" href="../../bower_components/core-icons/image-icons.html">
-<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
-<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
-
-<!-- self-defined elements -->
-<link rel="import" href="../ivx-core-audio/ivx-core-audio.html">
-<link rel="import" href="../ivx-core-image/ivx-core-image.html">
-<link rel="import" href="../ivx-core-video/ivx-core-video.html">
-<link rel="import" href="../ivx-core-usermedia/ivx-core-usermedia.html">
-<link rel="import" href="../ivx-core-mediastreamtrack/ivx-core-mediastreamtrack.html">
-
-<!-- mixins for shared functionality -->
-<link rel="import" href="../mixins-helper.html">
 
 <polymer-element name="ivx-qtype-usermedia" extends="ivx-qtype-base" attributes="mode visualizeAudio">
   <template>

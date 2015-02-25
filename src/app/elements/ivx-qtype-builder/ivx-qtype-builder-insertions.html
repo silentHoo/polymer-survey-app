@@ -1,5 +1,7 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<!-- base class -->
 <link rel="import" href="ivx-qtype-builder-base.html">
 
 <polymer-element name="ivx-qtype-builder-insertions" extends="ivx-qtype-builder-base" attributes="">
@@ -48,7 +50,8 @@
         _generateMarkup: function(elName, currElCount, propLength) {
           var markup = '';
 
-          var el = '<' + elName + '>' + this._dummyString + '</' + elName + '>';
+          var elNameClose = elName.split(' ')[0]; // removes attributes
+          var el = '<' + elName + '>' + this._dummyString + '</' + elNameClose + '>';
           for (var i = 0; i < this._roundsPerEl; i++) {
             markup  += el + '\n';
 

@@ -1,8 +1,10 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <!-- self-defined elements -->
 <link rel="import" href="../ivx-pager/ivx-pager.html">
 <link rel="import" href="../ivx-question-layouter/ivx-question-layouter.html">
+<link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
 
 <!--
 The `ivx-page-survey` element is the `detail page` for a selected survey in the survey list. The element will
@@ -71,11 +73,11 @@ Example:
           this._questions.forEach(function(q) {
             // as we cannot insert html with data bindin, we build it by strings and append them later
             // into the DOM
-            html += '<page>' +
+            html += '<one-page>' +
                       '<ivx-question-layouter question="' + q.title + '">' +
                         q.html +
                       '</ivx-question-layouter>' +
-                    '</page>';
+                    '</one-page>';
           }, this);
 
           var navMode = this.$.settingsController.getConfig().pager.navigation;

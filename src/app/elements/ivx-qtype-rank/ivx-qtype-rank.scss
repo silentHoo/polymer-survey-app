@@ -40,7 +40,7 @@
 /* ### The following styles should be overwritten from the outside to the consumer needs ### */
 
 /* The <item> element which is given from the user. This is the one inside of <ph-drag-drop-rank>. */
-item {
+rank-item {
   cursor: move;
   user-select: none;
 }
@@ -48,9 +48,9 @@ item {
 /*
     The item which is copied under the mouse/finger when moving.
 
-    Overwrite from the outside: ph-drag-drop-rank::shadow item.dragging { ... }
+    Overwrite from the outside: ph-drag-drop-rank::shadow rank-item.dragging { ... }
 */
-item.dragging {
+rank-item.dragging {
   border: 1px grey dashed;
   animation: pulsateOpacity 2s infinite linear
 }
@@ -58,17 +58,17 @@ item.dragging {
 /*
     The selected item, when the user drops it.
 
-    Overwrite from the outside: ph-drag-drop-rank::shadow item.dropped-source { ... }
+    Overwrite from the outside: ph-drag-drop-rank::shadow rank-item.dropped-source { ... }
 */
-item.dropped-source {
+rank-item.dropped-source {
   animation: droppedSource 1s linear 0ms;
 }
 
 /*
     The target item, when the user drops the selected item on it.
 
-    Overwrite from the outside: ph-drag-drop-rank::shadow item.dropped-target { ... }
+    Overwrite from the outside: ph-drag-drop-rank::shadow rank-item.dropped-target { ... }
 */
-item.dropped-target {
+rank-item.dropped-target {
   animation: droppedTarget 1s linear 0ms;
 }

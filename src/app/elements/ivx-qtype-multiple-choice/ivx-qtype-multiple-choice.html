@@ -1,5 +1,5 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-
 <link rel="import" href="../../bower_components/core-label/core-label.html">
 <link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
@@ -10,7 +10,7 @@
 
     <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
     <div style="display: none;">
-      <content id="distributedContent" select="answer"></content>
+      <content id="distributedContent" select="div.answer"></content>
     </div>
 
     <template if="{{ mode == 'single-answer' }}">
@@ -62,12 +62,12 @@
             insertionConstraints: {
               mode: {
                 'single-answer': {
-                  answer: {
+                  'div class="answer"': {
                     content: 'string'
                   }
                 },
                 'multi-answer': {
-                  answer: {
+                  'div class="answer"': {
                     content: 'string'
                   }
                 }

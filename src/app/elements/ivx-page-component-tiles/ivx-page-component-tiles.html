@@ -1,8 +1,11 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-shadow/paper-shadow.html">
 
+<!-- self-defined elements -->
 <link rel="import" href="../ivx-qtype-selection-matrix/ivx-qtype-selection-matrix.html">
 <link rel="import" href="../ivx-qtype-rank/ivx-qtype-rank.html">
+<link rel="import" href="../ivx-qtype-rank/rank-item.html">
 <link rel="import" href="../ivx-qtype-likert/ivx-qtype-likert.html">
 <link rel="import" href="../ivx-qtype-multiple-choice/ivx-qtype-multiple-choice.html">
 <link rel="import" href="../ivx-qtype-usermedia/ivx-qtype-usermedia.html">
@@ -53,111 +56,111 @@
             </core-animation-keyframe>
           </core-animation>
 
-          <item>A1</item>
-          <item>A2</item>
-          <item>A3</item>
-          <item>A4</item>
-          <item>A5</item>
-          <item>A6</item>
+          <rank-item>A1</rank-item>
+          <rank-item>A2</rank-item>
+          <rank-item>A3</rank-item>
+          <rank-item>A4</rank-item>
+          <rank-item>A5</rank-item>
+          <rank-item>A6</rank-item>
         </ivx-qtype-rank>
       </paper-shadow>
 
       <paper-shadow z="2">
         <ivx-qtype-rank>
-          <item>B1</item>
-          <item>B2</item>
-          <item>B3</item>
-          <item>B4</item>
-          <item>B5</item>
-          <item>B6</item>
+          <rank-item>B1</rank-item>
+          <rank-item>B2</rank-item>
+          <rank-item>B3</rank-item>
+          <rank-item>B4</rank-item>
+          <rank-item>B5</rank-item>
+          <rank-item>B6</rank-item>
         </ivx-qtype-rank>
       </paper-shadow>
 
       <paper-shadow z="2">
         <ivx-qtype-likert mode="slide" preselectedColumn="1">
-          <col-item>++</col-item>
-          <col-item>+</col-item>
-          <col-item>o</col-item>
-          <col-item>-</col-item>
-          <col-item>--</col-item>
-          <col-item>k.A.</col-item>
+          <div class="col">++</div>
+          <div class="col">+</div>
+          <div class="col">o</div>
+          <div class="col">-</div>
+          <div class="col">--</div>
+          <div class="col">k.A.</div>
 
-          <row-item>A1</row-item>
-          <row-item>A2</row-item>
-          <row-item>A3</row-item>
-          <row-item>A4</row-item>
-          <row-item>A5</row-item>
+          <div class="row">A1</div>
+          <div class="row">A2</div>
+          <div class="row">A3</div>
+          <div class="row">A4</div>
+          <div class="row">A5</div>
         </ivx-qtype-likert>
       </paper-shadow>
 
       <paper-shadow z="2">
         <ivx-qtype-likert mode="slide" preselectedColumn="3">
-          <col-item>trifft sehr zu</col-item>
-          <col-item>trifft weniger zu</col-item>
-          <col-item>weder noch</col-item>
-          <col-item>trifft eher zu</col-item>
-          <col-item>trifft eher nicht zu</col-item>
-          <col-item>k.A.</col-item>
+          <div class="col">trifft sehr zu</div>
+          <div class="col">trifft weniger zu</div>
+          <div class="col">weder noch</div>
+          <div class="col">trifft eher zu</div>
+          <div class="col">trifft eher nicht zu</div>
+          <div class="col">k.A.</div>
 
-          <row-item>B1</row-item>
-          <row-item>B2</row-item>
-          <row-item>B3</row-item>
-          <row-item>B4</row-item>
-          <row-item>B5</row-item>
+          <div class="row">B1</div>
+          <div class="row">B2</div>
+          <div class="row">B3</div>
+          <div class="row">B4</div>
+          <div class="row">B5</div>
         </ivx-qtype-likert>
       </paper-shadow>
 
       <paper-shadow z="2">
         <ivx-qtype-likert mode="matrix" preselectedColumn="4">
-          <col-item>trifft sehr zu</col-item>
-          <col-item>trifft weniger zu</col-item>
-          <col-item>weder noch</col-item>
-          <col-item>trifft eher zu</col-item>
-          <col-item>trifft eher nicht zu</col-item>
-          <col-item>k.A.</col-item>
+          <div class="col">trifft sehr zu</div>
+          <div class="col">trifft weniger zu</div>
+          <div class="col">weder noch</div>
+          <div class="col">trifft eher zu</div>
+          <div class="col">trifft eher nicht zu</div>
+          <div class="col">k.A.</div>
 
-          <row-item>C1</row-item>
-          <row-item>C2</row-item>
-          <row-item>C3</row-item>
-          <row-item>C4</row-item>
-          <row-item>C5</row-item>
+          <div class="row">C1</div>
+          <div class="row">C2</div>
+          <div class="row">C3</div>
+          <div class="row">C4</div>
+          <div class="row">C5</div>
         </ivx-qtype-likert>
       </paper-shadow>
 
       <paper-shadow z="2">
         <ivx-qtype-likert mode="matrix" preselectedColumn="2">
-          <col-item>++</col-item>
-          <col-item>+</col-item>
-          <col-item>o</col-item>
-          <col-item>-</col-item>
-          <col-item>--</col-item>
-          <col-item>k.A.</col-item>
+          <div class="col">++</div>
+          <div class="col">+</div>
+          <div class="col">o</div>
+          <div class="col">-</div>
+          <div class="col">--</div>
+          <div class="col">k.A.</div>
 
-          <row-item>D1</row-item>
-          <row-item>D2</row-item>
-          <row-item>D3</row-item>
-          <row-item>D4</row-item>
-          <row-item>D5</row-item>
+          <div class="row">D1</div>
+          <div class="row">D2</div>
+          <div class="row">D3</div>
+          <div class="row">D4</div>
+          <div class="row">D5</div>
         </ivx-qtype-likert>
       </paper-shadow>
 
       <paper-shadow z="2">
         <ivx-qtype-multiple-choice mode="multi-answer">
-          <answer>A1</answer>
-          <answer>A2</answer>
-          <answer>A3</answer>
-          <answer>A4</answer>
-          <answer>A5</answer>
+          <div class="answer">A1</div>
+          <div class="answer">A2</div>
+          <div class="answer">A3</div>
+          <div class="answer">A4</div>
+          <div class="answer">A5</div>
         </ivx-qtype-multiple-choice>
       </paper-shadow>
 
       <paper-shadow z="2">
         <ivx-qtype-multiple-choice mode="single-answer">
-          <answer>B1</answer>
-          <answer>B2</answer>
-          <answer>B3</answer>
-          <answer>B4</answer>
-          <answer>B5</answer>
+          <div class="answer">B1</div>
+          <div class="answer">B2</div>
+          <div class="answer">B3</div>
+          <div class="answer">B4</div>
+          <div class="answer">B5</div>
         </ivx-qtype-multiple-choice>
       </paper-shadow>
 

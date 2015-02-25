@@ -1,7 +1,10 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+
+<!-- self-defined elements -->
 <link rel="import" href="../ivx-ticker/ivx-ticker.html">
 <link rel="import" href="../ivx-qtype-helper/ivx-qtype-helper.html">
 
@@ -67,8 +70,8 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
     <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
     <!--  -> related: https://www.w3.org/Bugs/Public/show_bug.cgi?id=18429 -->
     <div style="display: none;">
-      <content id="cols" select="col-item"></content>
-      <content id="rows" select="row-item"></content>
+      <content id="cols" select="div.col"></content>
+      <content id="rows" select="div.row"></content>
     </div>
 
     <div id="contentWrapper" layout horizontal center-justified>
@@ -318,18 +321,18 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
             insertionConstraints: {
               mode: {
                 'single-answer': {
-                  'col-item': {
+                  'div class="col"': {
                     content: 'string'
                   },
-                  'row-item': {
+                  'div class="row"': {
                     content: 'string'
                   }
                 },
                 'multi-answer': {
-                  'col-item': {
+                  'div class="col"': {
                     content: 'string'
                   },
-                  'row-item': {
+                  'div class="row"': {
                     content: 'string'
                   }
                 }

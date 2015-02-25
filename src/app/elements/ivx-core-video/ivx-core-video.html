@@ -1,23 +1,5 @@
+<!-- 3rd party dependecies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-
-<!-- mixins for shared functionality -->
-<link rel="import" href="../mixins-core.html">
-<link rel="import" href="../mixins-audiovideo.html">
-
-<!-- self-defined elements -->
-<link rel="import" href="../ivx-core-image/ivx-core-image.html">
-
-<!--
-This component gives basic functionality to record from a given `getUserMedia` stream.
-
-Before you start recording from the stream, please first check if the current browser has support for the Web APIs used
-by `ivx-core-image`. You must simply call `isSupported()`. You can start and stop recording of the stream and get the
-recorded stream as a WebM blob created by Whammy (JavaScript WebM Encoder).
-
-@group Core Elements
-@element ivx-core-video
-@homepage https://github.com/silentHoo
--->
 
 <!--
 WebM Video Encoder Library: Whammy.js
@@ -38,6 +20,25 @@ OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHE
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 <script src="../../bower_components/whammy/whammy.js"></script>
+
+<!-- mixins for shared functionality -->
+<link rel="import" href="../mixins-core.html">
+<link rel="import" href="../mixins-audiovideo.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-core-image/ivx-core-image.html">
+
+<!--
+This component gives basic functionality to record from a given `getUserMedia` stream.
+
+Before you start recording from the stream, please first check if the current browser has support for the Web APIs used
+by `ivx-core-image`. You must simply call `isSupported()`. You can start and stop recording of the stream and get the
+recorded stream as a WebM blob created by Whammy (JavaScript WebM Encoder).
+
+@group Core Elements
+@element ivx-core-video
+@homepage https://github.com/silentHoo
+-->
 
 <polymer-element name="ivx-core-video" extends="ivx-core-image" constructor="IvxCoreVideo" attributes="">
   <script>

@@ -1,3 +1,6 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
 <!--
 `ivx-model` is a generic model abstraction layer. It abstracts from the js-model library which
 implements the ActiveRecord pattern.
@@ -21,7 +24,6 @@ You can listen to it by using
 @element ivx-model
 @homepage inovex.de
 -->
-<link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <polymer-element name="ivx-model" attributes="name storageType">
   <script>
@@ -40,19 +42,19 @@ You can listen to it by using
         questions:[{
           title: 'Frage #1',
           html: '<ivx-qtype-rank>' +
-          '  <item>B</item>' +
-          '  <item>C</item>' +
-          '  <item>A</item>' +
+          '  <rank-item>B</rank-item>' +
+          '  <rank-item>C</rank-item>' +
+          '  <rank-item>A</rank-item>' +
           '</ivx-qtype-rank>'
         }, {
           title: 'Frage #2',
           html: '<ivx-qtype-likert mode="slide" preselectedColumn="1">' +
-          '  <col-item>text text</col-item>' +
-          '  <col-item>text text</col-item>' +
-          '  <col-item>text text</col-item>' +
-          '  <row-item>text text</row-item>' +
-          '  <row-item>text text</row-item>' +
-          '  <row-item>text text</row-item>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '  <div class="row">text text</div>' +
           '</ivx-qtype-likert>'
         }, {
           title: 'Frage #3',
@@ -67,20 +69,39 @@ You can listen to it by using
         }, {
           title: 'Frage #2',
           html: '<ivx-qtype-likert mode="matrix" preselectedColumn="2">' +
-          '  <col-item>text text</col-item>' +
-          '  <col-item>text text</col-item>' +
-          '  <col-item>text text</col-item>' +
-          '  <row-item>text text</row-item>' +
-          '  <row-item>text text</row-item>' +
-          '  <row-item>text text</row-item>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '  <div class="row">text text</div>' +
           '</ivx-qtype-likert>'
         }, {
           title: 'Frage #3',
           html: '<ivx-qtype-multiple-choice mode="single-answer">' +
-                '  <answer>text text</answer>' +
-                '  <answer>text text</answer>' +
-                '  <answer>text text</answer>' +
+                '  <div class="answer">text text</div>' +
+                '  <div class="answer">text text</div>' +
+                '  <div class="answer">text text</div>' +
                 '</ivx-qtype-multiple-choice>'
+        }, {
+          title: 'Frage #4',
+          html: '<ivx-qtype-likert mode="matrix" preselectedColumn="3">' +
+                '  <div class="col">trifft zu</div>' +
+                '  <div class="col">trifft eher zu</div>' +
+                '  <div class="col">unentschieden</div>' +
+                '  <div class="col">trifft eher nicht zu</div>' +
+                '  <div class="col">trifft nicht zu</div>' +
+                '  <div class="col">keine Angabe</div>' +
+
+                '  <div class="row">Meine Hochschule gehört zu den angesehensten in Deutschland</div>' +
+                '  <div class="row">Die Netzabdeckung meines Mobilfunkanbieters ist gut</div>' +
+                '  <div class="row">Das Essen in der Mensa schmeckt gut</div>' +
+                '  <div class="row">300 Menschen auf einem Fleck machen mir Angst</div>' +
+                '  <div class="row">Der Film Titanic gefällt mir nicht</div>' +
+                '  <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</div>' +
+                '  <div class="row">Im Sommer ist das Wetter in Hamburg eher bescheiden</div>' +
+                '  <div class="row">Im Winter gehe ich oft Ski fahren</div>' +
+                ' </ivx-qtype-likert>'
         }]
       }];
 

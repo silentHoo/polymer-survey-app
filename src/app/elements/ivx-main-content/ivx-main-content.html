@@ -1,3 +1,16 @@
+<!-- 3rd party dependecies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-router/app-router.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-page-welcome/ivx-page-welcome.html">
+<link rel="import" href="../ivx-page-component-tiles/ivx-page-component-tiles.html">
+<link rel="import" href="../ivx-page-surveylist/ivx-page-surveylist.html">
+<link rel="import" href="../ivx-page-settings/ivx-page-settings.html">
+<link rel="import" href="../ivx-page-survey-new/ivx-page-survey-new.html">
+<link rel="import" href="../ivx-page-survey/ivx-page-survey.html">
+
 <!--
 `ivx-main-content` is the content area wrapper for any content. For example, it can be used
  within a `<core-header-panel main>` to encapsulate the content from the outer space.
@@ -21,9 +34,6 @@ Example:
 @element ivx-main-content
 @homepage inovex.de
 -->
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/app-router/app-router.html">
-<link rel="import" href="../../bower_components/core-signals/core-signals.html">
 
 <polymer-element name="ivx-main-content" attributes="uriToShow">
   <template>
@@ -43,12 +53,6 @@ Example:
       <app-route path="/surveys" data-title="Liste der Umfragen">
         <template>
           <ivx-page-surveylist fit></ivx-page-surveylist>
-        </template>
-      </app-route>
-
-      <app-route path="/authorize" data-title="Authentifizierung">
-        <template>
-          <ivx-page-authorize fit></ivx-page-authorize>
         </template>
       </app-route>
 

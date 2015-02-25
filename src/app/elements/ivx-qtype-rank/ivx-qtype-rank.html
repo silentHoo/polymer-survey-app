@@ -1,6 +1,10 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-drag-drop/core-drag-drop.html">
 <link rel="import" href="../../bower_components/core-animation/core-animation.html">
+
+<!-- own component childrens -->
+<link rel="import" href="rank-item.html">
 
 <!--
 This component allows you to easily setup an interactive **drag & drop** for individual styled items. Each item
@@ -40,7 +44,7 @@ You should see the demo.html for more infos on that.
     <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
     <!--  -> related: https://www.w3.org/Bugs/Public/show_bug.cgi?id=18429 -->
     <div style="display: none;">
-      <content id="items" select="item"></content>
+      <content id="items" select="rank-item"></content>
       <content id="animations" select="core-animation, core-animation-group"></content>
     </div>
 
@@ -196,7 +200,7 @@ You should see the demo.html for more infos on that.
           this._dragTarget = dragInfo.event.target;
 
           // we will only drag items around, nothing else ;)
-          if (this._dragTarget.nodeName != 'ITEM') {
+          if (this._dragTarget.nodeName != 'RANK-ITEM') {
             return;
           }
 
@@ -279,7 +283,7 @@ You should see the demo.html for more infos on that.
           }
 
           // we let only drop items on items
-          if (dropTarget.nodeName != 'ITEM') {
+          if (dropTarget.nodeName != 'RANK-ITEM') {
             return;
           }
 
@@ -348,7 +352,7 @@ You should see the demo.html for more infos on that.
           return {
             properties: { /* no properties */ },
             insertionConstraints: {
-              item: 'string'
+              'rank-item': 'string'
             }
           }
         }

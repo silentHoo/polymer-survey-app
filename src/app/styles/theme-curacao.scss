@@ -66,7 +66,7 @@ html /deep/ {
     clear: both;
   }
 
-  page paper-input {
+  one-page paper-input {
     width: 100%;
 
     &::shadow paper-input-decorator::shadow .input-body {
@@ -117,7 +117,7 @@ html /deep/ {
      but will also match the item in the avatar (this is when the item is dragged
      around). So we need only one style to get the same appearance.
    */
-  item {
+  rank-item {
     display: block;
     text-align: center;
     margin-bottom: 0.5rem;

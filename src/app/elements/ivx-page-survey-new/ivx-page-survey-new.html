@@ -1,7 +1,12 @@
+<!-- 3rd party dependencies -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 
+<!-- self-defined elements -->
 <link rel="import" href="../ivx-pager/ivx-pager.html">
+<link rel="import" href="../ivx-pager/one-page.html">
 <link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
+<link rel="import" href="../ivx-qtype-builder/ivx-qtype-builder.html">
 
 <polymer-element name="ivx-page-survey-new" attributes="">
   <template>
@@ -12,15 +17,15 @@
     <ivx-settings-controller id="settingsController"></ivx-settings-controller>
 
     <ivx-pager navigation="{{ _navigationMode }}" showProgress="true" vertical-layout="true" on-done="{{ onSave }}" on-abort="{{ onAbort }}">
-      <page>
+      <one-page>
         <div layout horizontal center-center>
           <paper-input id="title" floatingLabel="true" label="Umfragetitel"></paper-input>
         </div>
-      </page>
+      </one-page>
 
-      <page>
+      <one-page>
         <ivx-qtype-builder id="builder"></ivx-qtype-builder>
-      </page>
+      </one-page>
     </ivx-pager>
   </template>
 
