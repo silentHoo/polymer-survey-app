@@ -1,15 +1,22 @@
 :host {
   display: block;
+  height: 100%;
+  width: 100%;
 }
 
 #audioVisualizer {
+  position: relative;
+
+  // fit into the parents space -> parent sets the pixel size we can fill in
   height: 100%;
+  width: 100%;
+
   opacity: 0.2;
   transform: scaleY(-1);
+  overflow: hidden;
 
   & > div {
     float: left;
-    background-color: #03a9f4;
-    bottom: 0px;
+    background-color: #1981f4;
   }
 }

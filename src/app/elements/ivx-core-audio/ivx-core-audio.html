@@ -249,7 +249,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
         // http://ianreah.com/2013/02/28/Real-time-analysis-of-streaming-audio-data-with-Web-Audio-API.html
         // Thank you Ian Reah ;)
         _initVisualizer: function() {
-          this.async(function () {
+          this.job('', function () {
             var frequCount        = this._analyserNode.frequencyBinCount;
             var frequencyData     = new Uint8Array(frequCount);
             var containerWidth    = this._widthOf(this.$.audioVisualizer);

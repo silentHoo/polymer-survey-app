@@ -24,6 +24,16 @@
   &.image {
     position: relative;
     border: 1px grey dashed;
+
+    // visualizeAudio = true
+    & ivx-core-audio {
+      margin-top: -100px;
+      z-index: 10;
+
+      // we must set the size otherwise the component is not visible and can not fill any space!
+      height: 100px;
+      width: 200px;
+    }
   }
 
   &.audio {
@@ -31,8 +41,11 @@
     height: 100%;
     border: 1px grey dashed;
 
+    // visualizeAudio = true
     & ivx-core-audio {
-      height: inherit;
+      // we must set the size otherwise the component is not visible and can not fill any space!
+      height: 100px;
+      width: 200px;
     }
   }
 
