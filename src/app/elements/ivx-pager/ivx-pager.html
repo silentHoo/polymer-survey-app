@@ -323,11 +323,21 @@ Example:
           [].forEach.call(this.distributedNodesUnsorted, function(node, i) {
             if (this.sort != 'none') {
               // save a new attribute to sort later on
-              node.sortValue = node.querySelector(this.sortStringParsed.elementName).getAttribute(this.sortStringParsed.attributeName).toLowerCase();
+              node.sortValue = this._getSortAttributeOfNode(node);
             }
 
             this.optionalPages[i] = node.getAttribute('optional') === 'true';
           }, this);
+        },
+
+        _getSortAttributeOfNode: function(node) {
+          var value;
+          var firstChild = node.children[0];
+          if (firstChild.tagName == 'TEMPLATE') {
+            node = firstChild.createInstance();
+          }
+
+          return node.querySelector(this.sortStringParsed.elementName).getAttribute(this.sortStringParsed.attributeName).toLowerCase();
         },
 
         // ivx-question-layouter.question:asc|desc
