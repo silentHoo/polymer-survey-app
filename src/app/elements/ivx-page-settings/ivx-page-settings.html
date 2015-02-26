@@ -31,7 +31,7 @@
       <ivx-simple-authorize on-authorized="{{ onAuthorized }}"></ivx-simple-authorize>
     </template>
 
-    <template if="{{ _authorized }}">
+    <template if="{{ _authorized }}" bind>
 
       <div class="sectionWrapper">
         <div class="headline">Grundeinstellungen</div>
@@ -46,23 +46,23 @@
             <div class="descr">Aktiviert die Web Vibration API bei Touchgesten</div>
           </div>
           <div class="actionWrapper">
-            <paper-checkbox id="vibrationEnable" on-tap="{{ onVibrationToggle }}" checked?="{{ _vibration.active }}"></paper-checkbox>
+            <paper-checkbox id="vibrationEnable" on-tap="{{ onVibrationToggle }}" checked?="{{ _vibrationActive }}"></paper-checkbox>
           </div>
         </div>
       </div>
 
       <div class="listWrapper" layout vertical center>
         <div class="entry" layout horizontal>
-          <div class="textWrapper indented {{ _vibration.active ? 'active' : 'inactive' }}">
+          <div class="textWrapper indented {{ _vibrationActive ? 'active' : 'inactive' }}">
             <div class="title">Kurz</div>
             <div class="descr">Die Vibration wird für {{ _shortVibrate }}ms ausgeführt</div>
           </div>
           <div class="actionWrapper">
             <paper-checkbox
               id="vibrationShort"
-              disabled?="{{ !_vibration.active }}"
+              disabled?="{{ !_vibrationActive }}"
               on-tap="{{ onVibrationShortToggle }}"
-              checked?="{{ _vibration.short }}">
+              checked?="{{ _vibrationDuration == _shortVibrate }}">
             </paper-checkbox>
           </div>
         </div>
@@ -70,16 +70,16 @@
 
       <div class="listWrapper" layout vertical center>
         <div class="entry" layout horizontal>
-          <div class="textWrapper indented {{ _vibration.active ? 'active' : 'inactive' }}">
+          <div class="textWrapper indented {{ _vibrationActive ? 'active' : 'inactive' }}">
             <div class="title">Lang</div>
             <div class="descr">Die Vibration wird für {{ _longVibrate }}ms ausgeführt</div>
           </div>
           <div class="actionWrapper">
             <paper-checkbox
               id="vibrationLong"
-              disabled?="{{ !_vibration.active }}"
+              disabled?="{{ !_vibrationActive }}"
               on-tap="{{ onVibrationLongToggle }}"
-              checked?="{{ _vibration.long }}">
+              checked?="{{ _vibrationDuration == _longVibrate }}">
             </paper-checkbox>
           </div>
         </div>
@@ -196,11 +196,8 @@
         _authorized: false,
         _shortVibrate: 0,
         _longVibrate: 0,
-        _vibration: {
-          active: false,
-          short: false,
-          long: false
-        },
+        _vibrationActive: false,
+        _vibrationDuration: 0,
 
         // select #1
         _themes: [],
@@ -225,22 +222,24 @@
         _controller: null,
         _config: null,
         _defaults: null,
+        _userInteraction: false,
 
         observe: {
           '_authorized': '_onAuthorizedChanged',
-          '_vibration.active': '_onVibrationActiveChanged',
-          '_vibration.short': '_onVibrationShortChanged',
-          '_vibration.long': '_onVibrationLongChanged'
+          '_vibrationActive': '_onVibrationActiveChanged',
+          '_vibrationDuration': '_onVibrationDurationChanged'
         },
 
         ready: function() {
-          this._controller = this.$.settingsController;
+          this._controller = this.shadowRoot.querySelector('#settingsController');
           this._config = this._controller.getConfig();
           this._defaults = this._controller.getDefaults();
           this._authorized = this._config.app.authorized;   // if we set this here and not in domReady we can avoid
                                                             // that the ivx-simple-authorize is shown for a tiny amount
                                                             // of time.
+        },
 
+        domReady: function() {
           this._restoreState();
         },
 
@@ -250,9 +249,8 @@
           this._longVibrate = this._defaults.app.vibration.values[1].long;
 
           // persisted config values
-          this._vibration.active = this._config.app.vibration != 0;
-          this._vibration.short  = this._config.app.vibration == this._defaults.app.vibration.values[0].short;
-          this._vibration.long   = this._config.app.vibration == this._defaults.app.vibration.values[1].long;
+          this._vibrationActive = (this._config.app.vibration != 0);
+          this._vibrationDuration = this._config.app.vibration;
 
           /* @todo refactor to something like this:
           ['app.theme', 'app.pager.navigation', 'app.pager.sort'].forEach(function(objectToSelect) {
@@ -308,53 +306,51 @@
 
         // separates the UI state via observers from the internal config state
         _onAuthorizedChanged: function(oldValue, newValue) {
-          this._config.app.authorized = newValue;
-          this._makeSignal('app.authorized');
+          if (this._config.app.authorized != newValue) {
+            this._config.app.authorized = newValue;
+            this._makeSignal('app.authorized');
+          }
+        },
+
+        _onVibrationActiveChanged: function(oldValue, newValue) {
+          if (!this._userInteraction) return;
+          if (this._vibrationDuration != this._defaults.app.vibration.default) {
+            this._vibrationDuration = this._defaults.app.vibration.default;
+          }
         },
 
         onVibrationToggle: function(event, detail, sender) {
-          this._vibration.active = sender.checked;
-
-          if (!this._vibration.active) {
-            this._vibration.short = this._vibration.long = false;
+          this._userInteraction = true;
+          this._vibrationActive = sender.checked;
+          if (!this._vibrationActive) {
+            this._vibrationDuration = this._defaults.app.vibration.default;
           }
         },
 
         onVibrationShortToggle: function(event, detail, sender) {
-          if (!this._vibration.active) return;
-          this._vibration.short = sender.checked;
-
-          if (this._vibration.short) {
-            this._vibration.long = false;
+          this._userInteraction = true;
+          if (sender.checked) {
+            this._vibrationDuration = this._shortVibrate;
+          } else {
+            // checkbox was unselected by user (not by value change) -> set to zero / default
+            this._vibrationDuration = this._defaults.app.vibration.default;
           }
-        },
-
-        // separates the UI state via observers from the internal config state
-        _onVibrationShortChanged: function(oldValue, newValue) {
-          if (newValue != true) return;
-          this._config.app.vibration = this._defaults.app.vibration.values[0].short;
-          this._makeSignal('app.vibration');
         },
 
         onVibrationLongToggle: function(event, detail, sender) {
-          if (!this._vibration.active) return;
-          this._vibration.long = sender.checked;
-          if (this._vibration.long) {
-            this._vibration.short = false;
+          this._userInteraction = true;
+          if (sender.checked) {
+            this._vibrationDuration = this._longVibrate;
+          } else {
+            // checkbox was unselected by user (not by value change) -> set to zero / default
+            this._vibrationDuration = this._defaults.app.vibration.default;
           }
         },
 
         // separates the UI state via observers from the internal config state
-        _onVibrationLongChanged: function(oldValue, newValue) {
-          if (newValue != true) return;
-          this._config.app.vibration = this._defaults.app.vibration.values[1].long;
-          this._makeSignal('app.vibration');
-        },
-
-        // separates the UI state via observers from the internal config state
-        _onVibrationActiveChanged: function(oldValue, newValue) {
-          if (newValue == true) return;
-          this._config.app.vibration = this._defaults.app.vibration.default;
+        _onVibrationDurationChanged: function(oldValue, newValue) {
+          if (!this._userInteraction) return; // if there was no user interaction, we dont change anything!
+          this._config.app.vibration = newValue;
           this._makeSignal('app.vibration');
         },
 

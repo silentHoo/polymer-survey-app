@@ -44,7 +44,7 @@ Example:
 
     <!-- non-visual dependencies -->
     <core-signals on-core-signal-switch-page="{{ onPageSwitch }}"></core-signals>
-    <core-signals on-core-signal-config-vibration-enabled="{{ onVibrationEnabled }}"></core-signals>
+    <core-signals on-core-signal-config-vibration-changed="{{ onVibrationChanged }}"></core-signals>
 
     <div id="imageContainer">
       <a href="/"><core-image id="brandLogo" sizing="cover" preload fade src="/images/logo.png"></core-image></a>
@@ -121,6 +121,10 @@ Example:
 
         _selectedIndex: 0,
 
+        _vibrationDuration: 0,
+        _vibrationHandler: null,
+        _vibrationHandlerOld: null,
+
         // Important: For properties that are objects or arrays, you should always initialize the properties in the
         // created callback. If you set the default value directly on the prototype (or on the publish object), you
         // may run into unexpected “shared state” across different instances of the same element.
@@ -156,17 +160,26 @@ Example:
           this._selectedIndex = paths.indexOf(detail);
         },
 
-        onVibrationEnabled: function(event, detail, sender) {
-          var items = this.shadowRoot.querySelectorAll('paper-item');
+        onVibrationChanged: function(event, detail, sender) {
+          this._vibrationDuration = detail.duration;
 
+          this._vibrationHandler = this._vibrate.bind(this);
+          var items = this.shadowRoot.querySelectorAll('paper-item');
           Array.prototype.slice.call(items).forEach(function(item) {
-            item.removeEventListener('tap', this._vibrate.bind(this));
-            item.addEventListener('tap', this._vibrate.bind(this, detail.duration));
+
+            if (this._vibrationHandlerOld != null) {
+              item.removeEventListener('tap', this._vibrationHandlerOld);
+            }
+
+            if (this._vibrationDuration != 0) {
+              item.addEventListener('tap', this._vibrationHandler);
+            }
           }, this);
+          this._vibrationHandlerOld = this._vibrationHandler;
         },
 
-        _vibrate: function(duration) {
-          window.navigator.vibrate(duration);
+        _vibrate: function() {
+          window.navigator.vibrate(this._vibrationDuration);
         }
       });
 
