@@ -192,6 +192,12 @@ Example:
         div.setAttribute('style', 'height:100%');
         div.classList.add('trackable');
 
+        // check if node contains a template -> then instanciate first
+        if (node.children.length > 0 && node.children[0].tagName == 'TEMPLATE') {
+          var template = node.children[0];
+          node.appendChild(template.createInstance());
+        }
+
         // insert distributed content node
         div.appendChild(node);
 

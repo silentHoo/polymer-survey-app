@@ -58,28 +58,28 @@
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Likert-Skala (Matrix)">
-            <ivx-qtype-likert mode="matrix" preselectedColumn="3">
-              <div class="col">trifft zu</div>
-              <div class="col">trifft eher zu</div>
-              <div class="col">unentschieden</div>
-              <div class="col">trifft eher nicht zu</div>
-              <div class="col">trifft nicht zu</div>
-              <div class="col">keine Angabe</div>
+          <template>
+            <ivx-question-layouter question="Likert-Skala (Matrix)">
+              <ivx-qtype-likert mode="matrix" preselectedColumn="3">
+                <div class="col">trifft zu</div>
+                <div class="col">trifft eher zu</div>
+                <div class="col">unentschieden</div>
+                <div class="col">trifft eher nicht zu</div>
+                <div class="col">trifft nicht zu</div>
+                <div class="col">keine Angabe</div>
 
-              <div class="row">Meine Hochschule gehört zu den angesehensten in Deutschland</div>
-              <div class="row">Die Netzabdeckung meines Mobilfunkanbieters ist gut</div>
-              <div class="row">Das Essen in der Mensa schmeckt gut</div>
-              <div class="row">300 Menschen auf einem Fleck machen mir Angst</div>
-              <div class="row">Der Film Titanic gefällt mir nicht</div>
-              <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</div>
-              <div class="row">Im Sommer ist das Wetter in Hamburg eher bescheiden</div>
-              <div class="row">Im Winter gehe ich oft Ski fahren</div>
-            </ivx-qtype-likert>
-          </ivx-question-layouter>
-        </one-page>
-
-        <one-page optional="true">
+                <div class="row">Meine Hochschule gehört zu den angesehensten in Deutschland</div>
+                <div class="row">Die Netzabdeckung meines Mobilfunkanbieters ist gut</div>
+                <div class="row">Das Essen in der Mensa schmeckt gut</div>
+                <div class="row">300 Menschen auf einem Fleck machen mir Angst</div>
+                <div class="row">Der Film Titanic gefällt mir nicht</div>
+                <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</div>
+                <div class="row">Im Sommer ist das Wetter in Hamburg eher bescheiden</div>
+                <div class="row">Im Winter gehe ich oft Ski fahren</div>
+              </ivx-qtype-likert>
+            </ivx-question-layouter>
+          </template>
+        </one-page>        <one-page optional="true">
           <ivx-question-layouter question="Geben Sie einen Text ein:">
             <ivx-qtype-text mode="single" label="Der Text wird nicht validiert, das Feld kann leer bleiben."></ivx-qtype-text>
           </ivx-question-layouter>
@@ -152,74 +152,80 @@
         </one-page>
 
         <one-page optional="true">
-          <ivx-question-layouter question="Likert-Skala (Slide)">
-            <ivx-qtype-likert mode="slide" preselectedColumn="3">
-              <div class="col">trifft zu</div>
-              <div class="col">trifft eher zu</div>
-              <div class="col">unentschieden</div>
-              <div class="col">trifft eher nicht zu</div>
-              <div class="col">trifft nicht zu</div>
-              <div class="col">keine Angabe</div>
+          <template>
+            <ivx-question-layouter question="Likert-Skala (Slide)">
+              <ivx-qtype-likert mode="slide" preselectedColumn="3">
+                <div class="col">trifft zu</div>
+                <div class="col">trifft eher zu</div>
+                <div class="col">unentschieden</div>
+                <div class="col">trifft eher nicht zu</div>
+                <div class="col">trifft nicht zu</div>
+                <div class="col">keine Angabe</div>
 
-              <div class="row">Meine Hochschule gehört zu den angesehensten in Deutschland</div>
-              <div class="row">Die Netzabdeckung meines Mobilfunkanbieters ist gut</div>
-              <div class="row">Das Essen in der Mensa schmeckt gut</div>
-              <div class="row">300 Menschen auf einem Fleck machen mir Angst</div>
-              <div class="row">Der Film Titanic gefällt mir nicht</div>
-              <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</div>
-              <div class="row">Im Sommer ist das Wetter in Hamburg eher bescheiden</div>
-              <div class="row">Im Winter gehe ich oft Ski fahren</div>
-            </ivx-qtype-likert>
-          </ivx-question-layouter>
+                <div class="row">Meine Hochschule gehört zu den angesehensten in Deutschland</div>
+                <div class="row">Die Netzabdeckung meines Mobilfunkanbieters ist gut</div>
+                <div class="row">Das Essen in der Mensa schmeckt gut</div>
+                <div class="row">300 Menschen auf einem Fleck machen mir Angst</div>
+                <div class="row">Der Film Titanic gefällt mir nicht</div>
+                <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</div>
+                <div class="row">Im Sommer ist das Wetter in Hamburg eher bescheiden</div>
+                <div class="row">Im Winter gehe ich oft Ski fahren</div>
+              </ivx-qtype-likert>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Likert-Skala (Slide)">
-            <ivx-qtype-likert mode="slide" preselectedColumn="3">
-              <div class="col">++</div>
-              <div class="col">+</div>
-              <div class="col">o</div>
-              <div class="col">-</div>
-              <div class="col">--</div>
-              <div class="col">keine Angabe</div>
+          <template>
+            <ivx-question-layouter question="Likert-Skala (Slide)">
+              <ivx-qtype-likert mode="slide" preselectedColumn="3">
+                <div class="col">++</div>
+                <div class="col">+</div>
+                <div class="col">o</div>
+                <div class="col">-</div>
+                <div class="col">--</div>
+                <div class="col">keine Angabe</div>
 
-              <div class="row">Aussage 1</div>
-              <div class="row">Aussage 2</div>
-              <div class="row">Aussage 3</div>
-              <div class="row">Aussage 4</div>
-              <div class="row">Aussage 5</div>
-              <div class="row">Aussage 6</div>
-              <div class="row">Aussage 7</div>
-              <div class="row">Aussage 8</div>
-              <div class="row">Aussage 9</div>
-              <div class="row">Aussage 10</div>
-            </ivx-qtype-likert>
-          </ivx-question-layouter>
+                <div class="row">Aussage 1</div>
+                <div class="row">Aussage 2</div>
+                <div class="row">Aussage 3</div>
+                <div class="row">Aussage 4</div>
+                <div class="row">Aussage 5</div>
+                <div class="row">Aussage 6</div>
+                <div class="row">Aussage 7</div>
+                <div class="row">Aussage 8</div>
+                <div class="row">Aussage 9</div>
+                <div class="row">Aussage 10</div>
+              </ivx-qtype-likert>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Auswahlmatrix">
-            <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="1">
-              <!-- we cannot use `col` or `columns` here :( -->
-              <div class="col">Antwort 1</div>
-              <div class="col">Antwort 2</div>
-              <div class="col">Antwort 3</div>
-              <div class="col">Antwort 4</div>
-              <div class="col">Antwort 5</div>
-              <div class="col">Antwort 6</div>
+          <template>
+            <ivx-question-layouter question="Auswahlmatrix">
+              <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="1">
+                <!-- we cannot use `col` or `columns` here :( -->
+                <div class="col">Antwort 1</div>
+                <div class="col">Antwort 2</div>
+                <div class="col">Antwort 3</div>
+                <div class="col">Antwort 4</div>
+                <div class="col">Antwort 5</div>
+                <div class="col">Antwort 6</div>
 
-              <div class="row">Aussage 1</div>
-              <div class="row">Aussage 2</div>
-              <div class="row">Aussage 3</div>
-              <div class="row">Aussage 4</div>
-              <div class="row">Aussage 5</div>
-              <div class="row">Aussage 6</div>
-              <div class="row">Aussage 7</div>
-              <div class="row">Aussage 8</div>
-              <div class="row">Aussage 9</div>
-              <div class="row">Aussage 10</div>
-            </ivx-qtype-selection-matrix>
-          </ivx-question-layouter>
+                <div class="row">Aussage 1</div>
+                <div class="row">Aussage 2</div>
+                <div class="row">Aussage 3</div>
+                <div class="row">Aussage 4</div>
+                <div class="row">Aussage 5</div>
+                <div class="row">Aussage 6</div>
+                <div class="row">Aussage 7</div>
+                <div class="row">Aussage 8</div>
+                <div class="row">Aussage 9</div>
+                <div class="row">Aussage 10</div>
+              </ivx-qtype-selection-matrix>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
