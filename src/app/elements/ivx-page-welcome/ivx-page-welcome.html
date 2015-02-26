@@ -25,36 +25,50 @@
 
     <div>
       <!--sort="ivx-question-layouter.question:asc"-->
-      <ivx-pager navigation="{{ _navigationMode }}" on-abort="{{ _pagerAbortHandler }}" on-done="{{ _pagerDoneHandler }}">
+      <ivx-pager navigation="{{ _navigationMode }}" on-abort="{{ _pagerAbortHandler }}"
+                 on-done="{{ _pagerDoneHandler }}">
 
         <one-page>
-          <ivx-question-layouter question="drag & drop 1">
-            <ivx-qtype-rank>
-              <rank-item>Antwort 1</rank-item>
-              <rank-item>Antwort 2</rank-item>
-              <rank-item>Antwort 3</rank-item>
-              <rank-item>Antwort 4</rank-item>
-              <rank-item>Antwort 5</rank-item>
-              <rank-item>Antwort 6</rank-item>
-            </ivx-qtype-rank>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="drag & drop 1">
+              <ivx-qtype-rank>
+                <rank-item>Antwort 1</rank-item>
+                <rank-item>Antwort 2</rank-item>
+                <rank-item>Antwort 3</rank-item>
+                <rank-item>Antwort 4</rank-item>
+                <rank-item>Antwort 5</rank-item>
+                <rank-item>Antwort 6</rank-item>
+              </ivx-qtype-rank>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="drag & drop 2">
-            <ivx-qtype-rank>
-              <rank-item>Antwort A</rank-item>
-              <rank-item>Antwort B</rank-item>
-              <rank-item>Antwort C</rank-item>
-              <rank-item>Antwort D</rank-item>
-              <rank-item>Antwort E</rank-item>
-              <rank-item>Antwort F</rank-item>
-            </ivx-qtype-rank>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="drag & drop 2">
+              <ivx-qtype-rank>
+                <rank-item>Antwort A</rank-item>
+                <rank-item>Antwort B</rank-item>
+                <rank-item>Antwort C</rank-item>
+                <rank-item>Antwort D</rank-item>
+                <rank-item>Antwort E</rank-item>
+                <rank-item>Antwort F</rank-item>
+              </ivx-qtype-rank>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
-          <ivx-ticker separator="♫" msgs="Armin van Buuren - Communication Part III, System of a Down - Chop Suey, Ella Henderson - Ghost, asdasdasdasdasdasd, asdasdasdwiwouowieriqwero"></ivx-ticker>
+          <template>
+            <ivx-ticker separator="♫"
+                        msgs="
+                          Armin van Buuren - Communication Part III,
+                          System of a Down - Chop Suey,
+                          Ella Henderson - Ghost,
+                          Simon and Garfunkel - Bridge Over Troubled Water
+                        ">
+            </ivx-ticker>
+          </template>
         </one-page>
 
         <one-page>
@@ -73,82 +87,107 @@
                 <div class="row">Das Essen in der Mensa schmeckt gut</div>
                 <div class="row">300 Menschen auf einem Fleck machen mir Angst</div>
                 <div class="row">Der Film Titanic gefällt mir nicht</div>
-                <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</div>
+                <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt
+                  werden
+                </div>
                 <div class="row">Im Sommer ist das Wetter in Hamburg eher bescheiden</div>
                 <div class="row">Im Winter gehe ich oft Ski fahren</div>
               </ivx-qtype-likert>
             </ivx-question-layouter>
           </template>
-        </one-page>        <one-page optional="true">
-          <ivx-question-layouter question="Geben Sie einen Text ein:">
-            <ivx-qtype-text mode="single" label="Der Text wird nicht validiert, das Feld kann leer bleiben."></ivx-qtype-text>
-          </ivx-question-layouter>
         </one-page>
 
         <one-page optional="true">
-          <ivx-question-layouter question="Geben Sie einen Text ein:">
-            <ivx-qtype-text mode="multiple" label="Mehrzeiliger Text ist möglich."></ivx-qtype-text>
-          </ivx-question-layouter>
-        </one-page>
-
-        <one-page>
-          <ivx-question-layouter question="Geben Sie einen Text ein:">
-            <ivx-qtype-text mode="single" required label="Text wird validiert."></ivx-qtype-text>
-          </ivx-question-layouter>
-        </one-page>
-
-        <one-page>
-          <ivx-question-layouter question="Geben Sie einen Text ein:">
-            <ivx-qtype-text mode="single" validationType="text" min="3" max="5" label="Text zwischen 3 und 5 Zeichen"></ivx-qtype-text>
-          </ivx-question-layouter>
-        </one-page>
-
-        <one-page>
-          <ivx-question-layouter question="Wann sind Sie geboren?:">
-            <ivx-qtype-text mode="single" validationType="date" label="Datum (z.B. 31.03.2015)"></ivx-qtype-text>
-          </ivx-question-layouter>
-        </one-page>
-
-        <one-page>
-          <ivx-question-layouter question="Bitte geben Sie Ihre PLZ an:">
-            <ivx-qtype-text mode="single" validationType="postcode" label="Ihre Postleitzahl (z.B. 76131)"></ivx-qtype-text>
-          </ivx-question-layouter>
-        </one-page>
-
-        <one-page>
-          <ivx-question-layouter question="Wählen Sie EINE Antwort aus:">
-            <ivx-qtype-multiple-choice mode="single-answer">
-              <div class="answer">Antwort A</div>
-              <div class="answer">Antwort B</div>
-              <div class="answer">Antwort C</div>
-              <div class="answer">Antwort D</div>
-              <div class="answer">Antwort E</div>
-            </ivx-qtype-multiple-choice>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="Geben Sie einen Text ein:">
+              <ivx-qtype-text mode="single"
+                              label="Der Text wird nicht validiert, das Feld kann leer bleiben."></ivx-qtype-text>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page optional="true">
-          <ivx-question-layouter question="Wählen Sie MEHRERE Antworten aus:">
-            <ivx-qtype-multiple-choice mode="multi-answer">
-              <div class="answer">Antwort 1</div>
-              <div class="answer">Antwort 2</div>
-              <div class="answer">Antwort 3</div>
-              <div class="answer">Antwort 4</div>
-              <div class="answer">Antwort 5</div>
-            </ivx-qtype-multiple-choice>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="Geben Sie einen Text ein:">
+              <ivx-qtype-text mode="multiple" label="Mehrzeiliger Text ist möglich."></ivx-qtype-text>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Wählen Sie MEHRERE Antworten aus:">
-            <ivx-qtype-multiple-choice mode="multi-answer">
-              <div class="answer">Antwort 1</div>
-              <div class="answer">Antwort 2</div>
-              <div class="answer">Antwort 3</div>
-              <div class="answer">Antwort 4</div>
-              <div class="answer">Antwort 5</div>
-            </ivx-qtype-multiple-choice>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="Geben Sie einen Text ein:">
+              <ivx-qtype-text mode="single" required label="Text wird validiert."></ivx-qtype-text>
+            </ivx-question-layouter>
+          </template>
+        </one-page>
+
+        <one-page>
+          <template>
+            <ivx-question-layouter question="Geben Sie einen Text ein:">
+              <ivx-qtype-text mode="single" validationType="text" min="3" max="5"
+                              label="Text zwischen 3 und 5 Zeichen"></ivx-qtype-text>
+            </ivx-question-layouter>
+          </template>
+        </one-page>
+
+        <one-page>
+          <template>
+            <ivx-question-layouter question="Wann sind Sie geboren?:">
+              <ivx-qtype-text mode="single" validationType="date" label="Datum (z.B. 31.03.2015)"></ivx-qtype-text>
+            </ivx-question-layouter>
+          </template>
+        </one-page>
+
+        <one-page>
+          <template>
+            <ivx-question-layouter question="Bitte geben Sie Ihre PLZ an:">
+              <ivx-qtype-text mode="single" validationType="postcode"
+                              label="Ihre Postleitzahl (z.B. 76131)"></ivx-qtype-text>
+            </ivx-question-layouter>
+          </template>
+        </one-page>
+
+        <one-page>
+          <template>
+            <ivx-question-layouter question="Wählen Sie EINE Antwort aus:">
+              <ivx-qtype-multiple-choice mode="single-answer">
+                <div class="answer">Antwort A</div>
+                <div class="answer">Antwort B</div>
+                <div class="answer">Antwort C</div>
+                <div class="answer">Antwort D</div>
+                <div class="answer">Antwort E</div>
+              </ivx-qtype-multiple-choice>
+            </ivx-question-layouter>
+          </template>
+        </one-page>
+
+        <one-page optional="true">
+          <template>
+            <ivx-question-layouter question="Wählen Sie MEHRERE Antworten aus:">
+              <ivx-qtype-multiple-choice mode="multi-answer">
+                <div class="answer">Antwort 1</div>
+                <div class="answer">Antwort 2</div>
+                <div class="answer">Antwort 3</div>
+                <div class="answer">Antwort 4</div>
+                <div class="answer">Antwort 5</div>
+              </ivx-qtype-multiple-choice>
+            </ivx-question-layouter>
+          </template>
+        </one-page>
+
+        <one-page>
+          <template>
+            <ivx-question-layouter question="Wählen Sie MEHRERE Antworten aus:">
+              <ivx-qtype-multiple-choice mode="multi-answer">
+                <div class="answer">Antwort 1</div>
+                <div class="answer">Antwort 2</div>
+                <div class="answer">Antwort 3</div>
+                <div class="answer">Antwort 4</div>
+                <div class="answer">Antwort 5</div>
+              </ivx-qtype-multiple-choice>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page optional="true">
@@ -167,7 +206,9 @@
                 <div class="row">Das Essen in der Mensa schmeckt gut</div>
                 <div class="row">300 Menschen auf einem Fleck machen mir Angst</div>
                 <div class="row">Der Film Titanic gefällt mir nicht</div>
-                <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</div>
+                <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt
+                  werden
+                </div>
                 <div class="row">Im Sommer ist das Wetter in Hamburg eher bescheiden</div>
                 <div class="row">Im Winter gehe ich oft Ski fahren</div>
               </ivx-qtype-likert>
@@ -229,15 +270,19 @@
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Audio">
-            <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="Audio">
+              <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Video (visualizeAudio=false)">
-            <ivx-qtype-usermedia visualizeAudio="false" mode="video"></ivx-qtype-usermedia>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="Video (visualizeAudio=false)">
+              <ivx-qtype-usermedia visualizeAudio="false" mode="video"></ivx-qtype-usermedia>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
@@ -247,21 +292,27 @@
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Image">
-            <ivx-qtype-usermedia mode="image"></ivx-qtype-usermedia>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="Image">
+              <ivx-qtype-usermedia mode="image"></ivx-qtype-usermedia>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Mögen Sie ...?">
-            <ivx-qtype-yesno></ivx-qtype-yesno>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="Mögen Sie ...?">
+              <ivx-qtype-yesno></ivx-qtype-yesno>
+            </ivx-question-layouter>
+          </template>
         </one-page>
 
         <one-page>
-          <ivx-question-layouter question="Ihre E-Mail Adresse:">
-            <ivx-qtype-text mode="single" required validationType="email" min="3" max="5"></ivx-qtype-text>
-          </ivx-question-layouter>
+          <template>
+            <ivx-question-layouter question="Ihre E-Mail Adresse:">
+              <ivx-qtype-text mode="single" required validationType="email" min="3" max="5"></ivx-qtype-text>
+            </ivx-question-layouter>
+          </template>
         </one-page>
       </ivx-pager>
     </div>
@@ -274,19 +325,19 @@
       Polymer({
         _navigationMode: '',
 
-        domReady: function() {
+        domReady: function () {
           this._navigationMode = this.$.settingsController.getConfig().pager.navigation;
         },
 
         // eventhandler for `done`
-        _pagerDoneHandler: function(event, detail, sender) {
-          this.fire('core-signal', { name: 'show-toast', data: '@todo Speichern' });
-          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
+        _pagerDoneHandler: function (event, detail, sender) {
+          this.fire('core-signal', {name: 'show-toast', data: '@todo Speichern'});
+          this.fire('core-signal', {name: 'switch-page', data: '/surveys'});
         },
 
         // eventhandler for `abort`
-        _pagerAbortHandler: function(event, detail, sender) {
-          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
+        _pagerAbortHandler: function (event, detail, sender) {
+          this.fire('core-signal', {name: 'switch-page', data: '/surveys'});
         }
       });
     })();

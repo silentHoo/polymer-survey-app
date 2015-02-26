@@ -74,9 +74,11 @@ Example:
             // as we cannot insert html with data bindin, we build it by strings and append them later
             // into the DOM
             html += '<one-page>' +
-                      '<ivx-question-layouter question="' + q.title + '">' +
-                        q.html +
-                      '</ivx-question-layouter>' +
+                      '<template>' +
+                        '<ivx-question-layouter question="' + q.title + '">' +
+                          q.html +
+                        '</ivx-question-layouter>' +
+                      '</template>' +
                     '</one-page>';
           }, this);
 
