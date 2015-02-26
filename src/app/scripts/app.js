@@ -1,7 +1,7 @@
 (function(document) {
   'use strict';
 
-  document.addEventListener("DOMContentLoaded", function(event) {
+  document.addEventListener('DOMContentLoaded', function() {
     // it's elegant and clean to change the document things here
     window.addEventListener('theme-changed', function (e) {
       var linkEl = document.querySelector('#themeLink');
