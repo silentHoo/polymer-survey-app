@@ -175,11 +175,18 @@ Example (imperative):
           }
         },
 
+        created: function() {
+          this._messages = [];
+        },
+
         ready: function() {
           this._prepareMessages();
         },
 
-        domReady: function() {
+        attached: function() {
+          if (this._messages.length == 0) {
+            return;
+          }
           this._init();
           this._addResizeEvent();
         },
@@ -221,18 +228,21 @@ Example (imperative):
           this._stopJobs = true;
         },
 
-        // prepares the given messages through the published attribute `msgs`, removed whitespace too.
+        // prepares the given messages through the published attribute `msgs`, remove whitespace too.
         _prepareMessages: function() {
-          if (this.msgs == '') {
-            return;
+          if (this.msg != '') {
+            this._messages.push(this.msg);
+            return
           }
 
-          var strings = this.msgs.split(',');
-          strings.map(function(el) {
-            return el.trim();
-          });
+          if (this.msgs != '') {
+            var strings = this.msgs.split(',');
+            strings.map(function(el) {
+              return el.trim();
+            });
 
-          this._messages = strings;
+            this._messages = strings;
+          }
         },
 
         _animationStateChanged: function() {
