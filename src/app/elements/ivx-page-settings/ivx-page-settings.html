@@ -28,7 +28,9 @@
     <ivx-settings-controller id="settingsController"></ivx-settings-controller>
 
     <template if="{{ !_authorized }}">
-      <ivx-simple-authorize on-authorized="{{ onAuthorized }}"></ivx-simple-authorize>
+      <div layout horizontal center>
+        <ivx-simple-authorize on-authorized="{{ onAuthorized }}"></ivx-simple-authorize>
+      </div>
     </template>
 
     <template if="{{ _authorized }}" bind>
@@ -162,7 +164,7 @@
       <div class="listWrapper" layout vertical center>
         <div class="entry" layout horizontal>
           <core-icon icon="account-circle"></core-icon>
-          <div class="textWrapper">
+          <div class="textWrapper" on-tap="{{ logoutAdmin }}">
             <div class="title">PIN</div>
             <div class="descr">Zugriff auf Verwaltungsoptionen</div>
           </div>
@@ -229,6 +231,8 @@
           '_vibrationActive': '_onVibrationActiveChanged',
           '_vibrationDuration': '_onVibrationDurationChanged'
         },
+
+        _logoutTaps: 0,
 
         ready: function() {
           this._controller = this.shadowRoot.querySelector('#settingsController');
@@ -396,6 +400,15 @@
           this.shadowRoot.querySelector('#passwordDialog').toggle();
           this.fire('core-signal', { name: 'show-toast', data: 'Die PIN wurde erfolgreich geändert.' });
           this._oldPassword = this._newPassword1 = this._newPassword2 = '';
+        },
+
+        logoutAdmin: function() {
+          ++this._logoutTaps;
+          if (this._logoutTaps == 3) {
+            this._config.app.authorized = false;
+            this.fire('core-signal', { name: 'show-toast', data: 'Admin ausgeloggt.' });
+            this._makeSignal('app.authorized');
+          }
         }
       });
     })();
