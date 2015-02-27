@@ -187,7 +187,9 @@ Example (imperative):
           if (this._messages.length == 0) {
             return;
           }
-          this._init();
+          this.job('', function() {
+            this._init();
+          });
           this._addResizeEvent();
         },
 
