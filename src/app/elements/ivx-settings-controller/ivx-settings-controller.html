@@ -144,16 +144,24 @@
             this._delegateVibration();
           }
 
+          if (detail.propName == 'app.authorized') {
+            this._delegateAuthorize();
+          }
+
           // do some other stuff here ...
         },
 
-        _delegateTheme: function(newValue) {
+        _delegateTheme: function() {
           // delegate to the document (scripts/app.js will handle it)
           this.fire('theme-changed', { themeName: _model.attributes.app.theme });
         },
 
         _delegateVibration: function() {
           this.fire('core-signal', { name: 'config-vibration-changed', data: { duration: _model.attributes.app.vibration } });
+        },
+
+        _delegateAuthorize: function() {
+          this.fire('core-signal', { name: 'switch-page', data: '/settings' });
         }
       });
     })();
