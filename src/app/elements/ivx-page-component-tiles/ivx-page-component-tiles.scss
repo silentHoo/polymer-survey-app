@@ -1,16 +1,31 @@
 :host {
   display: block;
   padding: 5px;
-}
 
-div {
-  background-color: white;
-}
+  div {
+    background-color: white;
 
-paper-shadow {
-  position: relative;
-  display: inline-block;
-  padding: 10px;
-  margin: 10px;
-  width: 25%;
+    paper-shadow {
+      position: relative;
+      display: inline-block;
+      padding: 10px;
+      margin: 10px;
+
+      @media screen and (max-width: 1000px) {
+        width: 100%;
+      }
+
+      @media screen and (min-width: 1001px) {
+        width: 46%;
+      }
+
+      h2 {
+        text-align: center;
+      }
+
+      span {
+        font-weight: bold;
+      }
+    }
+  }
 }
