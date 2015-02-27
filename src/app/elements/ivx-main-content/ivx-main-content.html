@@ -110,7 +110,6 @@ Example:
         },
 
         onPageSwitched: function(event, detail, sender) {
-
           this.job('wait for template insertion of app-route', function() {
             var surveyPage = this.shadowRoot.querySelector('#surveyPage');
             if (surveyPage) {
