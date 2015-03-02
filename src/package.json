@@ -25,7 +25,8 @@
     "grunt-vulcanize": "~0.3.0",
     "jshint-stylish": "~0.4.0",
     "load-grunt-tasks": "~0.6.0",
-    "time-grunt": "~0.4.0"
+    "time-grunt": "~0.4.0",
+    "grunt-remove-logging": "~0.2.0"
   },
   "engines": {
     "node": ">=0.10.0"
