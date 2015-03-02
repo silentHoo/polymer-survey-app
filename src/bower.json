@@ -7,7 +7,10 @@
     "polymer": "Polymer/polymer#^0.5.2",
     "js-model": "https://github.com/silentHoo/js-model.git#~0.11.0",
     "app-router": "~2.1.0",
-    "akyral-code": "filaraujo/akyral-code#1.4.3"
+    "akyral-code": "filaraujo/akyral-code#1.4.3",
+    "H5F": "https://github.com/ryanseddon/H5F.git#1.1.1",
+    "Recorderjs": "https://github.com/mattdiamond/Recorderjs.git#ac0eb8a7c2601fc4ec1cbd1b1ee49f45a6c79580",
+    "whammy": "https://github.com/antimatter15/whammy.git#9ad3df2f031aa208762b37ea0219da2832f195a0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^2.0.0",
