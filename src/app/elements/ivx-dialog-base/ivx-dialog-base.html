@@ -67,10 +67,10 @@ By default, the `aria-label` will be set to the value of the `heading` attribute
     <link rel="stylesheet" href="ivx-dialog-base.css">
 
     <!--
-      grab the content of the <paper-dialog> and mix the content from the consumer in.
+      grab the content of the <paper-dialog>s olderShadowRoot.
     -->
     <shadow>
-      <content></content>
+      <!--<content></content> this is NOT possible here: https://github.com/Polymer/polymer/issues/1087 -->
     </shadow>
   </template>
 </polymer-element>
