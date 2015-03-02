@@ -1,6 +1,9 @@
 <!--
-`ivx-app` is the container for the survey app or the controller. It will show a `<core-drawer-panel>` containing
-a drawer, a toolbar and a content area where the pages are displayed.
+`ivx-app` is the `main method` for the survey app. It will show a `<core-drawer-panel>` containing
+a drawer, a toolbar and a content area where the pages are contained.
+
+The toast messages are also shown by this component. They're handled by `core-signal` events that are
+emitted by any element.
 
 You can use the `ivx-app` without any configuration.
 
@@ -8,9 +11,10 @@ Example:
 
     <ivx-app></ivx-app>
 
-@group Inovex Survey Elements
+@group Inovex Survey App Elements
 @element ivx-app
 @homepage inovex.de
+@author Patrick Hillert
 -->
 
 <!-- 3rd party dependencies -->
@@ -38,9 +42,11 @@ Example:
     <!-- non-visual dependencies -->
     <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
     <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
-    <core-signals on-core-signal-show-toast="{{ onShowToast }}"></core-signals>
-    <ivx-keyboard-controller target="{{ parentElement }}"></ivx-keyboard-controller>
+
     <ivx-settings-controller id="settingsController"></ivx-settings-controller>
+    <ivx-keyboard-controller target="{{ parentElement }}"></ivx-keyboard-controller>
+
+    <core-signals on-core-signal-show-toast="{{ onShowToast }}"></core-signals>
 
     <core-drawer-panel id="drawerPanel">
       <core-header-panel drawer>
@@ -59,13 +65,14 @@ Example:
         </core-toolbar>
 
         <div class="content" fit>
+          <!-- main content is wrapped in its own component -->
           <ivx-main-content id="mainContent" fit on-page-changed="{{ _setToolbarTitle }}"></ivx-main-content>
         </div>
 
       </core-header-panel>
     </core-drawer-panel>
 
-    <!-- dialog -->
+    <!-- about dialog -->
     <ivx-dialog-base id="dialog" transition="core-transition-center" heading="Über diese App">
       Diese Umfrage-App ist ein Proof-of-Concept für den Einsatz von Web Components und soll zeigen, wie gut sich
       dieser neue Standard in modernen, mobilen Webanwendungen einsetzen lässt.<br>
@@ -74,8 +81,9 @@ Example:
       <br>
       &copy; 2014-2015 Patrick Hillert
     </ivx-dialog-base>
-    <!-- /dialog -->
+    <!-- /about dialog -->
 
+    <!-- app-wide paper-toast messages -->
     <paper-toast id="toast"></paper-toast>
   </template>
 
@@ -112,6 +120,7 @@ Example:
           name: 'Über'
         }],
 
+        // default toolbar title
         _toolbarTitle: 'UmfrageApp',
 
         // callback to load the dummy questions
@@ -147,6 +156,7 @@ Example:
           this.fire('core-signal', { name: 'switch-page', data: item.href });
         },
 
+        // event handler to show a toast when the `core-signal` is emitted
         onShowToast: function(event, detail, sender) {
           this.job('', function() {
             this.$.toast.text = detail;
@@ -154,6 +164,9 @@ Example:
           });
         },
 
+        // ===== private methods =====
+
+        // sets the new toolbar title
         _setToolbarTitle: function(event, detail, sender) {
           this._toolbarTitle = detail.title;
         }

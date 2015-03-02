@@ -24,15 +24,17 @@ Example:
         <core-toolbar id="toolbar">...</core-toolbar>
 
         <div class="content" fit>
-          <ivx-main-content uriToShow="/myHomePage" fit></ivx-main-content>
+          <ivx-main-content fit on-page-changed="{{ _setToolbarTitle }}"></ivx-main-content>
         </div>
 
       </core-header-panel>
     </core-drawer-panel>
 
-@group Inovex Survey Elements
+@group Inovex Survey App Elements
 @element ivx-main-content
+@extends ivx-dialog-base
 @homepage inovex.de
+@author Patrick Hillert
 -->
 
 <polymer-element name="ivx-main-content" attributes="uriToShow">
@@ -109,6 +111,8 @@ Example:
           }
         },
 
+        // will delegate the survey title as normal event (no core-signal) to the
+        // parent element. Is called when the router has changed the route.
         onPageSwitched: function(event, detail, sender) {
           this.job('wait for template insertion of app-route', function() {
             var surveyPage = this.shadowRoot.querySelector('#surveyPage');
@@ -117,16 +121,16 @@ Example:
             }
 
             this.job('wait for data-binding bound back', function() {
-              this.fire('page-changed', {title: detail.route.getAttribute('data-title')});
+              this.fire('page-changed', { title: detail.route.getAttribute('data-title') } );
             });
           });
         },
 
+        // event handler for the emitted `core-signal` event to force the router to switch the route
         onPageSwitch: function(event, page, sender) {
           this.$.router.go(page);
         }
       });
-
     })();
   </script>
 </polymer-element>

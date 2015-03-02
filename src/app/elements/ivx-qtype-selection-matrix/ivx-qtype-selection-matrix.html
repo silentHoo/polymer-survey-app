@@ -58,9 +58,10 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
       <div class="row">Feature C</div>
     </ivx-qtype-selection-matrix>
 
-@group Question Type Survey Elements
+@group Inovex Survey App Question Elements
 @element ivx-qtype-selection-matrix
-@homepage https://github.com/silentHoo
+@homepage inovex.de
+@author Patrick Hillert
 -->
 
 <polymer-element name="ivx-qtype-selection-matrix" extends="ivx-qtype-base" attributes="mode preselectedColumn">
@@ -205,6 +206,52 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
           this._init();
         },
 
+        // save the check into the matrix state to persist
+        onCheckStateChange: function(event, detail, sender) {
+          // check the clicked item
+          var rowId = sender.getAttribute('row-index');
+          var colId = sender.getAttribute('col-index');
+
+          // uncheck all other columns in that row
+          if (this.mode == 'single-answer') {
+            this._uncheckAllInRow(rowId);
+            this._checkItem(rowId, colId);
+          } else if (this.mode == 'multi-answer') {
+            this._matrixState[rowId][colId] = sender.checked;
+          }
+        },
+
+        getPublishMeta: function() {
+          return {
+            properties: {
+              mode: ['single-answer', 'multi-answer'],
+              preselectedColumn: 'int'
+            },
+            insertionConstraints: {
+              mode: {
+                'single-answer': {
+                  'div class="col"': {
+                    content: 'string'
+                  },
+                  'div class="row"': {
+                    content: 'string'
+                  }
+                },
+                'multi-answer': {
+                  'div class="col"': {
+                    content: 'string'
+                  },
+                  'div class="row"': {
+                    content: 'string'
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        // ===== private methods =====
+
         _checkColumns: function() {
           if (this.preselectedColumn !== '') {
             if (this.preselectedColumn > 0 && this.preselectedColumn <= this._distributedNodes.cols.length) {
@@ -258,21 +305,6 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
           }
         },
 
-        // save the check into the matrix state to persist
-        onCheckStateChange: function(event, detail, sender) {
-          // check the clicked item
-          var rowId = sender.getAttribute('row-index');
-          var colId = sender.getAttribute('col-index');
-
-          // uncheck all other columns in that row
-          if (this.mode == 'single-answer') {
-            this._uncheckAllInRow(rowId);
-            this._checkItem(rowId, colId);
-          } else if (this.mode == 'multi-answer') {
-            this._matrixState[rowId][colId] = sender.checked;
-          }
-        },
-
         // @todo How can we refactor that so that it works just with data-binding in a way that only the
         // _matrixState holds the state and the UI is build up on that single source of truth?
         //  -> related: https://stackoverflow.com/questions/27943365/polymer-repeat-template-bidirectional-data-binding
@@ -310,35 +342,6 @@ Example 3: **Checkbox to select multiple answers per row and preselect the `Prod
         _getItem: function(rowId, colId) {
           var items = this._getItemsInRow(rowId);
           return items[colId];
-        },
-
-        getPublishMeta: function() {
-          return {
-            properties: {
-              mode: ['single-answer', 'multi-answer'],
-              preselectedColumn: 'int'
-            },
-            insertionConstraints: {
-              mode: {
-                'single-answer': {
-                  'div class="col"': {
-                    content: 'string'
-                  },
-                  'div class="row"': {
-                    content: 'string'
-                  }
-                },
-                'multi-answer': {
-                  'div class="col"': {
-                    content: 'string'
-                  },
-                  'div class="row"': {
-                    content: 'string'
-                  }
-                }
-              }
-            }
-          }
         }
       });
     })();

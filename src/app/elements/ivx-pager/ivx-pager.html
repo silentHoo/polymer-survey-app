@@ -30,9 +30,10 @@ Example:
       </one-page>
     </ivx-pager>
 
-@group Question Type Survey Elements
+@group Inovex Survey App Elements
 @element ivx-pager
-@homepage https://github.com/silentHoo
+@homepage inovex.de
+@author Patrick Hillert
 -->
 
 <polymer-element name="ivx-pager" attributes="navigation showProgress sort">
@@ -295,14 +296,14 @@ Example:
         // guarantees that the element is in the DOM tree
         attached: function() {
           if (this.sort != 'none') {
-            this.parseSortString();
+            this._parseSortString();
           }
           this.prepareDistributedNodes();
-          this.sortNodes();
+          this._sortNodes();
 
           // we need to insert the first page
           if (this.pageCount > 0) {
-            this.attachPage(0);
+            this._attachPage(0);
           }
 
           // show toast if this (the first) page is optional
@@ -314,57 +315,6 @@ Example:
         domReady: function() {
           this.pageOriginLeft = this.$.pageContent.style.left == '' ? 0 : parseInt(this.$.pageContent.style.left);
           this.pageOriginRight = this.$.pageContent.style.right == '' ? 0 : parseInt(this.$.pageContent.style.right);
-        },
-
-        prepareDistributedNodes: function() {
-          this.distributedNodesUnsorted = this.$.distributedContent.getDistributedNodes();
-          this.pageCount = this.distributedNodesUnsorted.length;
-
-          [].forEach.call(this.distributedNodesUnsorted, function(node, i) {
-            if (this.sort != 'none') {
-              // save a new attribute to sort later on
-              node.sortValue = this._getSortAttributeOfNode(node);
-            }
-
-            this.optionalPages[i] = node.getAttribute('optional') === 'true';
-          }, this);
-        },
-
-        _getSortAttributeOfNode: function(node) {
-          var value;
-          var firstChild = node.children[0];
-          if (firstChild.tagName == 'TEMPLATE') {
-            node = firstChild.createInstance();
-          }
-
-          return node.querySelector(this.sortStringParsed.elementName).getAttribute(this.sortStringParsed.attributeName).toLowerCase();
-        },
-
-        // ivx-question-layouter.question:asc|desc
-        parseSortString: function() {
-          var match = this.sort.match(/([(a-zA-Z\-0-9)]+)\.([(a-zA-Z\-0-9)]+):([(a-zA-Z\-0-9)]+)/);
-          this.sortStringParsed = {
-            elementName: match[1],
-            attributeName: match[2],
-            sortOrder: match[3]
-          };
-        },
-
-        sortNodes: function() {
-          var dnArray = [].slice.call(this.distributedNodesUnsorted);
-
-          switch (this.sortStringParsed.sortOrder) {
-            case 'asc':
-              dnArray.sort(_sortArrayAsc);
-              break;
-            case 'desc':
-              dnArray.sort(_sortArrayDesc);
-              break;
-            default:
-              break;
-          }
-
-          this.distributedNodes = dnArray;
         },
 
         // filter which will be needed later to skip pages
@@ -431,7 +381,7 @@ Example:
 
           // we insert now the next page (this callback is fired, when the animation finished
           if (this.currentPage < this.pageCount - 2) {
-            //this.attachPage(this.currentPage + 1);
+            //this._attachPage(this.currentPage + 1);
           }
         },
 
@@ -439,7 +389,7 @@ Example:
           if (this.currentPage < this.pageCount - 1) {
             ++this.currentPage;
 
-            this.attachPage(this.currentPage);
+            this._attachPage(this.currentPage);
           }
         },
 
@@ -461,14 +411,6 @@ Example:
           // show toast if current page is optional
           if (this.optionalPages[this.currentPage]) {
             this.fire('core-signal', { name: 'show-toast', data: 'Diese Seite ist optional und kann übersprungen werden.' });
-          }
-        },
-
-        // attaches the pages if requested (but only if the page isn't already inserted)
-        attachPage: function(number) {
-          if (this.insertedPages.indexOf(number) == -1) {
-            this.$.pageContent.appendChild(_createTemplateByNode(this.distributedNodes[number]));
-            this.insertedPages.push(number);
           }
         },
 
@@ -497,6 +439,67 @@ Example:
 
             _setStyle(this.$.pageContent, 'left', this.pageOriginLeft + 'px');
             _setStyle(this.$.pageContent, 'right', this.pageOriginRight + '0px');
+          }
+        },
+
+        prepareDistributedNodes: function() {
+          this.distributedNodesUnsorted = this.$.distributedContent.getDistributedNodes();
+          this.pageCount = this.distributedNodesUnsorted.length;
+
+          [].forEach.call(this.distributedNodesUnsorted, function(node, i) {
+            if (this.sort != 'none') {
+              // save a new attribute to sort later on
+              node.sortValue = this._getSortAttributeOfNode(node);
+            }
+
+            this.optionalPages[i] = node.getAttribute('optional') === 'true';
+          }, this);
+        },
+
+        // ===== private methods =====
+
+        _getSortAttributeOfNode: function(node) {
+          var value;
+          var firstChild = node.children[0];
+          if (firstChild.tagName == 'TEMPLATE') {
+            node = firstChild.createInstance();
+          }
+
+          return node.querySelector(this.sortStringParsed.elementName).getAttribute(this.sortStringParsed.attributeName).toLowerCase();
+        },
+
+        // ivx-question-layouter.question:asc|desc
+        _parseSortString: function() {
+          var match = this.sort.match(/([(a-zA-Z\-0-9)]+)\.([(a-zA-Z\-0-9)]+):([(a-zA-Z\-0-9)]+)/);
+          this.sortStringParsed = {
+            elementName: match[1],
+            attributeName: match[2],
+            sortOrder: match[3]
+          };
+        },
+
+        _sortNodes: function() {
+          var dnArray = [].slice.call(this.distributedNodesUnsorted);
+
+          switch (this.sortStringParsed.sortOrder) {
+            case 'asc':
+              dnArray.sort(_sortArrayAsc);
+              break;
+            case 'desc':
+              dnArray.sort(_sortArrayDesc);
+              break;
+            default:
+              break;
+          }
+
+          this.distributedNodes = dnArray;
+        },
+
+        // attaches the pages if requested (but only if the page isn't already inserted)
+        _attachPage: function(number) {
+          if (this.insertedPages.indexOf(number) == -1) {
+            this.$.pageContent.appendChild(_createTemplateByNode(this.distributedNodes[number]));
+            this.insertedPages.push(number);
           }
         }
       });

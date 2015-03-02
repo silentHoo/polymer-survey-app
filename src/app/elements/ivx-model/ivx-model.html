@@ -20,9 +20,10 @@ You can listen to it by using
 
     <core-signals on-core-signal-NAME_OF_SIGNAL="{{ callbackHandler }}"></core-signals>
 
-@group Inovex Survey Elements
+@group Inovex Survey App Elements
 @element ivx-model
 @homepage inovex.de
+@author Patrick Hillert
 -->
 
 <polymer-element name="ivx-model" attributes="name storageType">
@@ -314,6 +315,8 @@ You can listen to it by using
 
           this._makeSignal();
         },
+
+        // ===== private methods =====
 
         _makeSignal: function() {
           // publish via core-signals

@@ -19,6 +19,13 @@
 <link rel="import" href="../ivx-simple-authorize/ivx-simple-authorize.html">
 <link rel="import" href="../ivx-qtype-text/ivx-qtype-text.html">
 
+<!--
+@group Inovex Survey App Page Elements
+@element ivx-page-settings
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
 <polymer-element name="ivx-page-settings" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-page-settings.css">
@@ -247,6 +254,93 @@
           this._restoreState();
         },
 
+        onVibrationToggle: function(event, detail, sender) {
+          this._userInteraction = true;
+          this._vibrationActive = sender.checked;
+          if (!this._vibrationActive) {
+            this._vibrationDuration = this._defaults.app.vibration.default;
+          }
+        },
+
+        onVibrationShortToggle: function(event, detail, sender) {
+          this._userInteraction = true;
+          if (sender.checked) {
+            this._vibrationDuration = this._shortVibrate;
+          } else {
+            // checkbox was unselected by user (not by value change) -> set to zero / default
+            this._vibrationDuration = this._defaults.app.vibration.default;
+          }
+        },
+
+        onVibrationLongToggle: function(event, detail, sender) {
+          this._userInteraction = true;
+          if (sender.checked) {
+            this._vibrationDuration = this._longVibrate;
+          } else {
+            // checkbox was unselected by user (not by value change) -> set to zero / default
+            this._vibrationDuration = this._defaults.app.vibration.default;
+          }
+        },
+
+        onSelect: function(event, detail, sender) {
+          // get name and section
+          var sectName = detail.item.getAttribute('data-section');
+          var attrName = detail.item.getAttribute('data-name');
+          var keyName  = detail.item.getAttribute('data-keyName');
+
+          // make signal and let save
+          this._config[sectName][attrName] = keyName;
+          this._makeSignal(sectName + '.' + attrName);
+        },
+
+        // @todo refactor into own component for below source code
+        onPasswordChange: function() {
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+        },
+
+        onPasswordDialogClose: function() {
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+        },
+
+        onPasswordDialogSave: function() {
+          if (this._config.app.adminPin != this._oldPassword) {
+            this.fire('core-signal', { name: 'show-toast', data: 'Die alte PIN ist nicht korrekt.' });
+            return;
+          }
+
+          if (this._newPassword1 != this._newPassword2) {
+            this.fire('core-signal', { name: 'show-toast', data: 'Die beiden eingegebenen PINs stimmen nicht überein.' });
+            return;
+          }
+
+          if (this._newPassword1 == '') {
+            this.fire('core-signal', { name: 'show-toast', data: 'Das neue Passwort darf nicht leer sein.' });
+            return;
+          }
+
+          this._config.app.adminPin = this._newPassword1;
+          this._makeSignal('app.adminPin');
+
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+          this.fire('core-signal', { name: 'show-toast', data: 'Die PIN wurde erfolgreich geändert.' });
+          this._oldPassword = this._newPassword1 = this._newPassword2 = '';
+        },
+
+        logoutAdmin: function() {
+          ++this._logoutTaps;
+          if (this._logoutTaps == 3) {
+            this._config.app.authorized = false;
+            this.fire('core-signal', { name: 'show-toast', data: 'Admin ausgeloggt.' });
+            this._makeSignal('app.authorized');
+          }
+        },
+
+        onAuthorized: function() {
+          this._authorized = true;
+        },
+
+        // ===== private methods =====
+
         _restoreState: function() {
           // defaults
           this._shortVibrate = this._defaults.app.vibration.values[0].short;
@@ -304,10 +398,6 @@
           });
         },
 
-        onAuthorized: function() {
-          this._authorized = true;
-        },
-
         // separates the UI state via observers from the internal config state
         _onAuthorizedChanged: function(oldValue, newValue) {
           if (this._config.app.authorized != newValue) {
@@ -323,92 +413,11 @@
           }
         },
 
-        onVibrationToggle: function(event, detail, sender) {
-          this._userInteraction = true;
-          this._vibrationActive = sender.checked;
-          if (!this._vibrationActive) {
-            this._vibrationDuration = this._defaults.app.vibration.default;
-          }
-        },
-
-        onVibrationShortToggle: function(event, detail, sender) {
-          this._userInteraction = true;
-          if (sender.checked) {
-            this._vibrationDuration = this._shortVibrate;
-          } else {
-            // checkbox was unselected by user (not by value change) -> set to zero / default
-            this._vibrationDuration = this._defaults.app.vibration.default;
-          }
-        },
-
-        onVibrationLongToggle: function(event, detail, sender) {
-          this._userInteraction = true;
-          if (sender.checked) {
-            this._vibrationDuration = this._longVibrate;
-          } else {
-            // checkbox was unselected by user (not by value change) -> set to zero / default
-            this._vibrationDuration = this._defaults.app.vibration.default;
-          }
-        },
-
         // separates the UI state via observers from the internal config state
         _onVibrationDurationChanged: function(oldValue, newValue) {
           if (!this._userInteraction) return; // if there was no user interaction, we dont change anything!
           this._config.app.vibration = newValue;
           this._makeSignal('app.vibration');
-        },
-
-        onSelect: function(event, detail, sender) {
-          // get name and section
-          var sectName = detail.item.getAttribute('data-section');
-          var attrName = detail.item.getAttribute('data-name');
-          var keyName  = detail.item.getAttribute('data-keyName');
-
-          // make signal and let save
-          this._config[sectName][attrName] = keyName;
-          this._makeSignal(sectName + '.' + attrName);
-        },
-
-        // @todo refactor into own component for below source code
-        onPasswordChange: function() {
-          this.shadowRoot.querySelector('#passwordDialog').toggle();
-        },
-
-        onPasswordDialogClose: function() {
-          this.shadowRoot.querySelector('#passwordDialog').toggle();
-        },
-
-        onPasswordDialogSave: function() {
-          if (this._config.app.adminPin != this._oldPassword) {
-            this.fire('core-signal', { name: 'show-toast', data: 'Die alte PIN ist nicht korrekt.' });
-            return;
-          }
-
-          if (this._newPassword1 != this._newPassword2) {
-            this.fire('core-signal', { name: 'show-toast', data: 'Die beiden eingegebenen PINs stimmen nicht überein.' });
-            return;
-          }
-
-          if (this._newPassword1 == '') {
-            this.fire('core-signal', { name: 'show-toast', data: 'Das neue Passwort darf nicht leer sein.' });
-            return;
-          }
-
-          this._config.app.adminPin = this._newPassword1;
-          this._makeSignal('app.adminPin');
-
-          this.shadowRoot.querySelector('#passwordDialog').toggle();
-          this.fire('core-signal', { name: 'show-toast', data: 'Die PIN wurde erfolgreich geändert.' });
-          this._oldPassword = this._newPassword1 = this._newPassword2 = '';
-        },
-
-        logoutAdmin: function() {
-          ++this._logoutTaps;
-          if (this._logoutTaps == 3) {
-            this._config.app.authorized = false;
-            this.fire('core-signal', { name: 'show-toast', data: 'Admin ausgeloggt.' });
-            this._makeSignal('app.authorized');
-          }
         }
       });
     })();

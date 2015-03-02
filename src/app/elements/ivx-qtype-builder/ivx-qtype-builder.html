@@ -21,6 +21,13 @@
 <link rel="import" href="ivx-qtype-builder-select.html">
 <link rel="import" href="ivx-qtype-builder-insertions.html">
 
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-builder
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
 <polymer-element name="ivx-qtype-builder" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-qtype-builder.css">
@@ -124,20 +131,6 @@
           this._questions = [];
         },
 
-        _reset: function() {
-          this._selectedEl = '';
-          this._title = '';
-          this._htmlCode = '';
-          this._meta = {};
-          this._step = 1;
-          this.$.previewEl.innerHTML = '';
-          this.$.selectMenu.selectedAttribute = '';
-
-          this.$.selectBuilder.reset();
-          this.$.keyValueBuilder.reset();
-          this.$.insertionBuilder.reset();
-        },
-
         onTypeSelected: function(event, detail, sender) {
           this.$.previewEl.innerHTML = '';
           this._htmlCode = '';
@@ -148,36 +141,6 @@
           this._selectedEl = detail.item.innerText;
           this._meta = document.createElement(this._selectedEl).getPublishMeta();
           this._prepareMeta();
-        },
-
-        _prepareMeta: function() {
-          this.$.selectBuilder.reset();
-          this.$.keyValueBuilder.reset();
-          this.$.insertionBuilder.reset();
-
-          if (Object.keys(this._meta.properties).length == 0) {
-            // no properties given -> directly check for constraints
-            for (var elName in this._meta.insertionConstraints) {
-              this.$.insertionBuilder.prepareNodeOnly(elName);
-            }
-          } else {
-            for (var key in this._meta.properties) {
-              var propValue = this._meta.properties[key];
-
-              // multiple attributes in one array: ['attr1': 'val1', ...]
-              if (Array.isArray(propValue)) {
-                this.$.selectBuilder.prepare(key, propValue);
-              }
-
-              if (propValue === 'int' || propValue === 'string' || (typeof propValue === 'object' && !Array.isArray(propValue))) {
-                this.$.keyValueBuilder.prepare(key, propValue);
-              }
-            }
-          }
-        },
-
-        _titleChanged: function() {
-          this._step = 1;
         },
 
         onLegendTap: function(event, detail, sender) {
@@ -213,8 +176,8 @@
             attributes = ' ' + attributes;
           }
           this._htmlCode = '<' + this._selectedEl + attributes + '>\n' +
-                             insertProps +
-                           '</' +  this._selectedEl + '>';
+          insertProps +
+          '</' +  this._selectedEl + '>';
 
           this.$.previewEl.innerHTML = this._htmlCode;
         },
@@ -224,16 +187,62 @@
           this._reset();
         },
 
+        getQuestions: function() {
+          this._saveCurrent();
+          return this._questions;
+        },
+
+        // ===== private methods =====
+
+        _reset: function() {
+          this._selectedEl = '';
+          this._title = '';
+          this._htmlCode = '';
+          this._meta = {};
+          this._step = 1;
+          this.$.previewEl.innerHTML = '';
+          this.$.selectMenu.selectedAttribute = '';
+
+          this.$.selectBuilder.reset();
+          this.$.keyValueBuilder.reset();
+          this.$.insertionBuilder.reset();
+        },
+
+        _prepareMeta: function() {
+          this.$.selectBuilder.reset();
+          this.$.keyValueBuilder.reset();
+          this.$.insertionBuilder.reset();
+
+          if (Object.keys(this._meta.properties).length == 0) {
+            // no properties given -> directly check for constraints
+            for (var elName in this._meta.insertionConstraints) {
+              this.$.insertionBuilder.prepareNodeOnly(elName);
+            }
+          } else {
+            for (var key in this._meta.properties) {
+              var propValue = this._meta.properties[key];
+
+              // multiple attributes in one array: ['attr1': 'val1', ...]
+              if (Array.isArray(propValue)) {
+                this.$.selectBuilder.prepare(key, propValue);
+              }
+
+              if (propValue === 'int' || propValue === 'string' || (typeof propValue === 'object' && !Array.isArray(propValue))) {
+                this.$.keyValueBuilder.prepare(key, propValue);
+              }
+            }
+          }
+        },
+
+        _titleChanged: function() {
+          this._step = 1;
+        },
+
         _saveCurrent: function() {
           this._questions.push({
             title: this._title,
             html: this._htmlCode
           });
-        },
-
-        getQuestions: function() {
-          this._saveCurrent();
-          return this._questions;
         },
 
         _renderAttributeString: function(properties) {

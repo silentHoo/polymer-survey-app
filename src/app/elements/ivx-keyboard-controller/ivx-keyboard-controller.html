@@ -2,6 +2,22 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-a11y-keys/core-a11y-keys.html">
 
+<!--
+Handles the keyboard shortcuts and emits signals to trigger page switching.
+
+Example:
+
+    <ivx-keyboard-controller target="{{ parentElement }}"></ivx-keyboard-controller>
+
+This example will listen to the parent element where the `keyboard-controller` listens
+to **CTRL+E** and **CTRL+U** shortcuts and emits a `switch-page` signal.
+
+@group Inovex Survey App Elements
+@element ivx-keyboard-controller
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
 <polymer-element name="ivx-keyboard-controller" attributes="target">
   <template>
     <core-a11y-keys target="{{ target }}" keys="ctrl+e ctrl+u" on-keys-pressed="{{ onKeysPressed }}"></core-a11y-keys>

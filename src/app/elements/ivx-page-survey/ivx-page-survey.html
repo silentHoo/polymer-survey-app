@@ -16,9 +16,10 @@ Example:
 
     <ivx-page-survey surveyId="23"></ivx-page-survey>
 
-@group Inovex Survey Elements
+@group Inovex Survey App Page Elements
 @element ivx-page-survey
 @homepage inovex.de
+@author Patrick Hillert
 -->
 <polymer-element name="ivx-page-survey" attributes="surveyId surveyTitle">
   <template>
@@ -64,6 +65,8 @@ Example:
           this.surveyTitle = this._survey.attributes.title;
           this._buildSurvey();
         },
+
+        // ===== private methods =====
 
         // builds the survey from the selected survey object
         _buildSurvey: function() {

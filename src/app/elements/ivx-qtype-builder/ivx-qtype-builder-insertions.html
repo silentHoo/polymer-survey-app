@@ -4,6 +4,13 @@
 <!-- base class -->
 <link rel="import" href="ivx-qtype-builder-base.html">
 
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-builder-insertions
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
 <polymer-element name="ivx-qtype-builder-insertions" extends="ivx-qtype-builder-base" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-qtype-builder-insertions.css">
@@ -47,6 +54,27 @@
           this._generateHTML();
         },
 
+        prepareNodeOnly: function(elName) {
+          this._innerHTML = this._generateMarkup(elName, 1, 0);
+        },
+
+        reset: function() {
+          this._innerHTML = '';
+        },
+
+        getProperties: function() {
+          return this._innerHTML;
+        },
+
+        // ===== private methods =====
+
+        _generateHTML: function() {
+          this._innerHTML = '';
+          this._properties.forEach(function(p) {
+            this._innerHTML += p.html;
+          }, this);
+        },
+
         _generateMarkup: function(elName, currElCount, propLength) {
           var markup = '';
 
@@ -62,25 +90,6 @@
             }
           }
           return markup;
-        },
-
-        prepareNodeOnly: function(elName) {
-          this._innerHTML = this._generateMarkup(elName, 1, 0);
-        },
-
-        _generateHTML: function() {
-          this._innerHTML = '';
-          this._properties.forEach(function(p) {
-            this._innerHTML += p.html;
-          }, this);
-        },
-
-        reset: function() {
-          this._innerHTML = '';
-        },
-
-        getProperties: function() {
-          return this._innerHTML;
         }
       });
     })();

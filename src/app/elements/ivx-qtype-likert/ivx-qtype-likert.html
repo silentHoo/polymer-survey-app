@@ -7,6 +7,13 @@
 <link rel="import" href="../ivx-ticker/ivx-ticker.html">
 <link rel="import" href="../ivx-qtype-selection-matrix/ivx-qtype-selection-matrix.html">
 
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-likert
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
 <polymer-element name="ivx-qtype-likert" extends="ivx-qtype-base" attributes="mode preselectedColumn">
   <template>
     <link rel="stylesheet" href="ivx-qtype-likert.css">
@@ -150,6 +157,8 @@
             }
           }
         },
+
+        // ===== private methods =====
 
         _addResizeEvent: function() {
           window.addEventListener('resize', this._onResizeWindow.bind(this));

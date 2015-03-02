@@ -5,6 +5,13 @@
 <!-- self-defined elements -->
 <link rel="import" href="../ivx-model/ivx-model.html">
 
+<!--
+@group Inovex Survey App Elements
+@element ivx-settings-controller
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
 <polymer-element name="ivx-settings-controller" attributes="">
   <template>
     <!-- non-visual dependencies -->
@@ -105,19 +112,6 @@
           }
         },
 
-        _init: function() {
-          if (this.$.settingModel.all().length == 0) {
-            this.$.settingModel.create(_generateSeedModel()).save();
-          }
-
-          if (_model === null) {
-            _model = this.$.settingModel.first();
-          }
-
-          this._delegateTheme();
-          this._delegateVibration();
-        },
-
         getConfig: function() {
           return this.$.settingModel.first().attributes;
         },
@@ -149,6 +143,21 @@
           }
 
           // do some other stuff here ...
+        },
+
+        // ===== private methods =====
+
+        _init: function() {
+          if (this.$.settingModel.all().length == 0) {
+            this.$.settingModel.create(_generateSeedModel()).save();
+          }
+
+          if (_model === null) {
+            _model = this.$.settingModel.first();
+          }
+
+          this._delegateTheme();
+          this._delegateVibration();
         },
 
         _delegateTheme: function() {

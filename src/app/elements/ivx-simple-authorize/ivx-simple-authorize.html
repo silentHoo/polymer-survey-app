@@ -7,6 +7,13 @@
 <!-- self-defined elements -->
 <link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
 
+<!--
+@group Inovex Survey App Elements
+@element ivx-simple-authorize
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
 <polymer-element name="ivx-simple-authorize" attributes="">
   <template>
     <link rel="stylesheet" href="ivx-simple-authorize.css">
@@ -60,6 +67,8 @@
             this._authorized = true;
           }
         },
+
+        // ===== private methods =====
 
         _onAuthorized: function(oldValue, newValue) {
           if (newValue) this.fire('authorized');
