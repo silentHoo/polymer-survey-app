@@ -1,6 +1,6 @@
 {
   "name": "src",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "dependencies": {
     "core-elements": "Polymer/core-elements#^0.5.2",
     "paper-elements": "Polymer/paper-elements#^0.5.2",
