@@ -1,0 +1,177 @@
+<!--
+`ivx-app` is the `main method` for the survey app. It will show a `<core-drawer-panel>` containing
+a drawer, a toolbar and a content area where the pages are contained.
+
+The toast messages are also shown by this component. They're handled by `core-signal` events that are
+emitted by any element.
+
+You can use the `ivx-app` without any configuration.
+
+Example:
+
+    <ivx-app></ivx-app>
+
+@group Inovex Survey App Elements
+@element ivx-app
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-drawer-panel/core-drawer-panel.html">
+<link rel="import" href="../../bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="../../bower_components/core-toolbar/core-toolbar.html">
+<link rel="import" href="../../bower_components/core-icon-button/core-icon-button.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-model/ivx-model.html">
+<link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
+<link rel="import" href="../ivx-drawer-content/ivx-drawer-content.html">
+<link rel="import" href="../ivx-context-menu/ivx-context-menu.html">
+<link rel="import" href="../ivx-main-content/ivx-main-content.html">
+<link rel="import" href="../ivx-dialog-base/ivx-dialog-base.html">
+<link rel="import" href="../ivx-keyboard-controller/ivx-keyboard-controller.html">
+
+<polymer-element name="ivx-app">
+  <template>
+    <link rel="stylesheet" href="ivx-app.css">
+
+    <!-- non-visual dependencies -->
+    <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
+    <ivx-model id="settingModel" name="setting" storageType="localStorage"></ivx-model>
+
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
+    <ivx-keyboard-controller target="{{ parentElement }}"></ivx-keyboard-controller>
+
+    <core-signals on-core-signal-show-toast="{{ onShowToast }}"></core-signals>
+
+    <core-drawer-panel id="drawerPanel">
+      <core-header-panel drawer>
+        <ivx-drawer-content items="{{ pageItems }}" on-item-selected="{{ drawerItemSelected }}"></ivx-drawer-content>
+      </core-header-panel>
+
+      <core-header-panel main id="hPanel">
+
+        <core-toolbar id="toolbar">
+          <core-icon-button id="toggleButton" icon="menu" core-drawer-toggle></core-icon-button>
+          <span flex>{{ toolbarTitle }}</span>
+
+          <div relative>
+            <ivx-context-menu id="contextMenu" items="{{ contextItems }}" on-item-selected="{{ contextItemSelected }}"></ivx-context-menu>
+          </div>
+        </core-toolbar>
+
+        <div class="content" fit>
+          <!-- main content is wrapped in its own component -->
+          <ivx-main-content id="mainContent" fit on-page-changed="{{ _setToolbarTitle }}"></ivx-main-content>
+        </div>
+
+      </core-header-panel>
+    </core-drawer-panel>
+
+    <!-- about dialog -->
+    <ivx-dialog-base id="dialog" transition="core-transition-center" heading="Über diese App">
+      Diese Umfrage-App ist ein Proof-of-Concept für den Einsatz von Web Components und soll zeigen, wie gut sich
+      dieser neue Standard in modernen, mobilen Webanwendungen einsetzen lässt.<br>
+      <br>
+      Sie ist im Wintersemester 2014 im Rahmen der Master-Thesis entstanden.<br>
+      <br>
+      &copy; 2014-2015 Patrick Hillert
+    </ivx-dialog-base>
+    <!-- /about dialog -->
+
+    <!-- app-wide paper-toast messages -->
+    <paper-toast id="toast"></paper-toast>
+  </template>
+
+  <script src="../../bower_components/js-model/dist/js-model-0.11.0.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        // configuration of the single paper-buttons in the drawer panel.
+        pageItems: [{
+          name: 'Umfragen',
+          href: '/surveys',
+          closeDrawer: true,
+          coreIconName: 'assignment'
+        }, {
+          name: 'Einstellungen',
+          href: '/settings',
+          closeDrawer: true,
+          coreIconName: 'settings'
+        }, {
+          name: 'Komponenten',
+          href: '/component-tiles',
+          closeDrawer: true,
+          coreIconName: 'view-module'
+        }],
+
+        // configuration of the context menu in the toolbar.
+        contextItems: [{
+          pageKey: 'load',
+          name: 'Umfragen laden'
+        }, {
+          pageKey: 'about',
+          name: 'Über'
+        }],
+
+        // default toolbar title
+        _toolbarTitle: 'UmfrageApp',
+
+        // callback to load the dummy questions
+        // @todo remove in production
+        contextItemSelected: function(event) {
+          // load questions
+          if (event.detail.item.pageKey == 'load') {
+            this.$.surveyModel.loadDummy();
+            return;
+          }
+
+          this.$.dialog.toggle();
+        },
+
+        // callback to change the title in the toolbar.
+        // Will also close the drawer, if a page needs to be shown only with the toolbar
+        // and needs some more space.
+        drawerItemSelected: function(event) {
+          var item = event.detail.item;
+
+          // switch to narrow mode if forced
+          if (item.closeDrawer) {
+            this.$.drawerPanel.narrow = true;
+            this.$.drawerPanel.togglePanel();
+          } else {
+            this.$.drawerPanel.narrow = false;
+          }
+
+          // change title to current page title
+          this.toolbarTitle = item.name;
+
+          // route to current page
+          this.fire('core-signal', { name: 'switch-page', data: item.href });
+        },
+
+        // event handler to show a toast when the `core-signal` is emitted
+        onShowToast: function(event, detail, sender) {
+          this.job('', function() {
+            this.$.toast.text = detail;
+            this.$.toast.show();
+          });
+        },
+
+        // ===== private methods =====
+
+        // sets the new toolbar title
+        _setToolbarTitle: function(event, detail, sender) {
+          this._toolbarTitle = detail.title;
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

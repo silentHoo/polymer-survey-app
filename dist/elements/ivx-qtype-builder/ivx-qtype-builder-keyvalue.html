@@ -1,0 +1,67 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<!-- base class -->
+<link rel="import" href="ivx-qtype-builder-base.html">
+
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-builder-keyvalue
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-qtype-builder-keyvalue" extends="ivx-qtype-builder-base" attributes="">
+  <template>
+
+    <div vertical layout>
+      <template repeat="{{ m in _models }}">
+        <div horizontal layout center justified>
+          <div>{{ m.name }}</div>
+          <paper-input
+            id="{{ m.name }}"
+            floatingLabel="true"
+            label="{{ m.type == 'int' ? 'Zahl' : 'String' }}"
+            value="{{ m.example }}"
+          ></paper-input>
+        </div>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _models: [],
+
+        prepare: function(key, propValue) {
+          var dataType = propValue, presetValue = '';
+          if (typeof propValue === 'object') {
+            dataType = propValue.type;
+            presetValue = propValue.example;
+          }
+
+          this._models.push({
+            name: key,
+            type: dataType,
+            example: presetValue
+          });
+        },
+
+        reset: function() {
+          this._models = [];
+        },
+
+        getProperties: function() {
+          var props = [];
+          this._models.forEach(function(m) {
+            props.push({ name: m.name, value: this.shadowRoot.querySelector('#' + m.name).value });
+          }, this);
+
+          return props;
+        }
+      });
+    })();
+  </script>
+</polymer-element>

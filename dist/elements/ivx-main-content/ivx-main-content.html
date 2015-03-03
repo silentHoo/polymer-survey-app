@@ -1,0 +1,136 @@
+<!-- 3rd party dependecies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-router/app-router.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-page-welcome/ivx-page-welcome.html">
+<link rel="import" href="../ivx-page-component-tiles/ivx-page-component-tiles.html">
+<link rel="import" href="../ivx-page-surveylist/ivx-page-surveylist.html">
+<link rel="import" href="../ivx-page-settings/ivx-page-settings.html">
+<link rel="import" href="../ivx-page-survey-new/ivx-page-survey-new.html">
+<link rel="import" href="../ivx-page-survey/ivx-page-survey.html">
+
+<!--
+`ivx-main-content` is the content area wrapper for any content. For example, it can be used
+ within a `<core-header-panel main>` to encapsulate the content from the outer space.
+
+Example:
+
+    <core-drawer-panel>
+      <core-header-panel drawer>...</core-header-panel>
+
+      <core-header-panel main>
+        <core-toolbar id="toolbar">...</core-toolbar>
+
+        <div class="content" fit>
+          <ivx-main-content fit on-page-changed="{{ _setToolbarTitle }}"></ivx-main-content>
+        </div>
+
+      </core-header-panel>
+    </core-drawer-panel>
+
+@group Inovex Survey App Elements
+@element ivx-main-content
+@extends ivx-dialog-base
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-main-content" attributes="uriToShow">
+  <template>
+    <link rel="stylesheet" href="ivx-main-content.css">
+
+    <!-- non-visual dependencies -->
+    <core-signals on-core-signal-switch-page="{{ onPageSwitch }}"></core-signals>
+
+    <!-- history support? -->
+    <app-router id="router" mode="auto" on-activate-route-end="{{ onPageSwitched }}">
+      <app-route path="/" data-title="UmfrageApp">
+        <template>
+          <ivx-page-welcome fit></ivx-page-welcome>
+        </template>
+      </app-route>
+
+      <app-route path="/surveys" data-title="Liste der Umfragen">
+        <template>
+          <ivx-page-surveylist fit></ivx-page-surveylist>
+        </template>
+      </app-route>
+
+      <app-route path="/survey/new" data-title="Neue Umfrage erstellen">
+        <template>
+          <ivx-page-survey-new fit></ivx-page-survey-new>
+        </template>
+      </app-route>
+
+      <app-route path="/survey/:id" data-title="{{ _surveyTitle }}">
+        <template>
+          <ivx-page-survey id="surveyPage" surveyId="{{ id }}" fit></ivx-page-survey>
+        </template>
+      </app-route>
+
+      <app-route path="/settings" data-title="Einstellungen">
+        <template>
+          <ivx-page-settings fit></ivx-page-settings>
+        </template>
+      </app-route>
+
+      <app-route path="/component-tiles" data-title="Kachelansicht">
+        <template>
+          <ivx-page-component-tiles fit></ivx-page-component-tiles>
+        </template>
+      </app-route>
+    </app-router>
+
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+
+        publish: {
+          /**
+           * The uri the content page should show.
+           *
+           * @attribute uriToShow
+           * @type String
+           * @default '/'
+           */
+          uriToShow: '/'
+        },
+
+        _surveyTitle: '',
+
+        // as this is the content area, this method reacts on attribute changes of the uri
+        uriToShowChanged: function(oldVal, newVal) {
+          if (newVal != '') {
+            this.$.router.go(newVal);
+          }
+        },
+
+        // will delegate the survey title as normal event (no core-signal) to the
+        // parent element. Is called when the router has changed the route.
+        onPageSwitched: function(event, detail, sender) {
+          this.job('wait for template insertion of app-route', function() {
+            var surveyPage = this.shadowRoot.querySelector('#surveyPage');
+            if (surveyPage) {
+              this._surveyTitle = this.shadowRoot.querySelector('#surveyPage').surveyTitle;
+            }
+
+            this.job('wait for data-binding bound back', function() {
+              this.fire('page-changed', { title: detail.route.getAttribute('data-title') } );
+            });
+          });
+        },
+
+        // event handler for the emitted `core-signal` event to force the router to switch the route
+        onPageSwitch: function(event, page, sender) {
+          this.$.router.go(page);
+        }
+      });
+    })();
+  </script>
+</polymer-element>

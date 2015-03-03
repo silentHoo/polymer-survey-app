@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK,CAGhB,QAAS,CACP,KAAK,CAAE,GAAG,CACV,MAAM,CAAE,MAAM",
+"sources": ["../../../src/app/elements/ivx-page-survey-new/ivx-page-survey-new.scss"],
+"names": [],
+"file": "ivx-page-survey-new.css"
+}

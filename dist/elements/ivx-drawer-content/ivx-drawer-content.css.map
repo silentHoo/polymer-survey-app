@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK,CAGhB,YAAa,CACX,KAAK,CAAE,OAAO,CACd,cAAc,CAAE,KAAK,CACrB,WAAW,CACX,+CAAmB,CAEnB,cAAc,CAAE,kBAAkB,CAGpC,eAAgB,CACd,OAAO,CAAE,IAAI,CAEb,0BAAW,CACT,SAAS,CAAE,iBAAgB,CAC3B,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,KAAK,CAIjB,SAAU,CACR,MAAM,CAAE,GAAG,CACX,UAAU,CAAE,IAAI,CAEhB,oBAAW,CACT,aAAa,CAAE,cAAc,CAE7B,wBAAQ,CACN,YAAY,CAAE,eAAe",
+"sources": ["../../../src/app/elements/ivx-drawer-content/ivx-drawer-content.scss"],
+"names": [],
+"file": "ivx-drawer-content.css"
+}

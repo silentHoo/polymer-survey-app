@@ -1,0 +1,425 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-icons/notification-icons.html">
+<link rel="import" href="../../bower_components/core-icons/image-icons.html">
+<link rel="import" href="../../bower_components/core-icons/maps-icons.html">
+<link rel="import" href="../../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-action-dialog.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-model/ivx-model.html">
+<link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
+<link rel="import" href="../ivx-simple-authorize/ivx-simple-authorize.html">
+<link rel="import" href="../ivx-qtype-text/ivx-qtype-text.html">
+
+<!--
+@group Inovex Survey App Page Elements
+@element ivx-page-settings
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-page-settings" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-page-settings.css">
+
+    <!-- non-visual dependencies -->
+    <ivx-model id="settingModel" name="settings" storageType="localStorage"></ivx-model>
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
+
+    <template if="{{ !_authorized }}">
+      <div layout horizontal center>
+        <ivx-simple-authorize on-authorized="{{ onAuthorized }}"></ivx-simple-authorize>
+      </div>
+    </template>
+
+    <template if="{{ _authorized }}" bind>
+
+      <div class="sectionWrapper">
+        <div class="headline">Grundeinstellungen</div>
+        <div class="divider"></div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="notification:vibration"></core-icon>
+          <div class="textWrapper">
+            <div class="title">Vibrationen</div>
+            <div class="descr">Aktiviert die Web Vibration API bei Touchgesten</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-checkbox id="vibrationEnable" on-tap="{{ onVibrationToggle }}" checked?="{{ _vibrationActive }}"></paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <div class="textWrapper indented {{ _vibrationActive ? 'active' : 'inactive' }}">
+            <div class="title">Kurz</div>
+            <div class="descr">Die Vibration wird für {{ _shortVibrate }}ms ausgeführt</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-checkbox
+              id="vibrationShort"
+              disabled?="{{ !_vibrationActive }}"
+              on-tap="{{ onVibrationShortToggle }}"
+              checked?="{{ _vibrationDuration == _shortVibrate }}">
+            </paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <div class="textWrapper indented {{ _vibrationActive ? 'active' : 'inactive' }}">
+            <div class="title">Lang</div>
+            <div class="descr">Die Vibration wird für {{ _longVibrate }}ms ausgeführt</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-checkbox
+              id="vibrationLong"
+              disabled?="{{ !_vibrationActive }}"
+              on-tap="{{ onVibrationLongToggle }}"
+              checked?="{{ _vibrationDuration == _longVibrate }}">
+            </paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="sectionWrapper">
+        <div class="headline">Darstellung</div>
+        <div class="divider"></div>
+      </div>
+
+      <!-- @todo refactor into own component -->
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="image:color-lens"></core-icon>
+          <div class="textWrapper">
+            <div class="title">Theme</div>
+            <div class="descr">Wechselt die Farbdarstellung</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-dropdown-menu label="Theme" on-core-select="{{ onSelect }}">
+              <paper-dropdown class="dropdown" halign="right" valign="bottom">
+                <core-menu class="menu" selected="{{ _selectedThemeIndex }}">
+                  <template repeat="{{ t in _themes }}">
+                    <paper-item data-name="theme" data-section="app" data-keyName="{{ t.keyName }}">[[ t.humanName ]]</paper-item>
+                  </template>
+                </core-menu>
+              </paper-dropdown>
+            </paper-dropdown-menu>
+          </div>
+        </div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="maps:navigation"></core-icon>
+          <div class="textWrapper">
+            <div class="title">Pager: Navigation</div>
+            <div class="descr">Wechselt die Navigation</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-dropdown-menu label="Navigation" on-core-select="{{ onSelect }}">
+              <paper-dropdown class="dropdown" halign="right" valign="bottom">
+                <core-menu class="menu" selected="{{ _selectedNavigationIndex }}">
+                  <template repeat="{{ t in _navigations }}">
+                    <paper-item data-name="navigation" data-section="pager" data-keyName="{{ t.keyName }}">[[ t.humanName ]]</paper-item>
+                  </template>
+                </core-menu>
+              </paper-dropdown>
+            </paper-dropdown-menu>
+          </div>
+        </div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="sort"></core-icon>
+          <div class="textWrapper">
+            <div class="title">Pager: Sortierung</div>
+            <div class="descr">Sortiert die Seiten anhand ihrer Titel</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-dropdown-menu label="Sortierung" on-core-select="{{ onSelect }}">
+              <paper-dropdown class="dropdown" halign="right" valign="bottom">
+                <core-menu class="menu" selected="{{ _selectedSortIndex }}">
+                  <template repeat="{{ t in _sortings }}">
+                    <paper-item data-name="sort" data-section="pager" data-keyName="{{ t.keyName }}">[[ t.humanName ]]</paper-item>
+                  </template>
+                </core-menu>
+              </paper-dropdown>
+            </paper-dropdown-menu>
+          </div>
+        </div>
+      </div>
+
+      <div class="sectionWrapper">
+        <div class="headline">Erweiterte Einstellungen</div>
+        <div class="divider"></div>
+      </div>
+
+      <div class="listWrapper" layout vertical center>
+        <div class="entry" layout horizontal>
+          <core-icon icon="account-circle"></core-icon>
+          <div class="textWrapper" on-tap="{{ logoutAdmin }}">
+            <div class="title">PIN</div>
+            <div class="descr">Zugriff auf Verwaltungsoptionen</div>
+          </div>
+          <div class="actionWrapper">
+            <paper-button on-tap="{{ onPasswordChange }}">Ändern</paper-button>
+
+            <paper-action-dialog id="passwordDialog" backdrop autoCloseDisabled layered="false">
+              <p>Geben Sie zunächst Ihre alte PIN ein und wiederholen Sie die neue PIN zwei Mal.</p>
+
+              <ivx-qtype-text mode="single" required label="Alte PIN" type="password" value="{{ _oldPassword }}"></ivx-qtype-text>
+              <ivx-qtype-text mode="single" required label="Neue PIN" type="password" value="{{ _newPassword1 }}"></ivx-qtype-text>
+              <ivx-qtype-text mode="single" required label="Neue PIN (Wiederholung)" type="password" value="{{ _newPassword2 }}" pattern="^{{ _newPassword1 }}$" customError="Das Passwort stimmt nicht überein."></ivx-qtype-text>
+
+              <div layout horizontal end-justified>
+                <paper-fab mini icon="check" id="dialogBtSave" on-tap="{{ onPasswordDialogSave }}"></paper-fab>
+                <paper-fab mini icon="close" id="dialogBtClose" on-tap="{{ onPasswordDialogClose }}"></paper-fab>
+              </div>
+            </paper-action-dialog>
+          </div>
+        </div>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        _authorized: false,
+        _shortVibrate: 0,
+        _longVibrate: 0,
+        _vibrationActive: false,
+        _vibrationDuration: 0,
+
+        // select #1
+        _themes: [],
+        _theme: '',
+        _selectedThemeIndex: -1,
+
+        // select #2
+        _navigations: [],
+        _navigation: '',
+        _selectedNavigationIndex: -1,
+
+        // select #3
+        _sortings: [],
+        _sorting: '',
+        _selectedSortIndex: -1,
+
+        // ui page variables only
+        _oldPassword: '',
+        _newPassword1: '',
+        _newPassword2: '',
+
+        _controller: null,
+        _config: null,
+        _defaults: null,
+        _userInteraction: false,
+
+        observe: {
+          '_authorized': '_onAuthorizedChanged',
+          '_vibrationActive': '_onVibrationActiveChanged',
+          '_vibrationDuration': '_onVibrationDurationChanged'
+        },
+
+        _logoutTaps: 0,
+
+        ready: function() {
+          this._controller = this.shadowRoot.querySelector('#settingsController');
+          this._config = this._controller.getConfig();
+          this._defaults = this._controller.getDefaults();
+          this._authorized = this._config.app.authorized;   // if we set this here and not in domReady we can avoid
+                                                            // that the ivx-simple-authorize is shown for a tiny amount
+                                                            // of time.
+        },
+
+        domReady: function() {
+          this._restoreState();
+        },
+
+        onVibrationToggle: function(event, detail, sender) {
+          this._userInteraction = true;
+          this._vibrationActive = sender.checked;
+          if (!this._vibrationActive) {
+            this._vibrationDuration = this._defaults.app.vibration.default;
+          }
+        },
+
+        onVibrationShortToggle: function(event, detail, sender) {
+          this._userInteraction = true;
+          if (sender.checked) {
+            this._vibrationDuration = this._shortVibrate;
+          } else {
+            // checkbox was unselected by user (not by value change) -> set to zero / default
+            this._vibrationDuration = this._defaults.app.vibration.default;
+          }
+        },
+
+        onVibrationLongToggle: function(event, detail, sender) {
+          this._userInteraction = true;
+          if (sender.checked) {
+            this._vibrationDuration = this._longVibrate;
+          } else {
+            // checkbox was unselected by user (not by value change) -> set to zero / default
+            this._vibrationDuration = this._defaults.app.vibration.default;
+          }
+        },
+
+        onSelect: function(event, detail, sender) {
+          // get name and section
+          var sectName = detail.item.getAttribute('data-section');
+          var attrName = detail.item.getAttribute('data-name');
+          var keyName  = detail.item.getAttribute('data-keyName');
+
+          // make signal and let save
+          this._config[sectName][attrName] = keyName;
+          this._makeSignal(sectName + '.' + attrName);
+        },
+
+        // @todo refactor into own component for below source code
+        onPasswordChange: function() {
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+        },
+
+        onPasswordDialogClose: function() {
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+        },
+
+        onPasswordDialogSave: function() {
+          if (this._config.app.adminPin != this._oldPassword) {
+            this.fire('core-signal', { name: 'show-toast', data: 'Die alte PIN ist nicht korrekt.' });
+            return;
+          }
+
+          if (this._newPassword1 != this._newPassword2) {
+            this.fire('core-signal', { name: 'show-toast', data: 'Die beiden eingegebenen PINs stimmen nicht überein.' });
+            return;
+          }
+
+          if (this._newPassword1 == '') {
+            this.fire('core-signal', { name: 'show-toast', data: 'Das neue Passwort darf nicht leer sein.' });
+            return;
+          }
+
+          this._config.app.adminPin = this._newPassword1;
+          this._makeSignal('app.adminPin');
+
+          this.shadowRoot.querySelector('#passwordDialog').toggle();
+          this.fire('core-signal', { name: 'show-toast', data: 'Die PIN wurde erfolgreich geändert.' });
+          this._oldPassword = this._newPassword1 = this._newPassword2 = '';
+        },
+
+        logoutAdmin: function() {
+          ++this._logoutTaps;
+          if (this._logoutTaps == 3) {
+            this._config.app.authorized = false;
+            this.fire('core-signal', { name: 'show-toast', data: 'Admin ausgeloggt.' });
+            this._makeSignal('app.authorized');
+          }
+        },
+
+        onAuthorized: function() {
+          this._authorized = true;
+        },
+
+        // ===== private methods =====
+
+        _restoreState: function() {
+          // defaults
+          this._shortVibrate = this._defaults.app.vibration.values[0].short;
+          this._longVibrate = this._defaults.app.vibration.values[1].long;
+
+          // persisted config values
+          this._vibrationActive = (this._config.app.vibration != 0);
+          this._vibrationDuration = this._config.app.vibration;
+
+          /* @todo refactor to something like this:
+          ['app.theme', 'app.pager.navigation', 'app.pager.sort'].forEach(function(objectToSelect) {
+            
+          });
+          */
+          this._theme = this._config.app.theme;
+          this._themes = this._defaults.app.theme.values.map(this._getPropertyValues);
+          this._selectedThemeIndex = this._defaults.app.theme.values.map(this._getPropertyIndexes).indexOf(this._theme);
+
+          this._navigation = this._config.pager.navigation;
+          this._navigations = this._defaults.pager.navigation.values.map(this._getPropertyValues);
+          this._selectedNavigationIndex = this._defaults.pager.navigation.values.map(this._getPropertyIndexes).indexOf(this._navigation);
+
+          this._sorting = this._config.pager.sort;
+          this._sortings = this._defaults.pager.sort.values.map(this._getPropertyValues);
+          this._selectedSortIndex = this._defaults.pager.sort.values.map(this._getPropertyIndexes).indexOf(this._sorting);
+        },
+
+        _getPropertyValues: function(valueObject, i) {
+          var values = [];
+          for (var prop in valueObject) {
+            values['keyName'] = prop;
+            values['humanName'] = valueObject[prop];
+          }
+          return values;
+        },
+
+        _getPropertyIndexes: function(valueObject, i) {
+          var values = [];
+          for (var prop in valueObject) {
+            values.push(prop);
+          }
+          return values[0];
+        },
+
+        _makeSignal: function(property) {
+          function index(obj,i) { return obj[i] };
+          this.fire('core-signal', {
+            name: 'settings-changed',
+            data: {
+              propName: property,
+              propValue: property.split('.').reduce(index, this._config), // get the value of the string
+                                                                          // given property path
+              config: this._config
+            }
+          });
+        },
+
+        // separates the UI state via observers from the internal config state
+        _onAuthorizedChanged: function(oldValue, newValue) {
+          if (this._config.app.authorized != newValue) {
+            this._config.app.authorized = newValue;
+            this._makeSignal('app.authorized');
+          }
+        },
+
+        _onVibrationActiveChanged: function(oldValue, newValue) {
+          if (!this._userInteraction) return;
+          if (this._vibrationDuration != this._defaults.app.vibration.default) {
+            this._vibrationDuration = this._defaults.app.vibration.default;
+          }
+        },
+
+        // separates the UI state via observers from the internal config state
+        _onVibrationDurationChanged: function(oldValue, newValue) {
+          if (!this._userInteraction) return; // if there was no user interaction, we dont change anything!
+          this._config.app.vibration = newValue;
+          this._makeSignal('app.vibration');
+        }
+      });
+    })();
+  </script>
+</polymer-element>

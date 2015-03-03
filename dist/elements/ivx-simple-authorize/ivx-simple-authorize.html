@@ -1,0 +1,83 @@
+<!-- 3rd party dependecies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input-decorator.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
+
+<!--
+@group Inovex Survey App Elements
+@element ivx-simple-authorize
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-simple-authorize" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-simple-authorize.css">
+
+    <!-- non-visual dependencies -->
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
+
+    <div layout vertical center center-justified fit>
+      <div id="outerWrapper" layout horizontal>
+        <div>
+          <paper-input-decorator label="Administrator-PIN">
+            <input is="core-input" type="password" value="{{ pin }}">
+          </paper-input-decorator>
+        </div>
+
+        <div id="fabWrapper">
+          <paper-fab id="fab" icon="done" on-tap="{{ onAuthorize }}"></paper-fab>
+        </div>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        _pin: '',
+        _authorized: false,
+
+        observe: {
+          _authorized: '_onAuthorized'
+        },
+
+        domReady: function() {
+          var settingsController = this.$.settingsController;
+          var config = settingsController.getConfig();
+
+          this._pin = config.app.adminPin;
+          this._authorized = config.app.authorized;
+        },
+
+        pinChanged: function() {
+          this.$.fab.classList.remove(this.pin == this._pin ? 'incorrect-pin' : 'correct-pin');
+          this.$.fab.classList.add(this.pin == this._pin ? 'correct-pin' : 'incorrect-pin');
+        },
+
+        onAuthorize: function() {
+          var pinCorrect = (this.pin == this._pin);
+          if (pinCorrect) {
+            this._authorized = true;
+          }
+        },
+
+        // ===== private methods =====
+
+        _onAuthorized: function(oldValue, newValue) {
+          if (newValue) this.fire('authorized');
+          this.fire('core-signal', {
+            name: 'show-toast',
+            data: newValue ? 'Erfolgreich autorisiert!' : 'PIN ist nicht korrekt.'
+          });
+        }
+      });
+    })();
+  </script>
+</polymer-element>

@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK",
+"sources": ["../../../src/app/elements/ivx-main-content/ivx-main-content.scss"],
+"names": [],
+"file": "ivx-main-content.css"
+}

@@ -1,0 +1,93 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<!-- base class -->
+<link rel="import" href="ivx-qtype-builder-base.html">
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-builder-select
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-qtype-builder-select" extends="ivx-qtype-builder-base" attributes="">
+  <template>
+
+    <div vertical layout>
+      <template repeat="{{ m, i in _models }}">
+        <div horizontal layout justified center>
+          <div>{{ m.attribute }}</div>
+
+          <div layout horizontal center>
+            {{ m.selected }}
+
+            <paper-menu-button>
+              <paper-icon-button icon="menu"></paper-icon-button>
+              <paper-dropdown class="dropdown" transition="" halign="right" valign="top">
+                <core-menu class="menu" on-core-select="{{ onPropertySelected }}">
+                  <template repeat="{{ entry in m.list }}">
+                    <paper-item data-property-name="{{ m.attribute }}" data-property-index="{{ i }}">{{ entry.name }}</paper-item>
+                  </template>
+                </core-menu>
+              </paper-dropdown>
+            </paper-menu-button>
+          </div>
+        </div>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _models: [],
+        _index: 0,
+
+        prepare: function(key, propValue) {
+          var propList = [];
+          propValue.forEach(function(value) {
+            propList.push({ name: value });
+          });
+
+          this._models.push({
+            index: this._index++,
+            selected: '',
+            attribute: key,
+            list: propList
+          });
+        },
+
+        reset: function() {
+          this._models = [];
+          this._index = 0;
+        },
+
+        onPropertySelected: function(event, detail, sender) {
+          var propIndex = detail.item.attributes['data-property-index'].value;
+          var propName  = detail.item.attributes['data-property-name'].value;
+          var propValue = detail.item.innerHTML;
+          this._models[propIndex].selected = propValue;
+
+          this.fire('property-selected', { name: propName, value: propValue });
+        },
+
+        getProperties: function() {
+          var props = [];
+          this._models.forEach(function(m) {
+            // only add those props that are set by the user
+            if (m.selected != '') {
+              props.push({name: m.attribute, value: m.selected });
+            }
+          });
+
+          return props;
+        }
+      });
+    })();
+  </script>
+</polymer-element>

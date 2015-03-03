@@ -1,0 +1,97 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!-- base class -->
+<link rel="import" href="ivx-qtype-builder-base.html">
+
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-builder-insertions
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-qtype-builder-insertions" extends="ivx-qtype-builder-base" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-qtype-builder-insertions.css">
+
+    <template if="{{ _innerHTML }}">
+      <strong>Insertion Points:</strong><br>
+      <br>
+      <textarea id="area" value="{{ _innerHTML }}"></textarea>
+    </template>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _innerHTML: '',
+        _properties: [], // storing {name: '', value: ''}
+        _dummyString: 'text text',
+        _roundsPerEl: 3,
+
+        prepare: function(keyValue, propValue) {
+          // delete current markup of this property
+          this._properties.forEach(function(p, i) {
+            if (p.name == keyValue.name) {
+              this._properties.splice(i, 1);
+              return;
+            }
+          }, this);
+
+          var markup = '';
+          var propLength = Object.keys(propValue).length;
+          var currElCount = 1;
+          for (var elName in propValue) {
+            markup += this._generateMarkup(elName, currElCount, propLength);
+            ++currElCount;
+          }
+
+          // add newly generated markup
+          var prop = keyValue;
+          prop.html = markup;
+          this._properties.push(prop);
+          this._generateHTML();
+        },
+
+        prepareNodeOnly: function(elName) {
+          this._innerHTML = this._generateMarkup(elName, 1, 0);
+        },
+
+        reset: function() {
+          this._innerHTML = '';
+        },
+
+        getProperties: function() {
+          return this._innerHTML;
+        },
+
+        // ===== private methods =====
+
+        _generateHTML: function() {
+          this._innerHTML = '';
+          this._properties.forEach(function(p) {
+            this._innerHTML += p.html;
+          }, this);
+        },
+
+        _generateMarkup: function(elName, currElCount, propLength) {
+          var markup = '';
+
+          var elNameClose = elName.split(' ')[0]; // removes attributes
+          var el = '<' + elName + '>' + this._dummyString + '</' + elNameClose + '>';
+          for (var i = 0; i < this._roundsPerEl; i++) {
+            markup  += el + '\n';
+
+            var lastIterRound = (i == this._roundsPerEl - 1);
+            var morePropsAfter = currElCount < propLength;
+            if (lastIterRound && morePropsAfter) {
+              markup += '\n';
+            }
+          }
+          return markup;
+        }
+      });
+    })();
+  </script>
+</polymer-element>

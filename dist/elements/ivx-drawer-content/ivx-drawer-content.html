@@ -1,0 +1,197 @@
+<!-- 3rd party dependecies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/core-image/core-image.html">
+<link rel="import" href="../../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../../bower_components/core-signals/core-signals.html">
+
+<!--
+`ivx-drawer-content` represents the content of the `core-header-panel`s drawer.
+
+It composes a `core-image` at the top of the drawer together with a `core-menu` which
+contains the given menu entries, called `items`. It will fire an event if any of
+the menu item is clicked and return the whole item object to let the parent element
+react with anything it want.
+
+Use the attribute `items` to configure the menu items.
+
+You can use the `ivx-drawer-content` element like the following.
+
+Example:
+
+    <core-drawer-panel>
+      <core-header-panel drawer>
+        <ivx-drawer-content
+          items="{{ pageItems }}"
+          on-item-selected="{{ drawerItemSelected }}">
+        </ivx-drawer-content>
+      </core-header-panel>
+
+      <core-header-panel main>
+        ...
+      </core-header-panel>
+    <core-drawer-panel>
+
+@group Inovex Survey App Elements
+@element ivx-drawer-context
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-drawer-content" attributes="items">
+  <template>
+    <link rel="stylesheet" href="ivx-drawer-content.css">
+
+    <!-- non-visual dependencies -->
+    <core-signals on-core-signal-switch-page="{{ onPageSwitch }}"></core-signals>
+    <core-signals on-core-signal-config-vibration-changed="{{ onVibrationChanged }}"></core-signals>
+
+    <div id="imageContainer">
+      <a href="/"><core-image id="brandLogo" sizing="cover" preload fade src="/images/logo.png"></core-image></a>
+    </div>
+
+    <core-menu selected="{{ _selectedIndex }}">
+
+      <template repeat="{{ item, index in items }}">
+        <paper-item on-tap="{{ onItemSelected }}" index="{{ index }}">
+          <core-icon icon="{{ item.coreIconName }}"></core-icon>
+          <div>{{ item.name }}</div>
+        </paper-item>
+      </template>
+
+    </core-menu>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        /**
+         * Fired when an `item` in the drawer is tapped.
+         *
+         * @event item-selected
+         * @param {Object} detail
+         * @param {Array} detail.item This object is the same as the configured item object and contains the same properties.
+         */
+
+        publish: {
+          /**
+           * The items for the `core-menu`.
+           *
+           * The items are stored in an array that contains an object which can be configured
+           * in the following way:
+           *
+           *     [{
+           *         name: 'Home',
+           *         href: '/home',
+           *         closeDrawer: false,
+           *         coreIconName: 'assignment'
+           *      }, {
+           *         name: 'About',
+           *         href: '/about',
+           *         closeDrawer: true,
+           *         coreIconName: 'help'
+           *     }]
+           *
+           * **Please note**: You can only use icons which are available in the `core-icons`
+           * set, because internally the `core-icon` element is used.
+           *
+           * The **name** is the human readable name for the entry in the context menu. The **closeDrawer** flag indicates
+           * if you want to close your drawer and is only to give you a way to pin the flag on the corresponding item.
+           * With the **coreIconName** you can choose a `core-icon` which will be shown left of the text with the name
+           * `name`.
+           *
+           * @attribute items
+           * @type Array
+           * @default 'see below'
+           */
+          items: [/*{
+            name: 'Home',
+            href: '/home',
+            closeDrawer: false,
+            coreIconName: 'assignment'
+          }, {
+            name: 'About',
+            href: '/about',
+            closeDrawer: true,
+            coreIconName: 'help'
+          }*/]
+        },
+
+        _selectedIndex: 0,            // stores the index of the selected item
+
+        _vibrationDuration: 0,        // stores the duration the vibration lasts, 0 = disabled
+        _vibrationHandler: null,      // reference to the bound vibration handler (to remove later)
+        _vibrationHandlerOld: null,   // the last event handler to remove
+
+        // Important: For properties that are objects or arrays, you should always initialize the properties in the
+        // created callback. If you set the default value directly on the prototype (or on the publish object), you
+        // may run into unexpected “shared state” across different instances of the same element.
+        created: function() {
+          this.items = [{
+            name: 'Home',
+            href: '/home',
+            closeDrawer: false,
+            coreIconName: 'assignment'
+          }, {
+            name: 'About',
+            href: '/about',
+            closeDrawer: true,
+            coreIconName: 'help'
+          }];
+        },
+
+        // will be invoked, when an item in the core-menu is tapped and will
+        // fire an item-selected event with the item object.
+        onItemSelected: function (event, detail, sender) {
+          var paperItem = event.currentTarget;
+
+          this.fire('item-selected', {
+            item: this.items[+paperItem.getAttribute('index')]
+          });
+        },
+
+        // event handler for emitted core-signal event
+        // selects the item for the emitted page
+        onPageSwitch: function(event, detail, sender) {
+          var paths = this.items.map(function(item) {
+            return item.href;
+          });
+
+          this._selectedIndex = paths.indexOf(detail);
+        },
+
+        // event handler for emitted core-signal event
+        // updates the vibration duration to the new value and
+        // manages event attach/detach actions
+        onVibrationChanged: function(event, detail, sender) {
+          this._vibrationDuration = detail.duration;
+
+          this._vibrationHandler = this._vibrate.bind(this);
+          var items = this.shadowRoot.querySelectorAll('paper-item');
+          Array.prototype.slice.call(items).forEach(function(item) {
+
+            if (this._vibrationHandlerOld != null) {
+              item.removeEventListener('tap', this._vibrationHandlerOld);
+            }
+
+            if (this._vibrationDuration != 0) {
+              item.addEventListener('tap', this._vibrationHandler);
+            }
+          }, this);
+          this._vibrationHandlerOld = this._vibrationHandler;
+        },
+
+        // ===== private methods =====
+
+        // calls the Vibration API
+        _vibrate: function() {
+          window.navigator.vibrate(this._vibrationDuration);
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

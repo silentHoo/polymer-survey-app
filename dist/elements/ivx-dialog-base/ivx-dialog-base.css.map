@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,KAAK,CAAE,eAAe,CACtB,SAAS,CAAE,KAAK,CAChB,SAAS,CAAE,KAAK,CAGlB,gBAAiB,CACf,SAAS,CAAE,MAAM,CACjB,MAAM,CAAE,CAAC,CACT,aAAa,CAAE,MAAM,CAGvB,uBAAwB,CACtB,OAAO,CAAE,IAAI",
+"sources": ["../../../src/app/elements/ivx-dialog-base/ivx-dialog-base.scss"],
+"names": [],
+"file": "ivx-dialog-base.css"
+}

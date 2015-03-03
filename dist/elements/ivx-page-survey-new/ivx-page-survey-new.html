@@ -1,0 +1,70 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-pager/ivx-pager.html">
+<link rel="import" href="../ivx-pager/one-page.html">
+<link rel="import" href="../ivx-settings-controller/ivx-settings-controller.html">
+<link rel="import" href="../ivx-qtype-builder/ivx-qtype-builder.html">
+
+<!--
+@group Inovex Survey App Page Elements
+@element ivx-page-survey-new
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-page-survey-new" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-page-survey-new.css">
+
+    <!-- non-visual dependencies -->
+    <ivx-model id="surveyModel" name="survey" storageType="localStorage"></ivx-model>
+    <ivx-settings-controller id="settingsController"></ivx-settings-controller>
+
+    <ivx-pager navigation="{{ _navigationMode }}" showProgress="true" vertical-layout="true" on-done="{{ onSave }}" on-abort="{{ onAbort }}">
+      <one-page>
+        <div layout horizontal center-center>
+          <paper-input id="title" floatingLabel="true" label="Umfragetitel"></paper-input>
+        </div>
+      </one-page>
+
+      <one-page>
+        <ivx-qtype-builder id="builder"></ivx-qtype-builder>
+      </one-page>
+    </ivx-pager>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        _navigationMode: '',
+
+        domReady: function() {
+          this._navigationMode = this.$.settingsController.getConfig().pager.navigation;
+        },
+
+        onSave: function() {
+          var questions = this.$.builder.getQuestions();
+
+          this.$.surveyModel.add({
+            title: this.$.title.value,
+            questionCount: questions.length,
+            questions: questions
+          });
+
+          this.fire('core-signal', { name: 'show-toast', data: 'Umfrage wurde gespeichert.' });
+          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
+        },
+
+        onAbort: function() {
+          this.fire('core-signal', { name: 'show-toast', data: 'Erstellung der Umfrage abgebrochen.' });
+          this.fire('core-signal', { name: 'switch-page', data: '/surveys' });
+        }
+      });
+    })();
+  </script>
+</polymer-element>

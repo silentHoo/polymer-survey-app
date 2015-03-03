@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK,CACd,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CAGb,gBAAiB,CACf,QAAQ,CAAE,QAAQ,CAGlB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CAEX,OAAO,CAAE,GAAG,CACZ,SAAS,CAAE,UAAU,CACrB,QAAQ,CAAE,MAAM,CAEhB,oBAAQ,CACN,KAAK,CAAE,IAAI,CACX,gBAAgB,CAAE,OAAO",
+"sources": ["../../../src/app/elements/ivx-core-audio/ivx-core-audio.scss"],
+"names": [],
+"file": "ivx-core-audio.css"
+}

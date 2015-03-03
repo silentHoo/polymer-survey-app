@@ -1,0 +1,1 @@
+:host{display:block;width:100%}#outerWrapper #fabWrapper{padding-top:1rem;padding-left:1rem}#outerWrapper #fabWrapper #fab{background-color:grey}#outerWrapper #fabWrapper #fab.incorrect-pin{background-color:red}#outerWrapper #fabWrapper #fab.correct-pin{background-color:green}

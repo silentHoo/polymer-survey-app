@@ -1,0 +1,113 @@
+<!--
+`ivx-context-menu` can be used in a toolbar to show a `paper-menu-button` with a
+`paper-dropdown`.
+
+It will fire an event if any of the menu item is clicked and return the whole item
+object to let the parent element react with anything it want.
+
+Use the attribute `items` to configure the menu items.
+
+You can use the `ivx-context-menu` element like the following.
+
+Example:
+
+    <core-toolbar>
+      <span flex>My App</span>
+      <div relative>
+        <ivx-context-menu
+          items="{{ contextItems }}"
+          on-item-selected="{{ contextItemSelected }}">
+        </ivx-context-menu>
+      </div>
+    </core-toolbar>
+
+@group Inovex Survey App Elements
+@element ivx-context-menu
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<!-- 3rd party dependecies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<polymer-element name="ivx-context-menu" attributes="items">
+  <template>
+    <link rel="stylesheet" href="ivx-context-menu.css">
+
+    <paper-menu-button>
+      <paper-icon-button icon="more-vert" noink></paper-icon-button>
+
+      <paper-dropdown class="dropdown" halign="right" valign="top">
+        <core-menu class="menu">
+
+          <template repeat="{{ item, index in items }}">
+            <paper-item on-tap="{{ onItemSelected }}" index="{{ index }}">{{ item.name }}</paper-item>
+          </template>
+
+        </core-menu>
+      </paper-dropdown>
+
+    </paper-menu-button>
+
+  </template>
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        /**
+         * Fired when an `item` in the context menu is tapped.
+         *
+         * @event item-selected
+         * @param {Object} detail
+         * @param {Array} detail.item This object is the same as the configured item object and contains the same properties.
+         */
+
+        /**
+         * The items for the context menu.
+         *
+         * The items are stored in an array that contains an object which can be configured
+         * in the following way:
+         *
+         *     [{
+         *         pageKey: 'home',
+         *         name: 'Home'
+         *      }, {
+         *         pageKey: 'about',
+         *         name: 'About'
+         *     }]
+         *
+         * The **pageKey** describes a unique key (or ID if you want) which can be used to react on a user tap. The
+         * **name** is the human readable name for the entry in the context menu.
+         *
+         * @attribute items
+         * @type Array
+         * @default 'see below'
+         */
+        publish: {
+          items: [{
+            pageKey: 'home',
+            name: 'Home'
+          },{
+            pageKey: 'about',
+            name: 'About'
+          }]
+        },
+
+        // will be invoked, when an item in the core-menu is tapped and will
+        // fire an item-selected event with the item object.
+        onItemSelected: function(event) {
+          this.fire('item-selected', {
+            item: this.items[+event.target.getAttribute('index')]
+          });
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

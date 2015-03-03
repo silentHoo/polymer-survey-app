@@ -1,0 +1,38 @@
+<!-- 3rd party dependecies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-yesno
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-qtype-yesno" extends="ivx-qtype-base" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-qtype-yesno.css">
+
+    <div horizontal center-justified layout>
+      <paper-radio-group selected="">
+        <paper-radio-button name="yes" label="Ja"></paper-radio-button>
+        <paper-radio-button name="no" label="Nein"></paper-radio-button>
+      </paper-radio-group>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        getPublishMeta: function() {
+          return {
+            properties: { /* no properties */ }
+          }
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

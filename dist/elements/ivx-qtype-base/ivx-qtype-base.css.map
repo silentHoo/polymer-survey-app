@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK",
+"sources": ["../../../src/app/elements/ivx-qtype-base/ivx-qtype-base.scss"],
+"names": [],
+"file": "ivx-qtype-base.css"
+}

@@ -1,0 +1,429 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-shadow/paper-shadow.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-qtype-selection-matrix/ivx-qtype-selection-matrix.html">
+<link rel="import" href="../ivx-qtype-rank/ivx-qtype-rank.html">
+<link rel="import" href="../ivx-qtype-rank/rank-item.html">
+<link rel="import" href="../ivx-qtype-likert/ivx-qtype-likert.html">
+<link rel="import" href="../ivx-qtype-multiple-choice/ivx-qtype-multiple-choice.html">
+<link rel="import" href="../ivx-qtype-usermedia/ivx-qtype-usermedia.html">
+<link rel="import" href="../ivx-qtype-text/ivx-qtype-text.html">
+<link rel="import" href="../ivx-qtype-yesno/ivx-qtype-yesno.html">
+
+<!--
+@group Inovex Survey App Page Elements
+@element ivx-page-component-tile
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-page-component-tiles" attributes="" noscript>
+  <template>
+    <link rel="stylesheet" href="ivx-page-component-tiles.css">
+
+    <div layout horizontal justified wrap>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-rank</h2>
+        <span>core-animation animiert</span>
+        <br><br>
+
+        <ivx-qtype-rank>
+          <core-animation duration="2000" iterations="Infinity" easing="linear" class="dragging">
+            <core-animation-keyframe>
+              <core-animation-prop name="opacity" value="1.0"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="opacity" value="0.3"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="opacity" value="1.0"></core-animation-prop>
+            </core-animation-keyframe>
+          </core-animation>
+
+          <core-animation duration="1000" easing="linear" class="dropped-source">
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="transparent"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="#FF0000"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="transparent"></core-animation-prop>
+            </core-animation-keyframe>
+          </core-animation>
+
+          <core-animation duration="1000" easing="linear" class="dropped-target">
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="transparent"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="#FFFF00"></core-animation-prop>
+            </core-animation-keyframe>
+            <core-animation-keyframe>
+              <core-animation-prop name="background-color" value="transparent"></core-animation-prop>
+            </core-animation-keyframe>
+          </core-animation>
+
+          <rank-item>A1</rank-item>
+          <rank-item>A2</rank-item>
+          <rank-item>A3</rank-item>
+          <rank-item>A4</rank-item>
+          <rank-item>A5</rank-item>
+          <rank-item>A6</rank-item>
+        </ivx-qtype-rank>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-rank</h2>
+        <span>default-Werte</span>
+        <br><br>
+
+        <ivx-qtype-rank>
+          <rank-item>B1</rank-item>
+          <rank-item>B2</rank-item>
+          <rank-item>B3</rank-item>
+          <rank-item>B4</rank-item>
+          <rank-item>B5</rank-item>
+          <rank-item>B6</rank-item>
+        </ivx-qtype-rank>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-selection-matrix</h2>
+        <span>
+          mode: single-answer<br>
+          preselectedColumn: 1
+        </span>
+        <br><br>
+
+        <ivx-qtype-selection-matrix mode="single-answer" preselectedColumn="1">
+          <div class="col">Product 1</div>
+          <div class="col">Product 2</div>
+          <div class="col">Product 3</div>
+          <div class="col">Product 4</div>
+          <div class="col">Product 5</div>
+
+          <div class="row">Feature A</div>
+          <div class="row">Feature B</div>
+          <div class="row">Feature C</div>
+        </ivx-qtype-selection-matrix>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-selection-matrix</h2>
+        <span>
+          mode: multi-answer<br>
+          preselectedColumn: 2
+        </span>
+        <br><br>
+
+        <ivx-qtype-selection-matrix mode="multi-answer" preselectedColumn="2">
+          <div class="col">Product 1</div>
+          <div class="col">Product 2</div>
+          <div class="col">Product 3</div>
+          <div class="col">Product 4</div>
+          <div class="col">Product 5</div>
+
+          <div class="row">Feature A</div>
+          <div class="row">Feature B</div>
+          <div class="row">Feature C</div>
+        </ivx-qtype-selection-matrix>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-likert</h2>
+        <span>
+          mode: slide<br>
+          preselectedColumn: 1
+        </span>
+        <br><br>
+
+        <ivx-qtype-likert mode="slide" preselectedColumn="1">
+          <div class="col">++</div>
+          <div class="col">+</div>
+          <div class="col">o</div>
+          <div class="col">-</div>
+          <div class="col">--</div>
+          <div class="col">k.A.</div>
+
+          <div class="row">A1</div>
+          <div class="row">A2</div>
+          <div class="row">A3</div>
+          <div class="row">A4</div>
+          <div class="row">A5</div>
+        </ivx-qtype-likert>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-likert</h2>
+        <span>
+          mode: slide<br>
+          preselectedColumn: 3
+        </span>
+        <br><br>
+
+        <ivx-qtype-likert mode="slide" preselectedColumn="3">
+          <div class="col">trifft sehr zu</div>
+          <div class="col">trifft weniger zu</div>
+          <div class="col">weder noch</div>
+          <div class="col">trifft eher zu</div>
+          <div class="col">trifft eher nicht zu</div>
+          <div class="col">k.A.</div>
+
+          <div class="row">B1</div>
+          <div class="row">B2</div>
+          <div class="row">B3</div>
+          <div class="row">B4</div>
+          <div class="row">B5</div>
+        </ivx-qtype-likert>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-likert</h2>
+        <span>
+          mode: matrix<br>
+          preselectedColumn: 4
+        </span>
+        <br><br>
+
+        <ivx-qtype-likert mode="matrix" preselectedColumn="4">
+          <div class="col">trifft sehr zu</div>
+          <div class="col">trifft weniger zu</div>
+          <div class="col">weder noch</div>
+          <div class="col">trifft eher zu</div>
+          <div class="col">trifft eher nicht zu</div>
+          <div class="col">k.A.</div>
+
+          <div class="row">C1</div>
+          <div class="row">C2</div>
+          <div class="row">C3</div>
+          <div class="row">C4</div>
+          <div class="row">C5</div>
+        </ivx-qtype-likert>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-likert</h2>
+        <span>
+          mode: matrix<br>
+          preselectedColumn: 2
+        </span>
+        <br><br>
+
+        <ivx-qtype-likert mode="matrix" preselectedColumn="2">
+          <div class="col">++</div>
+          <div class="col">+</div>
+          <div class="col">o</div>
+          <div class="col">-</div>
+          <div class="col">--</div>
+          <div class="col">k.A.</div>
+
+          <div class="row">D1</div>
+          <div class="row">D2</div>
+          <div class="row">D3</div>
+          <div class="row">D4</div>
+          <div class="row">D5</div>
+        </ivx-qtype-likert>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-multiple-choice</h2>
+        <span>
+          mode: multi-answer
+        </span>
+        <br><br>
+
+        <ivx-qtype-multiple-choice mode="multi-answer">
+          <div class="answer">A1</div>
+          <div class="answer">A2</div>
+          <div class="answer">A3</div>
+          <div class="answer">A4</div>
+          <div class="answer">A5</div>
+        </ivx-qtype-multiple-choice>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-multiple-choice</h2>
+        <span>
+          mode: single-answer
+        </span>
+        <br><br>
+
+        <ivx-qtype-multiple-choice mode="single-answer">
+          <div class="answer">B1</div>
+          <div class="answer">B2</div>
+          <div class="answer">B3</div>
+          <div class="answer">B4</div>
+          <div class="answer">B5</div>
+        </ivx-qtype-multiple-choice>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-yesno</h2>
+
+        <ivx-qtype-yesno></ivx-qtype-yesno>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-text</h2>
+        <span>
+          mode: single<br>
+          label: "Keine Validierung"
+        </span>
+        <br><br>
+
+        <ivx-qtype-text mode="single" label="Keine Validierung"></ivx-qtype-text>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-text</h2>
+        <span>
+          mode: single<br>
+          required<br>
+          label: "required"
+        </span>
+        <br><br>
+
+        <ivx-qtype-text mode="single" required label="required"></ivx-qtype-text>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-text</h2>
+        <span>
+          mode: single<br>
+          validationType: text<br>
+          min: 3<br>
+          max 5<br>
+          label: "text zwischen 3 und 5 Zeichen"
+        </span>
+        <br><br>
+
+        <ivx-qtype-text mode="single" validationType="text" min="3" max="5" label="text zwischen 3 und 5 Zeichen"></ivx-qtype-text>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-text</h2>
+        <span>
+          mode: single<br>
+          required<br>
+          validationType: text<br>
+          label: "required, text"
+        </span>
+
+        <ivx-qtype-text mode="single" required validationType="text" label="required, text"></ivx-qtype-text>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-text</h2>
+        <span>
+          mode: single<br>
+          required<br>
+          validationType: date<br>
+          label: "Datum, dd.mm.YYYY"
+        </span>
+        <br><br>
+
+        <ivx-qtype-text mode="single" required validationType="date" label="Datum, dd.mm.YYYY"></ivx-qtype-text>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-text</h2>
+        <span>
+          mode: single<br>
+          required<br>
+          validationType: postcode<br>
+          label: "PLZ"
+        </span>
+        <br><br>
+
+        <ivx-qtype-text mode="single" required validationType="postcode" label="PLZ"></ivx-qtype-text>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-text</h2>
+        <span>
+          mode: multiple<br>
+          label: "Mehrzeilige Antwort"
+        </span>
+        <br><br>
+
+        <ivx-qtype-text mode="multiple" label="Mehrzeilige Antwort"></ivx-qtype-text>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-usermedia</h2>
+        <span>
+          mode: image
+        </span>
+        <br><br>
+
+        <ivx-qtype-usermedia mode="image"></ivx-qtype-usermedia>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-usermedia</h2>
+        <span>
+          mode: video<br>
+          visualizeAudio: false
+        </span>
+        <br><br>
+
+        <ivx-qtype-usermedia visualizeAudio="false" mode="video"></ivx-qtype-usermedia>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-usermedia</h2>
+        <span>
+          mode: video<br>
+          visualizeAudio: true
+        </span>
+        <br><br>
+
+        <ivx-qtype-usermedia visualizeAudio="true" mode="video"></ivx-qtype-usermedia>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-usermedia</h2>
+        <span>
+          mode: audio<br>
+          visualizeAudio: true
+        </span>
+        <br><br>
+
+        <ivx-qtype-usermedia visualizeAudio="true" mode="audio"></ivx-qtype-usermedia>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-qtype-usermedia</h2>
+        <span>
+          mode: audio<br>
+          visualizeAudio: false
+        </span>
+        <br><br>
+
+        <ivx-qtype-usermedia visualizeAudio="false" mode="audio"></ivx-qtype-usermedia>
+      </paper-shadow>
+
+      <paper-shadow z="2">
+        <h2>ivx-ticker</h2>
+        <span>
+          separator: ♫<br>
+          msgs: "Armin ... Water"
+        </span>
+        <br><br>
+
+        <ivx-ticker separator="♫"
+                    msgs="
+                          Armin van Buuren - Communication Part III,
+                          System of a Down - Chop Suey,
+                          Ella Henderson - Ghost,
+                          Simon and Garfunkel - Bridge Over Troubled Water
+                        ">
+        </ivx-ticker>
+      </paper-shadow>
+    </div>
+  </template>
+</polymer-element>

@@ -1,0 +1,89 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-label/core-label.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-multiple-choice
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-qtype-multiple-choice" extends="ivx-qtype-base" attributes="mode">
+  <template>
+    <link rel="stylesheet" href="ivx-qtype-multiple-choice.css">
+
+    <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
+    <div style="display: none;">
+      <content id="distributedContent" select="div.answer"></content>
+    </div>
+
+    <template if="{{ mode == 'single-answer' }}">
+      <div vertical layout center>
+        <paper-radio-group selected="">
+          <template repeat="{{ answer, index in _answers }}">
+            <paper-radio-button name="{{ answer }}" label="{{ answer }}"></paper-radio-button>
+          </template>
+        </paper-radio-group>
+      </div>
+    </template>
+
+    <template if="{{ mode == 'multi-answer' }}">
+      <div vertical layout center>
+        <template repeat="{{ answer, index in _answers }}">
+          <core-label horizontal layout>
+            <paper-checkbox for></paper-checkbox>
+            <div>{{ answer }}</div>
+          </core-label>
+        </template>
+      </div>
+    </template>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        _answers: [],
+
+        ready: function() {
+          this.async(this.prepareDistributedNodes, null, 0);
+        },
+
+        prepareDistributedNodes: function() {
+          this._answers = [];
+          var distributedNodes = this.$.distributedContent.getDistributedNodes();
+          [].forEach.call(distributedNodes, function(node, i) {
+            this._answers.push(node.innerHTML);
+          }, this);
+        },
+
+        getPublishMeta: function() {
+          return {
+            properties: {
+              mode: ['single-answer', 'multi-answer']
+            },
+            insertionConstraints: {
+              mode: {
+                'single-answer': {
+                  'div class="answer"': {
+                    content: 'string'
+                  }
+                },
+                'multi-answer': {
+                  'div class="answer"': {
+                    content: 'string'
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

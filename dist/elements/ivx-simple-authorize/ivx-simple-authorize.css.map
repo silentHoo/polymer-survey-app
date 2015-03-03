@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK,CACd,KAAK,CAAE,IAAI,CAKX,yBAAY,CACV,WAAW,CAAE,IAAI,CACjB,YAAY,CAAE,IAAI,CAElB,8BAAK,CACH,gBAAgB,CAAE,IAAI,CAGxB,4CAAmB,CACjB,gBAAgB,CAAE,GAAG,CAGvB,0CAAiB,CACf,gBAAgB,CAAE,KAAK",
+"sources": ["../../../src/app/elements/ivx-simple-authorize/ivx-simple-authorize.scss"],
+"names": [],
+"file": "ivx-simple-authorize.css"
+}

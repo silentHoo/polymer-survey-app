@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK,CACd,QAAQ,CAAE,MAAM,CAGlB,QAAS,CACP,WAAW,CAAE,MAAM,CACnB,QAAQ,CAAE,MAAM,CAChB,OAAO,CAAE,YAAY,CACrB,UAAU,CAAE,SAAS,CACrB,0BAA0B,CAAE,MAAM,CAGpC,UAAW,CACT,WAAW,CAAE,iBAA0B,CACvC,KAAK,CAAE,OAAO",
+"sources": ["../../../src/app/elements/ivx-ticker/ivx-ticker.scss"],
+"names": [],
+"file": "ivx-ticker.css"
+}

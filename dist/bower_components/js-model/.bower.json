@@ -1,0 +1,14 @@
+{
+  "name": "js-model",
+  "homepage": "https://github.com/silentHoo/js-model",
+  "version": "0.11.0",
+  "_release": "0.11.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.11.0",
+    "commit": "387f06cabb72c06a35b38a4b29026a3f53167e93"
+  },
+  "_source": "https://github.com/silentHoo/js-model.git",
+  "_target": "~0.11.0",
+  "_originalSource": "https://github.com/silentHoo/js-model.git"
+}

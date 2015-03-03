@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>js-model &bull; models in your JavaScript</title>
+<link href="docs/style.css" rel="stylesheet">
+<%= analytics %>
+</head>
+<body>
+  <div id="content">
+    <h1>js-model (<%= @version %>)</h1>
+
+    <p>js-model is a library that allows you to work with models in your JavaScript.</p>
+
+    <dl>
+      <dt>Download</dt>
+      <dd><a href="dist/js-model-<%= @version %>.min.js">js-model-<%= @version %>.min.js</a> (<%= @file_size_min %>Kb)</dd>
+      <dd><a href="dist/js-model-<%= @version %>.js">js-model-<%= @version %>.js</a> (<%= @file_size %>Kb)</dd>
+
+      <dt>Source</dt>
+      <dd><a href="http://github.com/benpickles/js-model">github.com/benpickles/js-model</a></dd>
+    </dl>
+
+    <nav></nav>
+
+    <%- @sections.each do |section| -%>
+      <section><%= section %></section>
+    <%- end -%>
+  </div>
+
+  <footer>
+    <p>&copy; 2010-<%= Time.now.year %> <a href="http://benpickles.com/">Ben Pickles</a>. See <a href="http://github.com/benpickles/js-model/blob/master/LICENSE">LICENSE</a> for details.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/akyral-code/akyral-code.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/core-menu/core-menu.html">
+
+<!-- self-defined elements -->
+<link rel="import" href="../ivx-qtype-selection-matrix/ivx-qtype-selection-matrix.html">
+<link rel="import" href="../ivx-qtype-text/ivx-qtype-text.html">
+<link rel="import" href="../ivx-qtype-multiple-choice/ivx-qtype-multiple-choice.html">
+<link rel="import" href="../ivx-qtype-rank/ivx-qtype-rank.html">
+<link rel="import" href="../ivx-qtype-usermedia/ivx-qtype-usermedia.html">
+<link rel="import" href="../ivx-qtype-likert/ivx-qtype-likert.html">
+<link rel="import" href="../ivx-qtype-yesno/ivx-qtype-yesno.html">
+
+<!-- builders -->
+<link rel="import" href="ivx-qtype-builder-keyvalue.html">
+<link rel="import" href="ivx-qtype-builder-select.html">
+<link rel="import" href="ivx-qtype-builder-insertions.html">
+
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-builder
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-qtype-builder" attributes="">
+  <template>
+    <link rel="stylesheet" href="ivx-qtype-builder.css">
+
+    <fieldset active>
+      <legend on-tap="{{ onLegendTap }}">Schritt 0: Frage</legend>
+
+      <div class="contentWrapper">
+        <paper-input id="title" value="{{ _title }}" floatingLabel="true" label="Ihre Frage für dieses Element"></paper-input>
+      </div>
+    </fieldset>
+
+    <fieldset active?="{{ _step >= 1 }}">
+      <legend on-tap="{{ onLegendTap }}">Schritt 1: Element auswählen</legend>
+
+      <div horizontal layout justified center class="contentWrapper">
+        Q-Type Element:
+
+        <div layout horizontal center>
+          {{ _selectedEl }}
+
+          <paper-menu-button>
+            <paper-icon-button icon="menu"></paper-icon-button>
+            <paper-dropdown class="dropdown" transition="" halign="right" valign="top">
+              <core-menu id="selectMenu" class="menu" on-core-select="{{ onTypeSelected }}">
+                <template repeat="{{ t in _qtypes }}">
+                  <paper-item>{{ t }}</paper-item>
+                </template>
+              </core-menu>
+            </paper-dropdown>
+          </paper-menu-button>
+
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset active?="{{ _step >= 2 }}">
+      <legend on-tap="{{ onLegendTap }}">Schritt 2: Element konfigurieren</legend>
+
+      <div class="contentWrapper">
+        <!-- selectors -->
+        <ivx-qtype-builder-select id="selectBuilder" on-property-selected="{{ onPropertySelected }}"></ivx-qtype-builder-select>
+
+        <!-- key value -->
+        <ivx-qtype-builder-keyvalue id="keyValueBuilder"></ivx-qtype-builder-keyvalue>
+
+        <!-- insertion constraints -->
+        <ivx-qtype-builder-insertions id="insertionBuilder"></ivx-qtype-builder-insertions>
+
+        <br><br>
+
+        <div horizontal layout end-justified>
+          <paper-button raised on-tap="{{ onGenerate }}" disabled?="{{ _step < 2 }}">generieren</paper-button>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset active?="{{ _step >= 3 }}">
+      <legend on-tap="{{ onLegendTap }}">Vorschau</legend>
+
+      <div id="previewEl" class="contentWrapper"></div>
+    </fieldset>
+
+    <fieldset active?="{{ _step >= 3 }}">
+      <legend on-tap="{{ onLegendTap }}">HTML-Code</legend>
+
+      <div class="contentWrapper">
+        <code is="akyral-code" theme="railscasts">{{ _htmlCode }}</code>
+      </div>
+    </fieldset>
+
+    <fieldset active?="{{ _step >= 3 }}">
+      <legend on-tap="{{ onLegendTap }}">Speichern</legend>
+
+      <div horizontal layout center class="contentWrapper">
+        <paper-button raised on-tap="{{ onSaveNext }}" disabled?="{{ _step < 3 }}">+ Weitere Frage</paper-button>
+      </div>
+    </fieldset>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        _step: 0,
+        _qtypes: [
+          'ivx-qtype-likert',
+          'ivx-qtype-multiple-choice',
+          'ivx-qtype-rank',
+          'ivx-qtype-selection-matrix',
+          'ivx-qtype-text',
+          'ivx-qtype-usermedia',
+          'ivx-qtype-yesno'
+        ],
+        _meta: {},
+        _selectedEl: '',
+        _title: '',
+        _htmlCode: '',
+        _questions: [],
+
+        created: function() {
+          this._questions = [];
+        },
+
+        onTypeSelected: function(event, detail, sender) {
+          this.$.previewEl.innerHTML = '';
+          this._htmlCode = '';
+
+          if (!detail.isSelected) return;
+          this._step = 2;
+
+          this._selectedEl = detail.item.innerText;
+          this._meta = document.createElement(this._selectedEl).getPublishMeta();
+          this._prepareMeta();
+        },
+
+        onLegendTap: function(event, detail, sender) {
+          var fieldset = sender.parentElement;
+          fieldset.getAttribute('closed') ? fieldset.removeAttribute('closed') : fieldset.setAttribute('closed', true);
+        },
+
+        onPropertySelected: function(event, detail, sender) {
+          // check for constraints
+          if (this._meta.insertionConstraints === undefined) {
+            return;
+          }
+
+          var propConstraints = this._meta.insertionConstraints[detail.name][detail.value];
+
+          if (propConstraints !== undefined) {
+            this.$.insertionBuilder.prepare({ name: detail.name, value: detail.value}, propConstraints);
+          }
+        },
+
+        onGenerate: function() {
+          this._step = 3;
+          var selectProps = this.$.selectBuilder.getProperties();
+          var keyValProps = this.$.keyValueBuilder.getProperties();
+          var insertProps = this.$.insertionBuilder.getProperties();
+          var attributes = this._renderAttributeString(selectProps.concat(keyValProps));
+
+          // prettify insertion points
+          insertProps = '  ' + insertProps.replace(new RegExp('\n', 'g'), '\n  '); // indent all by '  '
+          insertProps = insertProps.replace(new RegExp('  $'), ''); // but not the last one
+
+          if (attributes != '') {
+            attributes = ' ' + attributes;
+          }
+          this._htmlCode = '<' + this._selectedEl + attributes + '>\n' +
+          insertProps +
+          '</' +  this._selectedEl + '>';
+
+          this.$.previewEl.innerHTML = this._htmlCode;
+        },
+
+        onSaveNext: function() {
+          this._saveCurrent();
+          this._reset();
+        },
+
+        getQuestions: function() {
+          this._saveCurrent();
+          return this._questions;
+        },
+
+        // ===== private methods =====
+
+        _reset: function() {
+          this._selectedEl = '';
+          this._title = '';
+          this._htmlCode = '';
+          this._meta = {};
+          this._step = 1;
+          this.$.previewEl.innerHTML = '';
+          this.$.selectMenu.selectedAttribute = '';
+
+          this.$.selectBuilder.reset();
+          this.$.keyValueBuilder.reset();
+          this.$.insertionBuilder.reset();
+        },
+
+        _prepareMeta: function() {
+          this.$.selectBuilder.reset();
+          this.$.keyValueBuilder.reset();
+          this.$.insertionBuilder.reset();
+
+          if (Object.keys(this._meta.properties).length == 0) {
+            // no properties given -> directly check for constraints
+            for (var elName in this._meta.insertionConstraints) {
+              this.$.insertionBuilder.prepareNodeOnly(elName);
+            }
+          } else {
+            for (var key in this._meta.properties) {
+              var propValue = this._meta.properties[key];
+
+              // multiple attributes in one array: ['attr1': 'val1', ...]
+              if (Array.isArray(propValue)) {
+                this.$.selectBuilder.prepare(key, propValue);
+              }
+
+              if (propValue === 'int' || propValue === 'string' || (typeof propValue === 'object' && !Array.isArray(propValue))) {
+                this.$.keyValueBuilder.prepare(key, propValue);
+              }
+            }
+          }
+        },
+
+        _titleChanged: function() {
+          this._step = 1;
+        },
+
+        _saveCurrent: function() {
+          this._questions.push({
+            title: this._title,
+            html: this._htmlCode
+          });
+        },
+
+        _renderAttributeString: function(properties) {
+          // filter out empty values
+          properties = properties.filter(function(p) {
+            return p.value !== '';
+          });
+
+          var i = 0;
+          var str = '';
+          properties.forEach(function(p) {
+            str += p.name + '="' + p.value + '"';
+            (i < properties.length - 1) ? str += ' ' : '';
+            ++i;
+          }, this);
+
+          return str;
+        }
+      });
+    })();
+  </script>
+</polymer-element>

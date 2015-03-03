@@ -1,0 +1,330 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!--
+`ivx-model` is a generic model abstraction layer. It abstracts from the js-model library which
+implements the ActiveRecord pattern.
+
+You can use the `ivx-model` to get a new model instance for the given name. The component will
+only use a single instance to the data source. So all the data is shared across the application.
+
+Example:
+
+    <ivx-model name="survey" storageType="localStorage"></ivx-model>
+
+This will create a new model with the name **survey** which stores the data in the localStorage
+of the browser.
+
+The `ivx-model` will fire a named event to <core-signals> with the name **eventName-changed**.
+You can listen to it by using
+
+    <core-signals on-core-signal-NAME_OF_SIGNAL="{{ callbackHandler }}"></core-signals>
+
+@group Inovex Survey App Elements
+@element ivx-model
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-model" attributes="name storageType">
+  <script>
+    (function () {
+      'use strict';
+
+      // private and static variables shared across all instances
+      var models = {
+        localStorage: []
+      };
+
+      // some dummy question objects to seed the storage with
+      var dummys = [{
+        title: 'Beispielumfrage A',
+        questionCount: 3,
+        questions:[{
+          title: 'Frage #1',
+          html: '<ivx-qtype-rank>' +
+          '  <rank-item>B</rank-item>' +
+          '  <rank-item>C</rank-item>' +
+          '  <rank-item>A</rank-item>' +
+          '</ivx-qtype-rank>'
+        }, {
+          title: 'Frage #2',
+          html: '<ivx-qtype-likert mode="slide" preselectedColumn="1">' +
+          '  <div class="col">text text</div>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '</ivx-qtype-likert>'
+        }, {
+          title: 'Frage #3',
+          html: '<ivx-qtype-yesno></ivx-qtype-yesno>'
+        }]
+      }, {
+        title: 'Beispielumfrage B',
+        questionCount: 2,
+        questions:[{
+          title: 'Frage #1',
+          html: '<ivx-qtype-yesno></ivx-qtype-yesno>'
+        }, {
+          title: 'Frage #2',
+          html: '<ivx-qtype-likert mode="matrix" preselectedColumn="2">' +
+          '  <div class="col">text text</div>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="col">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '  <div class="row">text text</div>' +
+          '</ivx-qtype-likert>'
+        }, {
+          title: 'Frage #3',
+          html: '<ivx-qtype-multiple-choice mode="single-answer">' +
+                '  <div class="answer">text text</div>' +
+                '  <div class="answer">text text</div>' +
+                '  <div class="answer">text text</div>' +
+                '</ivx-qtype-multiple-choice>'
+        }, {
+          title: 'Frage #4',
+          html: '<ivx-qtype-likert mode="matrix" preselectedColumn="3">' +
+                '  <div class="col">trifft zu</div>' +
+                '  <div class="col">trifft eher zu</div>' +
+                '  <div class="col">unentschieden</div>' +
+                '  <div class="col">trifft eher nicht zu</div>' +
+                '  <div class="col">trifft nicht zu</div>' +
+                '  <div class="col">keine Angabe</div>' +
+
+                '  <div class="row">Meine Hochschule gehört zu den angesehensten in Deutschland</div>' +
+                '  <div class="row">Die Netzabdeckung meines Mobilfunkanbieters ist gut</div>' +
+                '  <div class="row">Das Essen in der Mensa schmeckt gut</div>' +
+                '  <div class="row">300 Menschen auf einem Fleck machen mir Angst</div>' +
+                '  <div class="row">Der Film Titanic gefällt mir nicht</div>' +
+                '  <div class="row">Kleidung aus Ländern der dritten Welt zu kaufen, sollte gesetzlich eingeschränkt werden</div>' +
+                '  <div class="row">Im Sommer ist das Wetter in Hamburg eher bescheiden</div>' +
+                '  <div class="row">Im Winter gehe ich oft Ski fahren</div>' +
+                ' </ivx-qtype-likert>'
+        }]
+      }];
+
+      Polymer({
+        /**
+         * Fired when the datasource changes.
+         *
+         * **Note:** This event is just for `<core-signals>`. Use this component with the above
+         * description instead of listening to this event on `ivx-model` directly.
+         *
+         * @event modelName-changed
+         * @param {Object} detail
+         * @param {String} detail.name The name of the event, pattern: modelName-changed
+         * @param {Array} detail.data The changed records.
+         */
+
+        publish: {
+          /**
+           * The storageType of the model. This is used to chose which storage type should be used.
+           * Currently there's only `localStorage` available. REST is also possible by js-model but
+           * must first be added to this component to be supported.
+           *
+           * @attribute storageType
+           * @type String
+           * @default 'localStorage'
+           */
+          storageType: 'localStorage',
+
+          /**
+           * The name of the model. This is used as a unique identifier to store the data under the @storageType
+           * namespace as static data across the application.
+           *
+           * @attribute name
+           * @type String
+           * @default 'yourModel'
+           */
+          name: 'yourModel'
+        },
+
+        /* Init */
+        ready: function() {
+          if (this.storageType != 'localStorage') {
+            throw 'The given value for storageType is not allowed, please refer to the documentation.';
+          }
+
+          if (this.name == '') {
+            throw 'You cannot use an empty model name for your model.';
+          }
+
+          // only instanciate the model once
+          if (typeof models[this.storageType][this.name] === 'function') {
+            this._useInstance();
+          } else {
+            this._createInstance();
+          }
+        },
+
+        // create a new instance model
+        _createInstance: function() {
+          var storage = this.storageType;
+          models[this.storageType][this.name] = Model(this.name, function() {
+            this.persistence(Model[storage]);
+          });
+
+          this._useInstance();
+        },
+
+        // associate static data with this instance
+        _useInstance: function() {
+          this.model = models[this.storageType][this.name];
+          this.load();
+        },
+
+        add: function(keyValueFields) {
+          if (keyValueFields.id === undefined) {
+            keyValueFields.id = this.model.all().length + 1;
+          }
+          var record = new this.model(keyValueFields);
+          record.save();
+        },
+
+        /**
+         * Returns an array of the models attributes contained in the collection.
+         *
+         * Will return something like this:
+         *
+         *     [{
+         *       name: 'valueForModel',
+         *       color: 'colorForModel',
+         *       someCount: 12
+         *     }, {
+         *       // ...
+         *     }]
+         *
+         * @method all()
+         */
+        all: function () {
+          return this.model.all().map(function (model) {
+            return model.attributes;
+          });
+        },
+
+        count: function() {
+          return this.model.count();
+        },
+
+        detect: function(matchFunc) {
+          return this.model.detect(matchFunc);
+        },
+
+        each: function(mapFunc) {
+          return this.model.each(mapFunc);
+        },
+
+        extend: function(methodToAddToClass) {
+          this.model.extend(methodToAddToClass);
+        },
+
+        /**
+         * Returns the model with the corresponding id.
+         *
+         * Will return something like this:
+         *
+         *     {
+         *       name: 'valueForModel',
+         *       color: 'colorForModel',
+         *       someCount: 12
+         *     }
+         *
+         * @method find(id)
+         * @param {Number} id The id of the record to match.
+         */
+        find: function (id) {
+          return this.model.find(id).attributes;
+        },
+
+        first: function() {
+          return this.model.first();
+        },
+
+        include: function(methodToAddToPrototype) {
+          this.model.include(methodToAddToPrototype);
+        },
+
+        last: function() {
+          return this.model.last();
+        },
+
+        /**
+         * Calls read() on the persistence adapter and adds the returned models to the collection.
+         * The supplied callback is then passed an array of the newly added models.
+         *
+         * @method load()
+         */
+        load: function() {
+          return this.model.load();
+        },
+
+        map: function(func) {
+          return this.model.map(func);
+        },
+
+        create: function(attributes) {
+          return new this.model(attributes);
+        },
+
+        remove: function(model) {
+          this.model.remove(model);
+        },
+
+        removeById: function(id) {
+          this.model.find(id).destroy();
+          this._makeSignal();
+        },
+
+        reverse: function() {
+          return this.model.reverse();
+        },
+
+        select: function(func) {
+          return this.model.select(func);
+        },
+
+        sort: function(func) {
+          return this.model.sort(func);
+        },
+
+        sortBy: function(attrNameOrFunc) {
+          return this.model.sortBy(attrNameOrFunc);
+        },
+
+        attr: function() {
+          return this.model.attr(arguments);
+        },
+
+        // @todo remove in production
+        loadDummy: function() {
+          // add new questions
+          var survey = [];
+          dummys.forEach(function(el, index) {
+            survey[index] = new models[this.storageType][this.name]({
+              id: index,
+              title: el.title,
+              questionCount: el.questionCount,
+              questions: el.questions
+            });
+
+            survey[index].save();
+          }, this);
+
+          this._makeSignal();
+        },
+
+        // ===== private methods =====
+
+        _makeSignal: function() {
+          // publish via core-signals
+          // use: <core-signals on-core-signal-model-changed="{{ onModelChanges }}">
+          this.fire('core-signal', {name: this.name + '-changed', data: {}});
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

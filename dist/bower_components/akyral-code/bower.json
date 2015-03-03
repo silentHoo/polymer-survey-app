@@ -1,0 +1,38 @@
+{
+  "name": "akyral-code",
+  "version": "1.4.3",
+  "authors": [
+    "Filipe Araujo <filipe.alves.araujo@gmail.com>"
+  ],
+  "description": "Code highlighting web component built with highlightjs",
+  "keywords": [
+    "akyral",
+    "code",
+    "code highlight",
+    "code highlighting",
+    "highlight",
+    "highlightjs",
+    "prismjs",
+    "polymer",
+    "web-components"
+  ],
+  "main": "akyral-code.html",
+  "license": "MIT",
+  "homepage": "https://github.com/filaraujo/akyral-code/",
+  "ignore": [
+    "**/.*",
+    "**/*.scss",
+    "node_modules",
+    "bower_components",
+    "../",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "~0.5.2",
+    "highlightjs": "~8.3.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "~2.0.5"
+  }
+}

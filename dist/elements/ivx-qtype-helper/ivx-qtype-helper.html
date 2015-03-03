@@ -1,0 +1,71 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-helper
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-qtype-helper" attributes="width updateOnResize" constructor="IvxQTypeHelper">
+  <template>
+    <div id="widthElement" style="width:100%; height:0px;"></div>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var _getDistributedNodes = function(distributedNodes) {
+        var nodes = [];
+
+        [].forEach.call(distributedNodes, function(node, i) {
+          nodes.push(node.innerHTML);
+        }, this);
+
+        return nodes;
+      };
+
+      Polymer({
+
+        publish: {
+          width: -1,
+          updateOnResize: false
+        },
+
+        domReady: function() {
+          if (this.updateOnResize) {
+            this._onResize(); // first run!
+            window.addEventListener('resize', this._onResize.bind(this));
+          }
+        },
+
+        detached: function() {
+          if (this.updateOnResize) {
+            window.removeEventListener('resize', this._onResize.bind(this));
+          }
+        },
+
+        getDistributedNodesArray: function(distributedNodes) {
+          return _getDistributedNodes(distributedNodes);
+        },
+
+        getWidth: function() {
+          return this.$.widthElement.clientWidth;
+        },
+
+        getWidthFromElement: function(element) {
+          return element.clientWidth;
+        },
+
+        // ===== private methods =====
+
+        _onResize: function() {
+          this.width = this.getWidth();
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

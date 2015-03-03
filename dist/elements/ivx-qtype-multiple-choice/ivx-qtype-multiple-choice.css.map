@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK,CACd,UAAU,CAAE,IAAI,CAIlB,4BACW,CACT,SAAS,CAAE,OAAO,CAGpB,kBAAmB,CACjB,OAAO,CAAE,KAAK,CACd,WAAW,CAAE,iBAAiB,CAGhC,UAAW,CACT,WAAW,CAAE,eAAe,CAG9B,cAAiB,CACf,WAAW,CAAE,IAAI",
+"sources": ["../../../src/app/elements/ivx-qtype-multiple-choice/ivx-qtype-multiple-choice.scss"],
+"names": [],
+"file": "ivx-qtype-multiple-choice.css"
+}

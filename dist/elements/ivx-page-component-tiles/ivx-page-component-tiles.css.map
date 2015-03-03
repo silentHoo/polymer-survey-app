@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,OAAO,CAAE,KAAK,CACd,OAAO,CAAE,GAAG,CAEZ,SAAI,CACF,gBAAgB,CAAE,KAAK,CAEvB,sBAAa,CACX,QAAQ,CAAE,QAAQ,CAClB,OAAO,CAAE,YAAY,CACrB,OAAO,CAAE,IAAI,CACb,MAAM,CAAE,IAAI,CAEZ,qCAAsC,CANxC,sBAAa,CAOT,KAAK,CAAE,IAAI,EAGb,qCAAsC,CAVxC,sBAAa,CAWT,KAAK,CAAE,GAAG,EAGZ,yBAAG,CACD,UAAU,CAAE,MAAM,CAGpB,2BAAK,CACH,WAAW,CAAE,IAAI",
+"sources": ["../../../src/app/elements/ivx-page-component-tiles/ivx-page-component-tiles.scss"],
+"names": [],
+"file": "ivx-page-component-tiles.css"
+}

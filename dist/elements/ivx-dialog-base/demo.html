@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>ivx-dialog Demo</title>
+
+  <script src="../../bower_components/webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="ivx-dialog-base.html">
+
+</head>
+<body unresolved>
+
+  <template is="auto-binding">
+    <p>An `ivx-dialog-base` looks like this:</p>
+
+    <button on-tap="{{ openDialog }}">Open dialog</button>
+
+    <ivx-dialog-base id="dialog" transition="core-transition-center" heading="Title of the dialog">
+      <p>This text will be shown in the dialog.</p>
+    </ivx-dialog-base>
+  </template>
+
+  <script>
+    var scope = document.querySelector('template[is=auto-binding]');
+
+    scope.openDialog = function() {
+      document.getElementById('dialog').toggle();
+    };
+  </script>
+
+</body>
+</html>

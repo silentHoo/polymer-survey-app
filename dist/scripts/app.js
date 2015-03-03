@@ -1,0 +1,1 @@
+!function(a){"use strict";a.addEventListener("DOMContentLoaded",function(){window.addEventListener("theme-changed",function(b){var c=a.querySelector("#themeLink");c&&(c.href="styles/theme-"+b.detail.themeName+".css")})})}(wrap(document));

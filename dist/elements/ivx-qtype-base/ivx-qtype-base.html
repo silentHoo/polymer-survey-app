@@ -1,0 +1,63 @@
+<!-- 3rd party dependencies -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!--
+@group Inovex Survey App Question Elements
+@element ivx-qtype-base
+@homepage inovex.de
+@author Patrick Hillert
+-->
+
+<polymer-element name="ivx-qtype-base" attributes="optional">
+  <template>
+    <link rel="stylesheet" href="ivx-qtype-base.css">
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        publish: {
+          optional: false
+        },
+
+        /**
+         * Checks if the user inputs are correct and returns a boolean value.
+         *
+         * @return true if all is good. False if not.
+         */
+        valid: function() {
+
+        },
+
+        /**
+         * Returns a serialized JSON object with all the relevant data.
+         *
+         * @return A JSON object.
+         */
+        save: function() {
+
+        },
+
+        /**
+         * Restores a previously serialized state.
+         *
+         * @param {object} state The state to deserialize.
+         */
+        load: function(state) {
+
+        },
+
+        /**
+         * Gets an object with valid values for publish attributes. If there's no value to choose from, then
+         * a range or data type is given.
+         */
+        getPublishMeta: function() {
+
+        }
+      });
+
+    })();
+  </script>
+</polymer-element>

@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,KAAM,CACJ,KAAK,CAAE,eAAe,CACtB,UAAU,CAAE,KAAK",
+"sources": ["../../../src/app/elements/ivx-qtype-builder/ivx-qtype-builder-insertions.scss"],
+"names": [],
+"file": "ivx-qtype-builder-insertions.css"
+}
