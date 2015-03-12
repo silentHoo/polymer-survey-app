@@ -61,17 +61,120 @@
 
       Polymer({
         publish: {
+          /**
+           * Change the mode between `single` and `multiple` lines of text input.
+           *
+           * @attribute mode
+           * @type String
+           * @default 'single'
+           */
           mode: 'single', // 'single' or 'multiple'
+
+          /**
+           * If mode = 'multiple' you can set a maximum line number to limit the autogrow size.
+           *
+           * @attribute maxRows
+           * @type Integer
+           * @default 5
+           */
           maxRows: 5,
 
-          // validation
+          /**
+           * If set, the user must input something.
+           *
+           * @attribute required
+           * @type Boolean
+           * @default false
+           */
           required: false,
+
+          /**
+           * The type the field should be validated against. Possible values are `text`, `int`, `float`, `date`,
+           * `email`, `postcode`. If you provide a custom regex pattern, please leave this unset.
+           *
+           * @attribute validationType
+           * @type String
+           * @default ''
+           */
           validationType: '',
+
+          /**
+           * You can set this option only in validationType = 'text' | 'int' | 'float'. Other modes doesn't use this
+           * attribute.
+           *
+           * Note: You must also specify the maximum value.
+           *
+           * It does the following according to the mode you have chosen:
+           *
+           * a) validationType = 'text': The minimum text length the user must enter to validate.
+           * b) validationType = 'int': The minimum integer value the user must enter to validate.
+           * c) validationType = 'float': The minimum float value the user must enter to validate.
+           *
+           * @attribute min
+           * @type Integer
+           * @default 1
+           */
           min: 1,
+
+          /**
+           * You can set this option only in validationType = 'text' | 'int' | 'float'. Other modes doesn't use this
+           * attribute.
+           *
+           * Note: You must also specify the minimum value.
+           *
+           * It does the following according to the mode you have chosen:
+           *
+           * a) validationType = 'text': The maximum text length the user must enter to validate.
+           * b) validationType = 'int': The maximum integer value the user must enter to validate.
+           * c) validationType = 'float': The maximum float value the user must enter to validate.
+           *
+           * @attribute max
+           * @type Integer
+           * @default 1000
+           */
           max: 1000,
+
+          /**
+           * This attribute is only used if you don't set any validationType. You can specify a valid regex to validate
+           * the user input against.
+           *
+           * Note: The value is watched. You can change the value everytime you need it and it will be reflected
+           * to the input element.
+           *
+           * @attribute pattern
+           * @type String
+           * @default ''
+           */
           pattern: '',
+
+          /**
+           * This attribute is only used if you don't set any validationType and specify your own pattern.
+           *
+           * @attribute customError
+           * @type String
+           * @default ''
+           */
           customError: '',
+
+          /**
+           * The label which is shown when the input field is shown the first time.
+           *
+           * @attribute label
+           * @type String
+           * @default '...'
+           */
           label: '...',
+
+          /**
+           * The initial value which should be the value of the input element.
+           *
+           * Note: The value is watched. You can change the value everytime you need it and it will be reflected
+           * to the input element.
+           *
+           * @attribute value
+           * @type String
+           * @default ''
+           */
           value: ''
         },
 
