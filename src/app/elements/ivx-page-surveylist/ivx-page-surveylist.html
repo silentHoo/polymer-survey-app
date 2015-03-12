@@ -134,7 +134,6 @@
           this.fire('core-signal', { name: 'switch-page', data: '/survey/' + surveyId });
         },
 
-        // never use *Changed as the name for an event handler, these are reserved for Polymer!
         onModelChanged: function(event, detail, sender) {
           this.updateSurveyList();
         },
