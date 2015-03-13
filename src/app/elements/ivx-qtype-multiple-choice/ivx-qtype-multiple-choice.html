@@ -17,7 +17,7 @@
 
     <!-- There seems no solution to use <content> to prevent the rendering of the distributed nodes -->
     <div style="display: none;">
-      <content id="distributedContent" select="div.answer"></content>
+      <content id="answers" select="div.answer"></content>
     </div>
 
     <template if="{{ mode == 'single-answer' }}">
@@ -47,18 +47,22 @@
       'use strict';
 
       Polymer({
-        _answers: [],
-
-        ready: function() {
-          this.async(this.prepareDistributedNodes, null, 0);
+        publish: {
+          /**
+           * Change the mode between `single-answer` (radio buttons) and `multiple-answer` (checkboxes).
+           *
+           * @attribute mode
+           * @type String
+           * @default 'single-answer'
+           */
+          mode: 'single-answer'
         },
 
-        prepareDistributedNodes: function() {
-          this._answers = [];
-          var distributedNodes = this.$.distributedContent.getDistributedNodes();
-          [].forEach.call(distributedNodes, function(node, i) {
-            this._answers.push(node.innerHTML);
-          }, this);
+        _answers: [],
+
+        // lifecycle callback, invoked by Polymer when the element is ready
+        ready: function() {
+          this.async(this._prepareDistributedNodes, null, 0);
         },
 
         getPublishMeta: function() {
@@ -81,6 +85,16 @@
               }
             }
           }
+        },
+
+        // ===== private methods =====
+
+        _prepareDistributedNodes: function() {
+          this._answers = [];
+          var distributedNodes = this.$.answers.getDistributedNodes();
+          [].forEach.call(distributedNodes, function(node, i) {
+            this._answers.push(node.innerHTML);
+          }, this);
         }
       });
 
